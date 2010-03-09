@@ -8,11 +8,14 @@ import re
 import time
 from socket import gethostname
 
-from multiprocessing import Queue
-from Queue import Empty
+try:
+	from multiprocessing import Queue
+	from Queue import Empty
 
-import multiprocessing
-from multiprocessing import Process
+	import multiprocessing
+	from multiprocessing import Process
+except ImportError:
+	pass
 
 #global variables
 verbosity = 0
@@ -29,8 +32,8 @@ def main():
 	parser.add_option("-T", "--numtasks", type="int", dest="numtasks", help="Number of tasks to launch", default=1)
 	parser.add_option("-t", "--timelimit", dest="timelimit", help="Timelimit for one task (in hh:mm:ss format)", default="00:15:00")
 	parser.add_option("-m", "--memlimit", type="int", dest="memlimit", help="Memorylimit for one task (in MB)", default=100)
-	parser.add_option("-o", "--output-stream", dest="ostream", help="write outputstream to FILE (%c for command, %j for id of first job, %J for real job id, %t for task id)", default="%c.o%j.%t", metavar="FILE")
-	parser.add_option("-e", "--error-stream", dest="estream", help="write outputstream to FILE (%c for command, %j for id of first job, %J for real job id, %t for task id)", default="%c.e%j.%t", metavar="FILE")
+	parser.add_option("-o", "--output-stream", dest="ostream", help="write outputstream to FILE (%c for command, %j for id of first job, %J for real job id, %t for task id). If a directory is given, the default format is used in that directory", default="%c.o%j.%t", metavar="FILE")
+	parser.add_option("-e", "--error-stream", dest="estream", help="write outputstream to FILE (%c for command, %j for id of first job, %J for real job id, %t for task id). If a directory is given, the default format is used in that directory", default="%c.e%j.%t", metavar="FILE")
 	parser.add_option("-p", "--priority", type="int", dest="priority", help="Job priority. Higher priority is running later", default=0)
 	parser.add_option("-q", "--queue", dest="queue", help="Queue, only used for GridEngine (stimulus) at the moment", default="-soft -q helli.q")
 	parser.add_option("-c", "--cores", type="int", dest="cores", help="Number of cores to use (when running local). Negative numbers indicate the number of cores to keep free", default=-1)
@@ -75,6 +78,12 @@ class Runner(object):
 		if self.options.estream[0] != '.' and self.options.estream[0] != '/':
 			self.options.estream = os.getcwd() + '/' + self.options.estream
 		
+		if os.path.isdir(self.options.ostream):
+			self.options.ostream = self.options.ostream + '/%c.o%j.%t'
+			
+		if os.path.isdir(self.options.estream):
+			self.options.estream = self.options.estream + '/%c.e%j.%t'
+			
 		self.commandarr = commandarr
 		#create a nice job name
 		self.jobname = os.path.basename(commandarr[0])
@@ -110,49 +119,53 @@ class Runner(object):
 class StimulusRunner(Runner):
 	def __init__(self, options, commandarr):
 		super(StimulusRunner,self).__init__(options, commandarr)
+	
 	def run(self):
 		##TODO this is the triton code
 		global verbosity
 
 		# Construct the sbatch command
-		batchcommand=['sbatch']
+		batchcommand=['qsub']
 		
 		# Give a jobname
-		batchcommand.extend(['-J', jobname + '.' + str(task)])
+		batchcommand.extend(['-N', self.jobname ])
 		
-		# Set the timelimit
-		batchcommand.extend(['-t', self.options.timelimit])
+		# Set the timelimit and memory limit
+		batchcommand.extend(['-l', 'mem='+str(self.options.memlimit)+'M,t='+self.options.timelimit])
 		
-		# Set the memory limit
-		batchcommand.append('--mem-per-cpu='+ str(self.options.memlimit))
+		# If people want to be nice, we set a priority (Stimulus sees negative priority as nice)
+		if self.options.priority > 0:
+			batchcommand.append('-p='+str(-1 * self.options.priority))
 		
-		# If people want to be nice, we set a priority
-		if options.priority > 0:
-			batchcommand.append('--nice='+str(options.priority))
-		
-		jobid = None
-		if len(self.jobs) > 0:
-			jobid = jobs[0]
 			
 		# Construct the filenames for the error and output stream
-		outfile = self.replace_flags(self.options.ostream, task, jobid)
-		errorfile = self.replace_flags(self.options.estream, task, jobid)
+		outfile = self.replace_flags(self.options.ostream, "$TASK_ID", "$JOB_ID", "$JOB_ID")
+		errorfile = self.replace_flags(self.options.estream, "$TASK_ID", "$JOB_ID", "$JOB_ID")
 		
-		real_command = self.replace_flags(self.commandarr, task, jobid)
+		real_command = self.replace_flags(self.commandarr, "$SGE_TASK_ID")
+		
+		batchcommand.extend(['-t', '1-'+str(self.options.numtasks)])
 		
 		batchcommand.extend(['-o', outfile, '-e', errorfile])
+		batchcommand.extend(['-sync', 'y'])
+		
+		
+		
+		#batchcommand.append('-')
 
 		#Wrap it in a script file (Escaped)
 		script = "#!/bin/bash\n" + "\"" + "\" \"".join(real_command) + "\""
 		
+		print ' '.join(batchcommand)
 		#Call sbatch. Feed in the script through STDIN and catch the result in output
 		output = Popen(batchcommand, stdin=PIPE, stdout=PIPE).communicate(script)[0]
 		
+		print output
 		#Find the jobid on the end of the line
-		m = re.search('[0-9]+$', output)
-		self.jobs.append(m.group(0))
-		if verbosity > 1:
-			print 'Task ' + str(task) + ' is submitted as job ' + m.group(0)
+		#m = re.search('[0-9]+$', output)
+		#self.jobs.append(m.group(0))
+		#if verbosity > 1:
+		#	print 'Task ' + str(task) + ' is submitted as job ' + m.group(0)
 	
 	def cancel(self):
 		print "stimulus cancel"
@@ -190,7 +203,7 @@ class TritonRunner(Runner):
 		batchcommand=['sbatch']
 		
 		# Give a jobname
-		batchcommand.extend(['-J', jobname + '.' + str(task)])
+		batchcommand.extend(['-J', self.jobname + '.' + str(task)])
 		
 		# Set the timelimit
 		batchcommand.extend(['-t', self.options.timelimit])
@@ -199,8 +212,8 @@ class TritonRunner(Runner):
 		batchcommand.append('--mem-per-cpu='+ str(self.options.memlimit))
 		
 		# If people want to be nice, we set a priority
-		if options.priority > 0:
-			batchcommand.append('--nice='+str(options.priority))
+		if self.options.priority > 0:
+			batchcommand.append('--nice='+str(self.options.priority))
 		
 		jobid = None
 		if len(self.jobs) > 0:
@@ -260,7 +273,7 @@ class LocalRunner(Runner):
 		
 		# Make a job id by counting the number of files in a directory
 		# It is lame, but what else makes sense?
-		self.job_id = min(1,len(os.listdir(os.path.dirname(self.options.ostream))))
+		self.job_id = random.randint(1, 9999)
 		
 		self.mainprocress = multiprocessing.current_process()
 		
