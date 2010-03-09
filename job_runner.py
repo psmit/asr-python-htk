@@ -183,7 +183,7 @@ class TritonRunner(Runner):
 			self.sbatch_runner(t)
 		
 		# Start a job that waits until all our tasks are finished	
-		Popen(['srun', '--dependency=afterany:'+':'.join(self.jobs), 'sleep', str(0)], stderr=PIPE).wait()
+		Popen(['srun', '-t', '00:01:00', '--mem-per-cpu', '10', '--dependency=afterany:'+':'.join(self.jobs), 'sleep', str(0)], stderr=PIPE).wait()
 		
 		# Fetch the error codes of our tasks
 		result = Popen(['sacct', '-n', '--format=ExitCode', '-P', '-j', ','.join(self.jobs)], stdout=PIPE).communicate()[0]
