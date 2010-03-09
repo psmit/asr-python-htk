@@ -217,7 +217,7 @@ class TritonRunner(Runner):
 		
 		jobid = None
 		if len(self.jobs) > 0:
-			jobid = jobs[0]
+			jobid = self.jobs[0]
 			
 		# Construct the filenames for the error and output stream
 		outfile = self.replace_flags(self.options.ostream, task, jobid)
