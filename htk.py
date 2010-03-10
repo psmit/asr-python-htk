@@ -55,6 +55,21 @@ def HERest(scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions,
 	#for file in glob.glob(scpfile+".part.*"): shutil.rm(file)
 	
 	
+def HCopy(scpfile, config):
+	global num_tasks, extra_HTK_options
+	
+	split_file(scpfile, num_tasks)
+	
+	command = ["HCopy"]
+	command.extend(extra_HTK_options)
+	
+	command.extend(["-C", config])
+	command.extend(["-S", scpfile+ ".part.%t"])
+	
+	job_runner.submit_job(command, {"numtasks": num_tasks})
+	
+	for file in glob.glob(scpfile+".part.*"): shutil.rm(file)
+	
 def split_file(filename, parts):
 	targetfilenames = [filename + ".part." + str(i) for i in range(1,parts+1)]
 	targetfiles = [open(fname, 'w') for fname in targetfilenames]
