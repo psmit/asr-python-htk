@@ -21,7 +21,7 @@ import os.path
 import signal
 from subprocess import *
 from optparse import OptionParser
-import req
+import re
 import time
 from socket import gethostname
 import random
