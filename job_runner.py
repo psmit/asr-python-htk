@@ -152,7 +152,7 @@ class Runner(object):
 		ret = pattern
 		
 		if type(ret).__name__=='list':
-			ret = [item.replace('%t', str(task)) for item in ret]
+			ret = [str(item).replace('%t', str(task)) for item in ret]
 		else:
 			ret = ret.replace('%c', self.jobname)
 			ret = ret.replace('%t', str(task))
@@ -209,15 +209,15 @@ class StimulusRunner(Runner):
 		#Call the command. Feed in the script through STDIN and catch the result in output
 		output = Popen(batchcommand, stdin=PIPE, stdout=PIPE).communicate(script)[0]
 		
-		print output
-		#Find the jobid on the end of the line
-		#m = re.search('[0-9]+$', output)
-		#self.jobs.append(m.group(0))
-		#if verbosity > 1:
-		#	print 'Task ' + str(task) + ' is submitted as job ' + m.group(0)
+		if output.count("exited with exit code 0") < self.options.numtasks:
+			if verbosity > 0:
+				print str(output.count("exited with exit code 0")) + ' out of ' + str(self.options.numtasks) + ' tasks succeeded!'
+			sys.exit(1)
+		elif verbosity > 0:
+			print 'All ' + str(self.options.numtasks) + ' tasks succeeded'
 	
 	def cancel(self):
-		print "stimulus cancel"
+		sys.exit(255)
 
 
 # Logic for running on the Triton cluster
@@ -313,6 +313,8 @@ class LocalRunner(Runner):
 	processes = []
 	mainprocess = None
 	
+	verbosity
+	
 	def __init__(self, options, commandarr):
 		super(LocalRunner,self).__init__(options, commandarr)
 
@@ -322,11 +324,16 @@ class LocalRunner(Runner):
 		else:
 			self.num_cores = max(1, multiprocessing.cpu_count() + options.cores)
 		
+		self.verbosity = options.verbosity
+		
 		if options.verbosity > 1:
 			print str(self.num_cores) + " cores are used"
 		
 		# We choose a random job_id. What would be better?
 		self.job_id = random.randint(1, 9999)
+		
+		if options.verbosity > 0:
+			print "Job id "+str(self.job_id)
 		
 		self.mainprocress = multiprocessing.current_process()
 		
@@ -352,11 +359,14 @@ class LocalRunner(Runner):
 			self.processes.append(p)
 		
 		# Check every 3 seconds or the cancelled flag is set, or that the queue is empty
-		while q.empty() and not self.cancelled:
+		while not q.empty() and not self.cancelled:
 			time.sleep(3)
+		
+		print "Queue empty"
 		
 		# If cancel flag is set, terminate jobs
 		if self.cancelled:
+			print "Cancel now"
 			self.cancel()
 		
 		# check or everything is ready (with processing)
@@ -367,8 +377,9 @@ class LocalRunner(Runner):
 				p.join(1)
 				if p.is_alive():
 					allready = False
-			
-		# Also the last jobs can have failed, so do a cancel again
+		
+		print "After really ready"
+		# Also the last jobs can have given a cancel, so do a cancel again
 		if self.cancelled:
 			self.cancel()
 		
@@ -377,10 +388,11 @@ class LocalRunner(Runner):
 			sys.exit(1)
 		
 	def runFromQueue(self, q):
+		global verbosity
 		try:
 			while not self.cancelled:
 				command = q.get_nowait()
-				if verbosity > 1:
+				if self.verbosity > 1:
 					print "\tStart task " + str(command[0])
 				of = open(command[2], 'w')
 				ef = open(command[3], 'w')
