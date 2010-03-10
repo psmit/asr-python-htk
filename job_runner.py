@@ -1,4 +1,21 @@
 #!/usr/bin/python
+
+########################################################################
+# job_runner.py
+#
+# Description:
+# ------------
+# This script will run an array job in the appropriate way. 
+# The appropriate way is:
+# - If run on the stimulus host it will submit the command with qsub
+# - If run on the triton host it will submit the command with sbatch
+# - Otherwise it will spawn threads to process the commands locally
+#
+# Type job_runner.py --help to get a list of options.
+#
+#
+# Author: Peter Smit (peter@cis.hut.fi)
+########################################################################
 import sys
 import os.path
 import signal
@@ -8,6 +25,7 @@ import re
 import time
 from socket import gethostname
 
+# The following modules are only needed when we run locally. Ignore if they are not present.
 try:
 	from multiprocessing import Queue
 	from Queue import Empty
@@ -16,6 +34,7 @@ try:
 	from multiprocessing import Process
 except ImportError:
 	pass
+
 
 #global variables
 verbosity = 0
@@ -59,7 +78,9 @@ def main():
 	# Run our task
 	runner.run()
 
-#Base class with common functionality
+
+
+#Base class with common functionality. Do not use inmediately but a sub-class instead
 class Runner(object):
 	options = []
 	commandarr = []
@@ -68,7 +89,7 @@ class Runner(object):
 	def __init__(self, options, commandarr):
 		self.options = options
 		
-		# prepend full path if local script is given
+		# Prepend full path if local script is given for the command and the output streams
 		if commandarr[0][0] != '.' and commandarr[0][0] != '/' and os.path.isfile(os.getcwd() + '/' + commandarr[0]):
 			commandarr[0] = os.getcwd() + '/' + commandarr[0]
 		
@@ -78,6 +99,7 @@ class Runner(object):
 		if self.options.estream[0] != '.' and self.options.estream[0] != '/':
 			self.options.estream = os.getcwd() + '/' + self.options.estream
 		
+		# If the outputstreams are just directories, add the default filename pattern
 		if os.path.isdir(self.options.ostream):
 			self.options.ostream = self.options.ostream + '/%c.o%j.%t'
 			
@@ -85,9 +107,11 @@ class Runner(object):
 			self.options.estream = self.options.estream + '/%c.e%j.%t'
 			
 		self.commandarr = commandarr
+		
 		#create a nice job name
 		self.jobname = os.path.basename(commandarr[0])
 		
+		# do some validations
 		self.validate_options()
 		
 	def validate_options(self):
@@ -95,7 +119,8 @@ class Runner(object):
 		if not re.match('^[0-9]{2}:[0-9]{2}:[0-9]{2}$', self.options.timelimit):
 			print "Time limit has not the correct syntax (hh:mm:ss). For example 48:00:00 for 2 days!"
 			sys.exit(10)
-		
+	
+	# Method for replacing the %t %j %J %c flags. Used for both output streams and commands
 	def replace_flags(self, pattern, task, jobid_l = None, jobid_u = None):
 		ret = pattern
 		
@@ -116,15 +141,15 @@ class Runner(object):
 		return ret
 		
 
+# Logic for running on the stimulus cluster
 class StimulusRunner(Runner):
 	def __init__(self, options, commandarr):
 		super(StimulusRunner,self).__init__(options, commandarr)
 	
 	def run(self):
-		##TODO this is the triton code
 		global verbosity
 
-		# Construct the sbatch command
+		# Construct the qsub command
 		batchcommand=['qsub']
 		
 		# Give a jobname
@@ -144,20 +169,17 @@ class StimulusRunner(Runner):
 		
 		real_command = self.replace_flags(self.commandarr, "$SGE_TASK_ID")
 		
+		# Set number of tasks
 		batchcommand.extend(['-t', '1-'+str(self.options.numtasks)])
 		
+		# Set output streams
 		batchcommand.extend(['-o', outfile, '-e', errorfile])
 		batchcommand.extend(['-sync', 'y'])
-		
-		
-		
-		#batchcommand.append('-')
 
 		#Wrap it in a script file (Escaped)
 		script = "#!/bin/bash\n" + "\"" + "\" \"".join(real_command) + "\""
 		
-		print ' '.join(batchcommand)
-		#Call sbatch. Feed in the script through STDIN and catch the result in output
+		#Call the command. Feed in the script through STDIN and catch the result in output
 		output = Popen(batchcommand, stdin=PIPE, stdout=PIPE).communicate(script)[0]
 		
 		print output
@@ -170,6 +192,8 @@ class StimulusRunner(Runner):
 	def cancel(self):
 		print "stimulus cancel"
 
+
+# Logic for running on the Triton cluster
 class TritonRunner(Runner):
 	jobs = []
 	
@@ -186,16 +210,17 @@ class TritonRunner(Runner):
 		Popen(['srun', '-t', '00:01:00', '--mem-per-cpu', '10', '--dependency=afterany:'+':'.join(self.jobs), 'sleep', str(0)], stderr=PIPE).wait()
 		
 		# Fetch the error codes of our tasks
-		result = Popen(['sacct', '-n', '--format=ExitCode', '-P', '-j', ','.join(self.jobs)], stdout=PIPE).communicate()[0]
+		result = Popen(['sacct', '-n', '--format=ExitCode,State', '-P', '-j', ','.join(self.jobs)], stdout=PIPE).communicate()[0]
 		
 		# If there was any error take appropriate action
-		if result.count('0:0') < len(self.jobs):
+		if result.count('0:0|COMPLETED') < len(self.jobs):
 			if verbosity > 0:
-				print str(result.count('0:0')) + ' out of ' + str(len(self.jobs)) + ' tasks succeeded!'
+				print str(result.count('0:0|COMPLETED')) + ' out of ' + str(len(self.jobs)) + ' tasks succeeded!'
 			sys.exit(1)
 		elif verbosity > 0:
 			print 'All ' + str(len(self.jobs)) + ' tasks succeeded'
 		
+	# Method for submitting one task to sbatch
 	def sbatch_runner(self, task):
 		global verbosity
 
@@ -238,7 +263,8 @@ class TritonRunner(Runner):
 		self.jobs.append(m.group(0))
 		if verbosity > 1:
 			print 'Task ' + str(task) + ' is submitted as job ' + m.group(0)
-		
+	
+	# Method for cancelling the Triton jobs
 	def cancel(self):
 		global verbosity
 		cancelcommand=['scancel']
@@ -249,6 +275,7 @@ class TritonRunner(Runner):
 		sys.exit(255)
 		
 
+# Class for running the command locally in multiple threads
 class LocalRunner(Runner):
 	job_id = 0
 	num_cores = 1
@@ -271,8 +298,7 @@ class LocalRunner(Runner):
 		if options.verbosity > 1:
 			print str(self.num_cores) + " cores are used"
 		
-		# Make a job id by counting the number of files in a directory
-		# It is lame, but what else makes sense?
+		# We choose a random job_id. What would be better?
 		self.job_id = random.randint(1, 9999)
 		
 		self.mainprocress = multiprocessing.current_process()
@@ -298,12 +324,15 @@ class LocalRunner(Runner):
 			p.start()
 			self.processes.append(p)
 		
+		# Check every 3 seconds or the cancelled flag is set, or that the queue is empty
 		while q.empty() and not self.cancelled:
-			time.sleep(5)
+			time.sleep(3)
 		
+		# If cancel flag is set, terminate jobs
 		if self.cancelled:
 			self.cancel()
 		
+		# check or everything is ready (with processing)
 		allready = False
 		while not self.cancelled and not allready:
 			allready = True
@@ -312,9 +341,11 @@ class LocalRunner(Runner):
 				if p.is_alive():
 					allready = False
 			
+		# Also the last jobs can have failed, so do a cancel again
 		if self.cancelled:
 			self.cancel()
 		
+		# If failed act appropriately
 		if(self.failed):
 			sys.exit(1)
 		
