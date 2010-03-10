@@ -282,14 +282,22 @@ class TritonRunner(Runner):
 		#Wrap it in a script file (Escaped)
 		script = "#!/bin/bash\n" + "\"" + "\" \"".join(real_command) + "\""
 		
-		#Call sbatch. Feed in the script through STDIN and catch the result in output
-		output = Popen(batchcommand, stdin=PIPE, stdout=PIPE).communicate(script)[0]
+		success = False
 		
-		#Find the jobid on the end of the line
-		m = re.search('[0-9]+$', output)
-		self.jobs.append(m.group(0))
-		if verbosity > 1:
-			print 'Task ' + str(task) + ' is submitted as job ' + m.group(0)
+		while not success:
+			#Call sbatch. Feed in the script through STDIN and catch the result in output
+			output = Popen(batchcommand, stdin=PIPE, stdout=PIPE).communicate(script)[0]
+			
+			#Find the jobid on the end of the line
+			m = re.search('[0-9]+$', output)
+			if type(m) != NoneType:
+				self.jobs.append(m.group(0))
+				success = True
+			else
+				time.sleep(2)
+			
+		#if verbosity > 1:
+		print 'Task ' + str(task) + ' is submitted as job ' + m.group(0)
 	
 	# Method for cancelling the Triton jobs
 	def cancel(self):
