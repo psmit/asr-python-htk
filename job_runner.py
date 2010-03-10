@@ -21,9 +21,10 @@ import os.path
 import signal
 from subprocess import *
 from optparse import OptionParser
-import re
+import req
 import time
 from socket import gethostname
+import random
 
 # The following modules are only needed when we run locally. Ignore if they are not present.
 try:
@@ -40,12 +41,47 @@ except ImportError:
 verbosity = 0
 runner = object
 
+#default_options is only used when job_runner is used as module
+default_options = {}
+
+def submit_job(commandarr, extra_options = {}):
+	global runner
+	global default_options
+	
+	input_options = dict(default_options, **extra_options)
+	
+	parser = getOptParser()
+	options = parser.parse_args(["dummy"])[0]
+	
+	for a,b in input_options.items():
+		setattr(options,a,b)
+		
+	setNewRunner(options, commandarr)
+	
+	runner.run()
+	
 
 def main():
 	global verbosity
 	global runner
 	
 	#define command line options
+	parser = getOptParser()
+	
+	(options, args) = parser.parse_args()
+	verbosity = options.verbosity
+	
+	#check or at least a command is given
+	if len(args) == 0:
+		print "No command given!"
+		sys.exit(10)
+	
+	setNewRunner(options, args)
+	
+	# Run our task
+	runner.run()
+
+def getOptParser():
 	usage = "usage: %prog [options] -- command"
 	parser = OptionParser(usage=usage)
 	parser.add_option("-T", "--numtasks", type="int", dest="numtasks", help="Number of tasks to launch", default=1)
@@ -57,14 +93,10 @@ def main():
 	parser.add_option("-q", "--queue", dest="queue", help="Queue, only used for GridEngine (stimulus) at the moment", default="-soft -q helli.q")
 	parser.add_option("-c", "--cores", type="int", dest="cores", help="Number of cores to use (when running local). Negative numbers indicate the number of cores to keep free", default=-1)
 	parser.add_option("-V", "--verbosity", type="int", dest="verbosity", help="verbosity", default=0)
-	
-	(options, args) = parser.parse_args()
-	verbosity = options.verbosity
-	
-	#check or at least a command is given
-	if len(args) == 0:
-		print "No command given!"
-		sys.exit(10)
+	return parser
+
+def setNewRunner(options, args):
+	global runner
 	
 	# Select runner class based on hostname
 	hostname = gethostname()
@@ -74,11 +106,6 @@ def main():
 		runner = TritonRunner(options, args)
 	else:
 		runner = LocalRunner(options, args)
-	
-	# Run our task
-	runner.run()
-
-
 
 #Base class with common functionality. Do not use inmediately but a sub-class instead
 class Runner(object):
