@@ -65,14 +65,14 @@ class TritonArray:
 	def run(self):
 		processes = {}
 		
-		for t in range(self.t_start, self.t_end+1)
+		for t in range(self.t_start, self.t_end+1):
 			srun_command = ['srun']
 			srun_command.extend(['-n1','-N1'])
 			srun_command.extend(['-o', self.replace_flags(self.options.ostream, t)])
 			srun_command.extend(['-e', self.replace_flags(self.options.estream, t)])
-			srun_command.extend(self.replace_flags(self.options.command, t))
+			srun_command.extend(self.replace_flags(self.command, t))
 			processes[t] = Popen(srun_command)
-			if t-t_start+1 > os.getenv('SLURM_NPROCS'):
+			if t-self.t_start+1 > os.getenv('SLURM_NPROCS'):
 				time.sleep(1)
 		
 		for task, process in processes.items():
