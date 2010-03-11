@@ -12,6 +12,7 @@
 from subprocess import *
 from optparse import OptionParser
 import os.path
+import time
 
 def main():
 	parser = getOptParser()
@@ -69,7 +70,7 @@ class TritonArray:
 		for t in range(self.t_start, self.t_end+1):
 			srun_command = ['srun']
 			srun_command.extend(['--exclusive'])
-			srun_command.extend(['-J', jobname + '.' + str(t)])
+			srun_command.extend(['-J', self.jobname + '.' + str(t)])
 			srun_command.extend(['-n1','-N1'])
 			srun_command.extend(['-o', self.replace_flags(self.options.ostream, t)])
 			srun_command.extend(['-e', self.replace_flags(self.options.estream, t)])
@@ -109,7 +110,7 @@ def getOptParser():
 	parser.add_option("-T", "--tasks", dest="tasks", help="Task definition. Standard format: n-m (e.g. 1-100)", default="1-1")
 	parser.add_option("-o", "--output-stream", dest="ostream", help="write outputstream to FILE (%c for command, %J for job id, %t for task id). If a directory is given, the default format is used in that directory", default="%c.o%j.%t", metavar="FILE")
 	parser.add_option("-e", "--error-stream", dest="estream", help="write outputstream to FILE (%c for command, %J for job id, %t for task id). If a directory is given, the default format is used in that directory", default="%c.e%j.%t", metavar="FILE")
-	parser.add_option("-f", "--print-failure", action="store_true" dest="printfail", help="Print the exit codes for failed tasks", default=False)
+	parser.add_option("-f", "--print-failure", action="store_true", dest="printfail", help="Print the exit codes for failed tasks", default=False)
 	return parser
 	
 if __name__ == "__main__":

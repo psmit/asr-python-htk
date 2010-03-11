@@ -238,7 +238,7 @@ class TritonRunner(Runner):
 		Popen(['srun', '-t', '00:01:00', '--mem-per-cpu', '10', '--dependency=afterany:'+str(self.job), 'sleep', str(0)], stderr=PIPE).wait()
 		
 		# Fetch the error codes of our tasks
-		result = Popen(['sacct', '-n', '--format=ExitCode,State', '-P', '-j', str(self.job), stdout=PIPE).communicate()[0]
+		result = Popen(['sacct', '-n', '--format=ExitCode,State', '-P', '-j', str(self.job)], stdout=PIPE).communicate()[0]
 		
 		# If there was any error take appropriate action
 		if result.count('0:0|COMPLETED') < 1:
@@ -284,10 +284,10 @@ class TritonRunner(Runner):
 			
 			#Find the jobid on the end of the line
 			m = re.search('[0-9]+$', output)
-			if type(m) != NoneType:
+			if type(m).__name__ != 'NoneType':
 				self.job = m.group(0)
 				success = True
-			else
+			else:
 				time.sleep(2)
 			
 		if verbosity > 0:
