@@ -67,6 +67,7 @@ class TritonArray:
 		
 		for t in range(self.t_start, self.t_end+1):
 			srun_command = ['srun']
+			srun_command.extend(['--exclusive'])
 			srun_command.extend(['-n1','-N1'])
 			srun_command.extend(['-o', self.replace_flags(self.options.ostream, t)])
 			srun_command.extend(['-e', self.replace_flags(self.options.estream, t)])
