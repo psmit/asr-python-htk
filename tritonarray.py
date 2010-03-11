@@ -53,6 +53,7 @@ class TritonArray:
 		
 		self.parse_task_option()
 		
+	# Method to detect the task range used
 	def parse_task_option(self):
 		s, e = self.options.tasks.split('-', 1)
 		self.t_start = int(s)
@@ -76,12 +77,19 @@ class TritonArray:
 			if t-self.t_start+1 > os.getenv('SLURM_NPROCS'):
 				time.sleep(2)
 		
+		all_success = True
+		
+		#wait for all processes to finish
 		for task, process in processes.items():
 			ret_code = process.wait()
 			if ret_code != 0:
-				print "Error: task " + str(task) + " failed with code " + str(ret_code)
+				if self.options.printfail:
+					print "Error: task " + str(task) + " failed with code " + str(ret_code)
+				all_success = False
 		
-		print "Finished!"
+		# Give a failure exit code when not all tasks succeeded.
+		if not all_success:
+			sys.exit(20)
 				
 	def replace_flags(self, pattern, task):
 		ret = pattern
@@ -100,6 +108,7 @@ def getOptParser():
 	parser.add_option("-T", "--tasks", dest="tasks", help="Task definition. Standard format: n-m (e.g. 1-100)", default="1-1")
 	parser.add_option("-o", "--output-stream", dest="ostream", help="write outputstream to FILE (%c for command, %J for job id, %t for task id). If a directory is given, the default format is used in that directory", default="%c.o%j.%t", metavar="FILE")
 	parser.add_option("-e", "--error-stream", dest="estream", help="write outputstream to FILE (%c for command, %J for job id, %t for task id). If a directory is given, the default format is used in that directory", default="%c.e%j.%t", metavar="FILE")
+	parser.add_option("-f", "--print-failure", action="store_true" dest="printfail", help="Print the exit codes for failed tasks", default=False)
 	return parser
 	
 if __name__ == "__main__":
