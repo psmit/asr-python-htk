@@ -72,7 +72,8 @@ class TritonArray:
 			srun_command.extend(['-e', self.replace_flags(self.options.estream, t)])
 			srun_command.extend(self.replace_flags(self.options.command, t))
 			processes[t] = Popen(srun_command)
-			time.sleep(1)
+			if t-t_start+1 > os.getenv('SLURM_NPROCS'):
+				time.sleep(1)
 		
 		for task, process in processes.items():
 			ret_code = process.wait()
