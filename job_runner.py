@@ -91,7 +91,7 @@ def getOptParser():
 	parser.add_option("-e", "--error-stream", dest="estream", help="write outputstream to FILE (%c for command, %j for id of first job, %J for real job id, %t for task id). If a directory is given, the default format is used in that directory", default="%c.e%j.%t", metavar="FILE")
 	parser.add_option("-p", "--priority", type="int", dest="priority", help="Job priority. Higher priority is running later", default=0)
 	parser.add_option("-q", "--queue", dest="queue", help="Queue, only used for GridEngine (stimulus) at the moment", default="-soft -q helli.q")
-	parser.add_option("-c", "--cores", type="int", dest="cores", help="Number of cores to use (when running local). Negative numbers indicate the number of cores to keep free", default=-1)
+	parser.add_option("-c", "--cores", type="int", dest="cores", help="Number of cores to use (when running local or on Triton). For local, negative numbers indicate the number of cores to keep free", default=-1)
 	parser.add_option("-V", "--verbosity", type="int", dest="verbosity", help="verbosity", default=0)
 	return parser
 
@@ -222,40 +222,41 @@ class StimulusRunner(Runner):
 
 # Logic for running on the Triton cluster
 class TritonRunner(Runner):
-	jobs = []
+	job = 0
 	
 	def __init__(self, options, commandarr):
 		super(TritonRunner,self).__init__(options, commandarr)
 		
 	def run(self):
 		global verbosity
+		
+		
 		# submit tasks to sbatch
-		for t in range(1,self.options.numtasks + 1):
-			self.sbatch_runner(t)
+		self.sbatch_runner()
 		
 		# Start a job that waits until all our tasks are finished	
-		Popen(['srun', '-t', '00:01:00', '--mem-per-cpu', '10', '--dependency=afterany:'+':'.join(self.jobs), 'sleep', str(0)], stderr=PIPE).wait()
+		Popen(['srun', '-t', '00:01:00', '--mem-per-cpu', '10', '--dependency=afterany:'+str(self.job), 'sleep', str(0)], stderr=PIPE).wait()
 		
 		# Fetch the error codes of our tasks
-		result = Popen(['sacct', '-n', '--format=ExitCode,State', '-P', '-j', ','.join(self.jobs)], stdout=PIPE).communicate()[0]
+		result = Popen(['sacct', '-n', '--format=ExitCode,State', '-P', '-j', str(self.job), stdout=PIPE).communicate()[0]
 		
 		# If there was any error take appropriate action
-		if result.count('0:0|COMPLETED') < len(self.jobs):
+		if result.count('0:0|COMPLETED') < 1:
 			if verbosity > 0:
-				print str(result.count('0:0|COMPLETED')) + ' out of ' + str(len(self.jobs)) + ' tasks succeeded!'
+				print "Some tasks failed"
 			sys.exit(1)
 		elif verbosity > 0:
-			print 'All ' + str(len(self.jobs)) + ' tasks succeeded'
+			print 'All tasks succeeded'
 		
 	# Method for submitting one task to sbatch
-	def sbatch_runner(self, task):
+	def sbatch_runner(self):
 		global verbosity
 
 		# Construct the sbatch command
 		batchcommand=['sbatch']
 		
 		# Give a jobname
-		batchcommand.extend(['-J', self.jobname + '.' + str(task)])
+		batchcommand.extend(['-J', self.jobname])
 		
 		# Set the timelimit
 		batchcommand.extend(['-t', self.options.timelimit])
@@ -267,43 +268,37 @@ class TritonRunner(Runner):
 		if self.options.priority > 0:
 			batchcommand.append('--nice='+str(self.options.priority))
 		
-		jobid = None
-		if len(self.jobs) > 0:
-			jobid = self.jobs[0]
-			
-		# Construct the filenames for the error and output stream
-		outfile = self.replace_flags(self.options.ostream, task, jobid)
-		errorfile = self.replace_flags(self.options.estream, task, jobid)
 		
-		real_command = self.replace_flags(self.commandarr, task, jobid)
+		batchcommand.append('tritonarray.py')
 		
-		batchcommand.extend(['-o', outfile, '-e', errorfile])
-
-		#Wrap it in a script file (Escaped)
-		script = "#!/bin/bash\n" + "\"" + "\" \"".join(real_command) + "\""
+		batchcommand.extend(['-o', self.options.ostream])
+		batchcommand.extend(['-e', self.options.estream])
+		batchcommand.append('--')
+		batchcommand.extend(self.commandarr)
 		
 		success = False
 		
 		while not success:
-			#Call sbatch. Feed in the script through STDIN and catch the result in output
-			output = Popen(batchcommand, stdin=PIPE, stdout=PIPE).communicate(script)[0]
+			#Call sbatch
+			output = Popen(batchcommand, stdout=PIPE).communicate()[0]
 			
 			#Find the jobid on the end of the line
 			m = re.search('[0-9]+$', output)
 			if type(m) != NoneType:
-				self.jobs.append(m.group(0))
+				self.job = m.group(0)
 				success = True
 			else
 				time.sleep(2)
 			
-		#if verbosity > 1:
-		print 'Task ' + str(task) + ' is submitted as job ' + m.group(0)
+		if verbosity > 0:
+			print 'Job id: '+ str(self.job)
+	
 	
 	# Method for cancelling the Triton jobs
 	def cancel(self):
 		global verbosity
 		cancelcommand=['scancel']
-		cancelcommand.extend(self.jobs)
+		cancelcommand.append(self.job)
 		call(cancelcommand)
 		if verbosity > 0:
 			print 'Jobs are cancelled!'
