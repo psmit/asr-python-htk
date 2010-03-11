@@ -262,7 +262,7 @@ class TritonRunner(Runner):
 		# Set the timelimit
 		batchcommand.extend(['-t', self.options.timelimit])
 		
-		batchcommand.extend(['-N', self.options.nodes])
+		batchcommand.extend(['-N', str(self.options.nodes)])
 		
 		# Set the memory limit
 		batchcommand.append('--mem-per-cpu='+ str(self.options.memlimit))
