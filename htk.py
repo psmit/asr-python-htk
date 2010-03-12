@@ -5,7 +5,7 @@ import shutil
 import os
 import job_runner
 
-num_tasks = 80
+num_tasks = 100
 extra_HTK_options = ["-A", "-D", "-V", "-T", "1"]
 
 default_config_file = None
