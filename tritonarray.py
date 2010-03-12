@@ -7,7 +7,7 @@
 # ------------
 # This script will run an array job in Triton.
 # Let's say you want to run the command HCopy on 100 different input files, indexed from 1-100.
-# sbatch -N 4 -t 00:10:00 --mem-per-cpu=1000 tritonarray.py -o %c.e%j.%t -e %c.e%j.%t -T 1-100 -- HCopy -S inputfile.%t
+# sbatch -N 4 -n 48 -t 00:10:00 --mem-per-cpu=1000 tritonarray.py -o %c.e%j.%t -e %c.e%j.%t -T 1-100 -- HCopy -S inputfile.%t
 ########################################################################
 from subprocess import *
 from optparse import OptionParser
