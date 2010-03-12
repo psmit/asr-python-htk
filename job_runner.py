@@ -185,6 +185,7 @@ class StimulusRunner(Runner):
 		
 		# Set the timelimit and memory limit
 		batchcommand.extend(['-l', 'mem='+str(self.options.memlimit)+'M,t='+self.options.timelimit])
+		batchcommand.extend(['-cwd'])
 		
 		# If people want to be nice, we set a priority (Stimulus sees negative priority as nice)
 		if self.options.priority > 0:
