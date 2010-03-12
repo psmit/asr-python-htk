@@ -48,7 +48,11 @@ def submit_job(commandarr, extra_options = {}):
 	global runner
 	global default_options
 	
-	input_options = dict(default_options, **extra_options)
+	if type(extra_options).__name__ == 'dict':
+		input_options = dict(default_options, **extra_options)
+	else:
+		input_options = dict(default_options)
+		input_options['numtasks'] = extra_options
 	
 	parser = getOptParser()
 	options = parser.parse_args(["dummy"])[0]
