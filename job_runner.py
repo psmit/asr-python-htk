@@ -275,6 +275,7 @@ class TritonRunner(Runner):
 		
 		batchcommand.append('tritonarray.py')
 		
+		batchcommand.extend(['-T', '1-'+str(self.options.numtasks)])
 		batchcommand.extend(['-o', self.options.ostream])
 		batchcommand.extend(['-e', self.options.estream])
 		batchcommand.append('--')
