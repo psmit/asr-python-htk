@@ -92,7 +92,7 @@ def getOptParser():
 	parser.add_option("-p", "--priority", type="int", dest="priority", help="Job priority. Higher priority is running later", default=0)
 	parser.add_option("-q", "--queue", dest="queue", help="Queue, only used for GridEngine (stimulus) at the moment", default="-soft -q helli.q")
 	parser.add_option("-c", "--cores", type="int", dest="cores", help="Number of cores to use (when running local). Negative numbers indicate the number of cores to keep free", default=-1)
-	parser.add_option("-N", "--nodes", type="int", dest="nodes", help="Number of nodes to use (Triton)", default=3)
+	parser.add_option("-N", "--nodes", type="int", dest="nodes", help="Number of nodes to use (Triton)", default=1)
 	parser.add_option("-V", "--verbosity", type="int", dest="verbosity", help="verbosity", default=0)
 	return parser
 
@@ -263,6 +263,7 @@ class TritonRunner(Runner):
 		batchcommand.extend(['-t', self.options.timelimit])
 		
 		batchcommand.extend(['-N', str(self.options.nodes)])
+		batchcommand.extend(['-n', str(self.options.nodes * 12)])
 		
 		# Set the memory limit
 		batchcommand.append('--mem-per-cpu='+ str(self.options.memlimit))
