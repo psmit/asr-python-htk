@@ -42,17 +42,17 @@ def HERest(scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions,
 	
 	job_runner.submit_job(command, {"numtasks": num_tasks})
 	
-	merge_command.extend(["-p", 0])
+	merge_command.extend(["-p", str(0)])
 	merge_command.append(phones_list)
 	merge_command.extend(glob.glob(target_hmm_dir+"/*.acc"))
 	
 	job_runner.submit_job(merge_command, {"numtasks": 1})
 
 	# remove acc files
-	#for file in glob.glob(target_hmm_dir+"/*.acc"): shutil.rm(file)
+	for file in glob.glob(target_hmm_dir+"/*.acc"): shutil.rm(file)
 	
 	# remove splitted scp files
-	#for file in glob.glob(scpfile+".part.*"): shutil.rm(file)
+	for file in glob.glob(scpfile+".part.*"): shutil.rm(file)
 	
 	
 def HCopy(scpfile, config):
