@@ -10,8 +10,35 @@ extra_HTK_options = ["-A", "-D", "-V", "-T", "1"]
 default_config_file = None
 default_HERest_pruning = None
 
+def HLEd(dict, word_transcriptions, ledfile, selector, phones_list, phone_transcriptions):
+	global num_tasks, extra_HTK_options
+	HLEd = ["HLEd"]
+	HLEd.extend(extra_HTK_options)
+	HLEd.extend(["-d", dict,
+				"-n", phones_list,
+				"-l", selector,
+				"-i", phone_transcriptions,
+				ledfile,
+				word_transcriptions])
+	
+	job_runner.submit_job(HLEd, 1)
 
-
+def HCompV(scpfile, target_hmm_dir, protofile, min_variance, config = None):
+	global num_tasks, extra_HTK_options, default_config_file
+	
+	if config == None: config = default_config_file
+	
+	HCompV = ["HCompV"]
+	HCompV.extend(extra_HTK_options)
+	HCompV.extend(["-C", config,
+				"-f", min_variance,
+				"-m",
+				"-S", scpfile,
+				"-M", target_hmm_dir,
+				protofile])
+	
+	job_runner.submit_job(HCompV, 1)			
+	
 def HERest(scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, config = None, pruning = None):
 	global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
 	
@@ -21,39 +48,41 @@ def HERest(scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions,
 	# divide scp files over HERest tasks
 	split_file(scpfile, num_tasks)
 	
-	command = ["HERest"]
-	command.extend(extra_HTK_options)
+	HERest = ["HERest"]
+	HERest.extend(extra_HTK_options)
 	
-	command.extend(["-C", config])
-	command.extend(["-I", transcriptions])
-	command.extend(["-t"])
-	command.extend(pruning)
-	command.extend(["-H", source_hmm_dir + "/macros"])
-	command.extend(["-H", source_hmm_dir + "/hmmdefs"])
-	command.extend(["-M", target_hmm_dir])
+	HERest.extend(["-C", config,
+					"-I", transcriptions,
+					"-H", source_hmm_dir + "/macros",
+					"-H", source_hmm_dir + "/hmmdefs",
+					"-M", target_hmm_dir])
+	
+	HERest.extend(["-t"])
+	HERest.extend(pruning)
 	
 	# copy merge_command now because the last options are different
-	merge_command = list(command)
+	HERest_merge = list(HERest)
 	
-	command.extend(["-S", scpfile+ ".part.%t"])
-	command.extend(["-p", "%t"])
-	command.append(phones_list)
+	HERest.extend(["-S", scpfile+ ".part.%t",
+					"-p", "%t",
+					phones_list])
 	
-	job_runner.submit_job(command, {"numtasks": num_tasks})
 	
-	merge_command.extend(["-p", str(0)])
-	merge_command.append(phones_list)
-	merge_command.extend(glob.glob(target_hmm_dir+"/*.acc"))
+	job_runner.submit_job(HERest, num_tasks)
 	
-	job_runner.submit_job(merge_command, {"numtasks": 1})
+	HERest_merge.extend(["-p", str(0),
+						phones_list])
+	HERest_merge.extend(glob.glob(target_hmm_dir+"/*.acc"))
+	
+	job_runner.submit_job(HERest_merge, 1)
 
 	# remove acc files
 	for file in glob.glob(target_hmm_dir+"/*.acc"): os.remove(file)
 	
 	# remove splitted scp files
-	for file in glob.glob(scpfile+".part.*"): os.remove(file)
+	clean_split_file(scpfile)
 	
-	
+
 def HCopy(scpfile, config):
 	global num_tasks, extra_HTK_options
 	
@@ -80,3 +109,6 @@ def split_file(filename, parts):
 		counter = (counter + 1)%parts
 	
 	for f in targetfiles: f.close()
+
+def clean_split_file(filename):
+	for file in glob.glob(filename+".part.*"): os.remove(file)
