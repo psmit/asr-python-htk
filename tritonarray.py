@@ -13,6 +13,7 @@ from subprocess import *
 from optparse import OptionParser
 import os.path
 import time
+import sys
 
 def main():
 	parser = getOptParser()
