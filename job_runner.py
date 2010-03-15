@@ -371,40 +371,33 @@ class LocalRunner(Runner):
 			p.start()
 			self.processes.append(p)
 		
-		# Check every 3 seconds or the cancelled flag is set, or that the queue is empty
-		while not q.empty() and not self.cancelled:
-			time.sleep(3)
-		
-		print "Queue empty"
-		
-		# If cancel flag is set, terminate jobs
-		if self.cancelled:
-			print "Cancel now"
-			self.cancel()
-		
 		# check or everything is ready (with processing)
+
 		allready = False
-		while not self.cancelled and not allready:
+		while not self.failed and not allready:
 			allready = True
 			for p in self.processes:
-				p.join(1)
+				if not p.is_alive():
+					p.join(1)
 				if p.is_alive():
 					allready = False
 		
-		print "After really ready"
-		# Also the last jobs can have given a cancel, so do a cancel again
-		if self.cancelled:
-			self.cancel()
+		print "After ready"
+		# If we stopped because a job has failed, cancel the other processes
+		if self.failed:
+			for p in self.processes:
+				if p.is_alive():
+					p.terminate()
 		
-		# If failed act appropriately
-		if(self.failed):
+		# If failed return non-zero exit code
+		if self.failed:
 			sys.exit(1)
 		
 	def runFromQueue(self, q):
 		global verbosity
 		try:
 			while not self.cancelled:
-				command = q.get_nowait()
+				command = q.get(True, 5)
 				if self.verbosity > 1:
 					print "\tStart task " + str(command[0])
 				of = open(command[2], 'w')
@@ -424,12 +417,10 @@ class LocalRunner(Runner):
 			self.cancelled = True
 			try:
 				for p in self.processes:
-					p.terminate()
+					if p.is_alive():
+						p.terminate()
 			except:
 				pass
-			if verbosity > 0:
-				print 'Jobs are cancelled!'
-			sys.exit(255)
 
 def signal_handler(signal, frame):
 	global verbosity
