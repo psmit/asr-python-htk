@@ -177,3 +177,42 @@ def make_tri_hed(phones_list, tri_hed):
 		print >> trihed, "CL %s" % phones_list
 		for line in open(phones_list):
 			print >> trihed, "TI T_%(phone)s {(*-%(phone)s+*,%(phone)s+*,*-%(phone)s).transP}" % {'phone': line.rstrip()}
+
+def make_tree_hed(phone_rules_files, phones_list, tree_hed_file, tb, ro, statsfile, fulllist, tiedlist, trees):
+	phones = [phone.rstrip() for phone in open(phones_list)]
+	
+	phone_rules = {}
+	for location, prefix in phone_rules_files:
+		for line in open(location):
+			rule, phones = line.split(None, 1)
+			if not phone_rules.has_key(rule):
+				phone_rules[rule] = []
+			phone_rules[rule].extend([prefix + phone.lower() for phone in phones.split()])
+			
+	for phone in open(phones_list):
+		phone_rules[phone.rstrip()] = [phone.rstrip()]
+	
+	if phone_rules.has_key('sp'): del phone_rules['sp']
+	if phone_rules.has_key('sil'): del phone_rules['sil']
+	
+	with open(tree_hed_file, 'w') as tree_hed:
+		print >> tree_hed, "LS %s" % statsfile
+		print >> tree_hed, "RO %.1f" % ro
+		print >> tree_hed, "TR 0"
+		
+		for rule, phones in phone_rules.items():
+			print >> tree_hed, 'QS "L_%s" {%s}' % (rule, ",".join([phone + '-*' for phone in phones]))
+			print >> tree_hed, 'QS "R_%s" {%s}' % (rule, ",".join(['*+' + phone  for phone in phones]))
+		
+		print >> tree_hed, "TR 2"
+		
+		for state in range(2,5):
+			for phone in open(phones_list):
+				print >> tree_hed, 'TB %(tb).1f "%(phone)s_s%(state)d" {("%(phone)s","*-%(phone)s+*","%(phone)s+*","*-%(phone)s").state[%(state)d]}' % {'tb': tb, 'state': state, 'phone': phone.rstrip()}
+		
+		print >> tree_hed, "TR 1"
+		
+		print >> tree_hed, 'AU "%s"' % fulllist
+		print >> tree_hed, 'CO "%s"' % tiedlist
+		print >> tree_hed, 'ST "%s"' % trees
+

@@ -198,6 +198,8 @@ for i in range(0,2):
 
 current_step += 1
 
+if current_step >= options.step:
+	data_manipulation.make_tree_hed([['../phonetic_rules._en', 'en_']], 'files/monophones1', 'files/tree.hed', 350.0, 1000.0, target_hmm_dir + '/stats', 'files/fulllist', 'files/tiedlist', 'files/trees')
 print "Finished!"
 
 
