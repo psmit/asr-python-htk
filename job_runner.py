@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2.6
 
 ########################################################################
 # job_runner.py
@@ -378,7 +378,7 @@ class LocalRunner(Runner):
 			allready = True
 			for p in self.processes:
 				if not p.is_alive():
-					p.join(1)
+					p.join(5)
 				if p.is_alive():
 					allready = False
 		
