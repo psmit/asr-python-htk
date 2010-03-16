@@ -172,9 +172,23 @@ def filter_scp_by_mlf(scp_orig, scp_new, mlf, report_list):
 		for key, value in scp.items():
 			print >> reportfile, key
 	
-def make_tri_hed(phones_list, tri_hed):
+def remove_triphone_sil(file, unique = False):
+	lines = []
+	reg = re.compile("([a-z_]+\-sil)|(sil\+[a-z_]+)")
+	for line in open(file):
+		lines.append(reg.sub('sil', line.rstrip()))
+		
+	with open(file, 'w') as wfile:
+		for line in lines:
+			if not unique or not line.startswith('sil'):
+				print >> wfile, line
+		if unique:
+			print >> wfile, "sil"
+		
+		
+def make_tri_hed(triphones_list, phones_list, tri_hed):
 	with open(tri_hed, 'w') as trihed:
-		print >> trihed, "CL %s" % phones_list
+		print >> trihed, "CL %s" % triphones_list
 		for line in open(phones_list):
 			print >> trihed, "TI T_%(phone)s {(*-%(phone)s+*,%(phone)s+*,*-%(phone)s).transP}" % {'phone': line.rstrip()}
 

@@ -70,8 +70,7 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
 					"-H", source_hmm_dir + "/macros",
 					"-H", source_hmm_dir + "/hmmdefs",
 					"-M", target_hmm_dir])
-	if stats:
-		HERest.extend(["-s", target_hmm_dir + "/stats"])
+
 	
 	HERest.extend(["-t"])
 	HERest.extend(pruning)
@@ -89,6 +88,9 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
 									'ostream': ostream,
 									'estream': estream} )
 	
+	if stats:
+		HERest_merge.extend(["-s", target_hmm_dir + "/stats"])
+		
 	HERest_merge.extend(["-p", str(0),
 						phones_list])
 	HERest_merge.extend(glob.glob(target_hmm_dir+"/*.acc"))
@@ -136,7 +138,7 @@ def HVite(step, scpfile, hmm_dir, dict, phones_list, word_transcriptions, new_tr
 					"-i", new_transcriptions + ".part.%t", 
 					"-l", '*',
 					"-C", config,
-					"-o", "SWT",
+					"-o", "ST",
 					"-b", "_silence_",
 					"-a",
 					"-H", hmm_dir + "/macros",
@@ -165,7 +167,25 @@ def HVite(step, scpfile, hmm_dir, dict, phones_list, word_transcriptions, new_tr
 	
 	clean_split_file(scpfile)
 	
-								
+	
+def HDMan(step, fulllist, global_ded, mono_dict, tri_dict):
+	global extra_HTK_options
+	
+	HDMan = ["HDMan"]
+	HDMan.extend(extra_HTK_options)
+	HDMan.extend(['-n', fulllist,
+				  '-b', 'sp',
+				  '-g', global_ded,
+				  '-l', 'flog',
+				  tri_dict,
+				  mono_dict])
+	
+	ostream, estream = getOutputStreamNames(step)
+	job_runner.submit_job(HDMan, {'numtasks': 1,
+									'ostream': ostream,
+									'estream': estream})
+	
+												
 def HCopy(scpfile, config):
 	global num_tasks, extra_HTK_options
 	

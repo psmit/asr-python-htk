@@ -29,7 +29,9 @@ options, configs = parser.parse_args()
 config = SafeConfigParser({'name': 'EXPERIMENT NAME_TO_BE_FILLED!',
 							'prefix': '',
 							'minvariance': 0.05,
-							'HERest_pruning': '300.0 500.0 2000.0'})
+							'HERest_pruning': '300.0 500.0 2000.0',
+							'tying_threshold': 1000.0,
+							'required_occupation': 200.0})
 config.read(configs if len(configs) > 0 else "train_config")
 
 
@@ -177,8 +179,10 @@ if current_step >= options.step:
 	
 	triphones_list = 'files/triphones'
 	htk.HLEd(current_step, transcriptions, led_file, '*', triphones_list, 'files/tri.mlf')
+	data_manipulation.remove_triphone_sil(triphones_list, True)
+	data_manipulation.remove_triphone_sil('files/tri.mlf')
 	
-	data_manipulation.make_tri_hed(triphones_list, 'files/mktri.hed')
+	data_manipulation.make_tri_hed(triphones_list, phones_list, 'files/mktri.hed')
 	
 	htk.HHEd(current_step, source_hmm_dir, target_hmm_dir, 'files/mktri.hed', phones_list)
 	
@@ -193,13 +197,33 @@ for i in range(0,2):
 	if current_step >= options.step:
 		source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
 		
-		htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions)
+		htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, True if i == 1 else False)
 	
 
 current_step += 1
 
 if current_step >= options.step:
-	data_manipulation.make_tree_hed([['../phonetic_rules._en', 'en_']], 'files/monophones1', 'files/tree.hed', 350.0, 1000.0, target_hmm_dir + '/stats', 'files/fulllist', 'files/tiedlist', 'files/trees')
+	source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+	
+	htk.HDMan(current_step, 'files/fulllist', 'config/global.ded', 'dictionary/dict_silence_', 'dictionary/dict_tri')
+	
+	data_manipulation.make_tree_hed([['../phonetic_rules._en', 'en_']], 'files/monophones1', 'files/tree.hed', config.getfloat("triphonetying", "tying_threshold"), config.getfloat("triphonetying", "required_occupation"), source_hmm_dir + '/stats', 'files/fulllist', 'files/tiedlist', 'files/trees')
+	
+	htk.HHEd(current_step, source_hmm_dir, target_hmm_dir, 'files/tree.hed', phones_list)
+	
+	
+phones_list = 'files/tiedlist'
+	
+# Re estimate model 2 times
+for i in range(0,2):
+	current_step += 1
+
+	if current_step >= options.step:
+		source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+		
+		htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions)
+	
+
 print "Finished!"
 
 
