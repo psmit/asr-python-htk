@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2.6
 from __future__ import with_statement
 
 import glob
@@ -175,16 +175,32 @@ def filter_scp_by_mlf(scp_orig, scp_new, mlf, report_list):
 def remove_triphone_sil(file, unique = False):
 	lines = []
 	reg = re.compile("([a-z_]+\-sil)|(sil\+[a-z_]+)")
+	
 	for line in open(file):
-		lines.append(reg.sub('sil', line.rstrip()))
+		lines.append(reg.sub('sil', reg.sub('sil', line.rstrip())))
+		#print lines[len(lines)-1]
 		
 	with open(file, 'w') as wfile:
 		for line in lines:
-			if not unique or not line.startswith('sil'):
+			if not unique or (not line.rstrip() == 'sil' and not line.rstrip() == 'sil+sil'):
 				print >> wfile, line
 		if unique:
 			print >> wfile, "sil"
 		
+def make_fulllist(phone_list, fulllist):
+	phones = []	
+	for phone in open(phone_list):
+		if phone.rstrip() != 'sp': phones.append(phone.rstrip())
+	
+	with open(fulllist, 'w') as flist:
+		for phone1 in phones:
+			for phone2 in phones:
+				if phone2 != 'sil':
+					for phone3 in phones:
+						print >> flist, "%s-%s+%s" % (phone1, phone2, phone3)
+		print >> flist, 'sp'
+		print >> flist, 'sil'
+					
 		
 def make_tri_hed(triphones_list, phones_list, tri_hed):
 	with open(tri_hed, 'w') as trihed:
