@@ -51,7 +51,8 @@ def HCompV(step, scpfile, target_hmm_dir, protofile, min_variance, config = None
     ostream, estream = _get_output_stream_names(step)
     job_runner.submit_job(HCompV, {'numtasks': 1,
                                     'ostream': ostream,
-                                    'estream': estream})            
+                                    'estream': estream,
+                                    'timelimit': '01:00:00'})            
     
 def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, stats = False, config = None, pruning = None):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
