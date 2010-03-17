@@ -346,7 +346,7 @@ class TritonRunner(Runner):
         batchcommand.extend(['-e', errorfile])
         
         #Wrap it in a script file (Escaped)
-        script = "#!/bin/bash\n" + "\"" + "\" \"".join(real_command) + "\""
+        script = "#!/bin/bash\n" + "\"" + "\" \"".join(self.commandarr) + "\""
         
         success = False
         
