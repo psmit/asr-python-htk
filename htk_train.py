@@ -50,6 +50,7 @@ target_hmm_dir = ""
 
 logger.info("Starting step: %d" % options.step)
 
+dict = 'dictionary/dict'
 # Data Collection step
 if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Data collection'))
@@ -83,8 +84,8 @@ if current_step >= options.step:
     if not os.path.exists(mkmono1_led): sys.exit("Not Found: " + mkmono1_led)
     if os.path.isdir('files'): shutil.rmtree('files')
     os.mkdir('files')
-    htk.HLEd(current_step, 'corpora/words.mlf', mkmono0_led, '*', 'files/monophones0', 'files/mono0.mlf', 'dictionary/dict')
-    htk.HLEd(current_step, 'corpora/words.mlf', mkmono1_led, '*', 'files/monophones1', 'files/mono1.mlf', 'dictionary/dict')
+    htk.HLEd(current_step, 'corpora/words.mlf', mkmono0_led, '*', 'files/monophones0', 'files/mono0.mlf', dict)
+    htk.HLEd(current_step, 'corpora/words.mlf', mkmono1_led, '*', 'files/monophones1', 'files/mono1.mlf', dict)
     
     
 current_step += 1   
@@ -173,8 +174,7 @@ transcriptions = 'files/mono1_aligned.mlf'
 if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Realign data'))
     
-    data_manipulation.add_silence_to_dictionary('dictionary/dict', 'dictionary/dict_silence_')
-    htk.HVite(current_step, scpfile, target_hmm_dir, 'dictionary/dict_silence_', phones_list, 'corpora/words.mlf', transcriptions)
+    htk.HVite(current_step, scpfile, target_hmm_dir, dict, phones_list, 'corpora/words.mlf', transcriptions)
     
     data_manipulation.filter_scp_by_mlf(scpfile, 'files/train.scp', transcriptions, 'files/excluded_utterances')
     
@@ -233,7 +233,6 @@ if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Tying the model'))
     source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
     
-    #htk.HDMan(current_step, 'files/fulllist', 'config/global.ded', 'dictionary/dict_silence_', 'dictionary/dict_tri')
     data_manipulation.make_fulllist('files/monophones1', 'files/fulllist')
         
     data_manipulation.make_tree_hed([['../phonetic_rules._en', 'en_']], 'files/monophones1', 'files/tree.hed', config.getfloat("triphonetying", "tying_threshold"), config.getfloat("triphonetying", "required_occupation"), source_hmm_dir + '/stats', 'files/fulllist', 'files/tiedlist', 'files/trees')

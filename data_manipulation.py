@@ -89,9 +89,13 @@ def import_corpora(corpora):
         for location, prefix in corpora:
             if not os.path.exists(location + '/words.mlf'): sys.exit("Not Found: " + location + '/words.mlf')
             for line in open(location + '/words.mlf'):
-                if line[0] == '#' or line[0] == '"' or line[0] == '.':
+                if line.startswith('#') or line.startswith('"') or line.startswith('.'):
+                    if line.startswith('.'):
+                        print >> mlffile, '</s>'
                     print >> mlffile, line.rstrip()
-                else:
+                    if line.startswith('"'):
+                        print >> mlffile, '<s>'
+                elif not line.startswith('<s>') and not line.startswith('</s>'):
                     print >> mlffile, prefix + line.rstrip()
 
 
@@ -152,20 +156,6 @@ def copy_sil_to_sp(source_hmm_dir, target_hmm_dir):
         <ENDHMM>"""
     
     shutil.copy(source_hmm_dir + '/macros', target_hmm_dir + '/macros')
-
-def add_silence_to_dictionary(orig_dict, dict_with_sil):
-    dict = {}
-    for line in open(orig_dict):
-        word, transcription = line.split(None, 1)
-        dict[unescape(word.lower())] = [phone.lower() for phone in transcription.split()]
-        
-    dict['<s>'] = ['sil']
-    dict['</s>'] = ['sil']
-    dict['_silence_'] = ['sil']
-    
-    with open(dict_with_sil, 'w') as dictfile:
-        for key in sorted(dict):
-            print >> dictfile, "%s %s" % (escape(key), ' '.join(dict[key]))
 
 def filter_scp_by_mlf(scp_orig, scp_new, mlf, report_list):
     scp = {}
