@@ -9,247 +9,247 @@ import shutil
 import sys
 
 def createHmmDir(step):
-	source_hmm_dir = 'hmm%02d' % (step - 1)
-	target_hmm_dir = 'hmm%02d' % step
-	if os.path.isdir(target_hmm_dir): shutil.rmtree(target_hmm_dir)
-	os.mkdir(target_hmm_dir)
-	
-	return (source_hmm_dir, target_hmm_dir)
-	
+    source_hmm_dir = 'hmm%02d' % (step - 1)
+    target_hmm_dir = 'hmm%02d' % step
+    if os.path.isdir(target_hmm_dir): shutil.rmtree(target_hmm_dir)
+    os.mkdir(target_hmm_dir)
+    
+    return (source_hmm_dir, target_hmm_dir)
+    
 def createLogDirs():
-	if not os.path.exists('log'): os.mkdir('log')
-	if not os.path.exists('log/tasks'): os.mkdir('log/tasks')
-	
+    if not os.path.exists('log'): os.mkdir('log')
+    if not os.path.exists('log/tasks'): os.mkdir('log/tasks')
+    
 def import_dictionaries(dicts):
-	if os.path.isdir('dictionary'): shutil.rmtree('dictionary')
-	os.mkdir('dictionary')
-	dict = {}
-	for location, prefix in dicts:
-		if not os.path.exists(location + '/dict'):
-			sys.exit("Not Found: " + location + '/dict')
-		for line in open(location + '/dict'):
-			word, transcription = line.split(None, 1)
-			if not dict.has_key(unescape(word.lower())):
-				dict[unescape(word.lower())] = []
-			dict[unescape(word.lower())].append([prefix + phone.lower() for phone in transcription.split()])
-	
-	for word, transcriptions in dict.items():
-		unique_transcriptions = set()
-		for trancription in transcriptions:
-			if transcription[len(transcription) - 1] == 'sil' or
-				transcription[len(transcription) - 1] == 'sp':
-				
-	
-	
-	dict['<s>'] = [['sil']]
-	dict['</s>'] = [['sil']]
-	
-	with open('dictionary/dict', 'w') as dictfile:
-		for key in sorted(dict):
-			print >> dictfile, "%s %s" % (escape(key), ' '.join(dict[key]))
-	
+    if os.path.isdir('dictionary'): shutil.rmtree('dictionary')
+    os.mkdir('dictionary')
+    dict = {}
+    for location, prefix in dicts:
+        if not os.path.exists(location + '/dict'):
+            sys.exit("Not Found: " + location + '/dict')
+        for line in open(location + '/dict'):
+            word, transcription = line.split(None, 1)
+            if not dict.has_key(unescape(word.lower())):
+                dict[unescape(word.lower())] = []
+            dict[unescape(word.lower())].append([prefix + phone.lower() for phone in transcription.split()])
+    
+    for word, transcriptions in dict.items():
+        unique_transcriptions = set()
+        for trancription in transcriptions:
+            if transcription[len(transcription) - 1] == 'sil' or
+                transcription[len(transcription) - 1] == 'sp':
+                
+    
+    
+    dict['<s>'] = [['sil']]
+    dict['</s>'] = [['sil']]
+    
+    with open('dictionary/dict', 'w') as dictfile:
+        for key in sorted(dict):
+            print >> dictfile, "%s %s" % (escape(key), ' '.join(dict[key]))
+    
 def unescape(word):
-	if re.match("^\\\\[^a-z0-9<]", word): return word[1:]
-	else: return word
+    if re.match("^\\\\[^a-z0-9<]", word): return word[1:]
+    else: return word
 
 def escape(word):
-	if re.match("^[^a-z0-9<]", word): return "\\" + word
-	else: return word
-	
+    if re.match("^[^a-z0-9<]", word): return "\\" + word
+    else: return word
+    
 def import_corpora(corpora):
-	if os.path.isdir('corpora'): shutil.rmtree('corpora')
-	os.mkdir('corpora')
-	sets = ['train', 'eval', 'devel']
-	
-	locationmap = {}
-	count = 0
-	for location, prefix in corpora:
-		if not os.path.exists(location + '/mfc'): sys.exit("Not Found: " + location + '/mfc')
-		locationmap[location] = location + '/mfc'
-		if os.path.islink(location + '/mfc'):
-			count += 1
-			os.symlink(os.path.join(os.path.dirname(location + '/mfc'), os.readlink(location + '/mfc')), 'corpora/mfc' + str(count))
-			locationmap[location] = 'corpora/mfc' + str(count)
-		
-	for set in sets:
-		with open('corpora/'+set+'.scp', 'w') as scpfile:
-			for location, prefix in corpora:
-				if not os.path.exists(location + '/'+set+'.scp'): sys.exit("Not Found: " + location + '/'+set+'.scp')
-				for line in  open(location + '/'+set+'.scp'):
-					print >> scpfile, locationmap[location] + line[line.find('/'):].rstrip()
-	
-	with open('corpora/words.mlf', 'w') as mlffile:
-		for location, prefix in corpora:
-			if not os.path.exists(location + '/words.mlf'): sys.exit("Not Found: " + location + '/words.mlf')
-			for line in open(location + '/words.mlf'):
-				if line[0] == '#' or line[0] == '"' or line[0] == '.':
-					print >> mlffile, line.rstrip()
-				else:
-					print >> mlffile, prefix + line.rstrip()
+    if os.path.isdir('corpora'): shutil.rmtree('corpora')
+    os.mkdir('corpora')
+    sets = ['train', 'eval', 'devel']
+    
+    locationmap = {}
+    count = 0
+    for location, prefix in corpora:
+        if not os.path.exists(location + '/mfc'): sys.exit("Not Found: " + location + '/mfc')
+        locationmap[location] = location + '/mfc'
+        if os.path.islink(location + '/mfc'):
+            count += 1
+            os.symlink(os.path.join(os.path.dirname(location + '/mfc'), os.readlink(location + '/mfc')), 'corpora/mfc' + str(count))
+            locationmap[location] = 'corpora/mfc' + str(count)
+        
+    for set in sets:
+        with open('corpora/'+set+'.scp', 'w') as scpfile:
+            for location, prefix in corpora:
+                if not os.path.exists(location + '/'+set+'.scp'): sys.exit("Not Found: " + location + '/'+set+'.scp')
+                for line in  open(location + '/'+set+'.scp'):
+                    print >> scpfile, locationmap[location] + line[line.find('/'):].rstrip()
+    
+    with open('corpora/words.mlf', 'w') as mlffile:
+        for location, prefix in corpora:
+            if not os.path.exists(location + '/words.mlf'): sys.exit("Not Found: " + location + '/words.mlf')
+            for line in open(location + '/words.mlf'):
+                if line[0] == '#' or line[0] == '"' or line[0] == '.':
+                    print >> mlffile, line.rstrip()
+                else:
+                    print >> mlffile, prefix + line.rstrip()
 
 
 def make_model_from_proto(hmm_dir, monophones):
-	#Make a monophone model from the proto file generated by HCompV
-	model_def = ""
-	phone_def = ""
-	in_model_def = True
-	
-	for line in open(hmm_dir + '/proto'):
-		if line[0:2] == '~h': in_model_def = False
-		if in_model_def: model_def += line
-		else: phone_def += line
-		
-	#Write the macros file
-	with open(hmm_dir + '/macros', 'w') as macros:
-		print >> macros, model_def
-		for line in open(hmm_dir + '/vFloors'):
-			print >> macros, line
-			
-	#Write the hmmdefs file (replacing for each monophone, proto with the monophone)
-	with open(hmm_dir + '/hmmdefs', 'w') as hmmdefs:
-		for line in open(monophones):
-			print >> hmmdefs, phone_def.replace('proto', line.rstrip())
+    #Make a monophone model from the proto file generated by HCompV
+    model_def = ""
+    phone_def = ""
+    in_model_def = True
+    
+    for line in open(hmm_dir + '/proto'):
+        if line[0:2] == '~h': in_model_def = False
+        if in_model_def: model_def += line
+        else: phone_def += line
+        
+    #Write the macros file
+    with open(hmm_dir + '/macros', 'w') as macros:
+        print >> macros, model_def
+        for line in open(hmm_dir + '/vFloors'):
+            print >> macros, line
+            
+    #Write the hmmdefs file (replacing for each monophone, proto with the monophone)
+    with open(hmm_dir + '/hmmdefs', 'w') as hmmdefs:
+        for line in open(monophones):
+            print >> hmmdefs, phone_def.replace('proto', line.rstrip())
 
 def add_sp_to_phonelist(orig_phone_list, new_phone_list):
-	with open(new_phone_list, 'w') as npl:
-		for line in open(orig_phone_list):
-			print >> npl, line.rstrip()
-		print >> npl, 'sp'
-	
+    with open(new_phone_list, 'w') as npl:
+        for line in open(orig_phone_list):
+            print >> npl, line.rstrip()
+        print >> npl, 'sp'
+    
 def copy_sil_to_sp(source_hmm_dir, target_hmm_dir):
-	in_sil = False
-	in_state3 = False
-	
-	state = ""
-	
-	with open(target_hmm_dir + '/hmmdefs', 'w') as new_hmmdefs:
-		for line in open(source_hmm_dir + '/hmmdefs'):
-			print >> new_hmmdefs, line
-			
-			if line.startswith('~h'):
-				if line.startswith('~h "sil"'): in_sil = True
-				else: in_sil = False
-			elif line.startswith('<STATE>'):
-				if line.startswith('<STATE> 3'): in_state3 = True
-				else: in_state3 = False
-			elif in_sil and in_state3:
-				state += line
-	
-		print >> new_hmmdefs, "~h \"sp\" <BEGINHMM> <NUMSTATES> 3"
-		print >> new_hmmdefs, "<STATE> 2"
-		print >> new_hmmdefs, state
-		print >> new_hmmdefs, """<TRANSP> 3
-		 0.000000e+00 5.000000e-01 5.000000e-01
-		 0.000000e+00 5.000000e-01 5.000000e-01
-		 0.000000e+00 0.000000e+00 0.000000e+00
-		<ENDHMM>"""
-	
-	shutil.copy(source_hmm_dir + '/macros', target_hmm_dir + '/macros')
+    in_sil = False
+    in_state3 = False
+    
+    state = ""
+    
+    with open(target_hmm_dir + '/hmmdefs', 'w') as new_hmmdefs:
+        for line in open(source_hmm_dir + '/hmmdefs'):
+            print >> new_hmmdefs, line
+            
+            if line.startswith('~h'):
+                if line.startswith('~h "sil"'): in_sil = True
+                else: in_sil = False
+            elif line.startswith('<STATE>'):
+                if line.startswith('<STATE> 3'): in_state3 = True
+                else: in_state3 = False
+            elif in_sil and in_state3:
+                state += line
+    
+        print >> new_hmmdefs, "~h \"sp\" <BEGINHMM> <NUMSTATES> 3"
+        print >> new_hmmdefs, "<STATE> 2"
+        print >> new_hmmdefs, state
+        print >> new_hmmdefs, """<TRANSP> 3
+         0.000000e+00 5.000000e-01 5.000000e-01
+         0.000000e+00 5.000000e-01 5.000000e-01
+         0.000000e+00 0.000000e+00 0.000000e+00
+        <ENDHMM>"""
+    
+    shutil.copy(source_hmm_dir + '/macros', target_hmm_dir + '/macros')
 
 def add_silence_to_dictionary(orig_dict, dict_with_sil):
-	dict = {}
-	for line in open(orig_dict):
-		word, transcription = line.split(None, 1)
-		dict[unescape(word.lower())] = [phone.lower() for phone in transcription.split()]
-		
-	dict['<s>'] = ['sil']
-	dict['</s>'] = ['sil']
-	dict['_silence_'] = ['sil']
-	
-	with open(dict_with_sil, 'w') as dictfile:
-		for key in sorted(dict):
-			print >> dictfile, "%s %s" % (escape(key), ' '.join(dict[key]))
+    dict = {}
+    for line in open(orig_dict):
+        word, transcription = line.split(None, 1)
+        dict[unescape(word.lower())] = [phone.lower() for phone in transcription.split()]
+        
+    dict['<s>'] = ['sil']
+    dict['</s>'] = ['sil']
+    dict['_silence_'] = ['sil']
+    
+    with open(dict_with_sil, 'w') as dictfile:
+        for key in sorted(dict):
+            print >> dictfile, "%s %s" % (escape(key), ' '.join(dict[key]))
 
 def filter_scp_by_mlf(scp_orig, scp_new, mlf, report_list):
-	scp = {}
-	with open(scp_new, 'w') as scpfile:
-		namere = re.compile('(?<=/)[a-zA-Z0-9]*(?=\.[^/]*$)')
-		for line in open(scp_orig):
-			m = namere.search(line)
-			if m:
-				scp[m.group(0)] = line.rstrip()
-		
-		for line in open(mlf):
-			m = namere.search(line)
-			if m:
-				if scp.has_key(m.group(0)):
-					print >>  scpfile, scp[m.group(0)]
-					del scp[m.group(0)]
-	with open(report_list, 'w') as reportfile:	
-		for key, value in scp.items():
-			print >> reportfile, key
-	
+    scp = {}
+    with open(scp_new, 'w') as scpfile:
+        namere = re.compile('(?<=/)[a-zA-Z0-9]*(?=\.[^/]*$)')
+        for line in open(scp_orig):
+            m = namere.search(line)
+            if m:
+                scp[m.group(0)] = line.rstrip()
+        
+        for line in open(mlf):
+            m = namere.search(line)
+            if m:
+                if scp.has_key(m.group(0)):
+                    print >>  scpfile, scp[m.group(0)]
+                    del scp[m.group(0)]
+    with open(report_list, 'w') as reportfile:  
+        for key, value in scp.items():
+            print >> reportfile, key
+    
 def remove_triphone_sil(file, unique = False):
-	lines = []
-	reg = re.compile("([a-z_]+\-sil)|(sil\+[a-z_]+)")
-	
-	for line in open(file):
-		lines.append(reg.sub('sil', reg.sub('sil', line.rstrip())))
-		#print lines[len(lines)-1]
-		
-	with open(file, 'w') as wfile:
-		for line in lines:
-			if not unique or (not line.rstrip() == 'sil' and not line.rstrip() == 'sil+sil'):
-				print >> wfile, line
-		if unique:
-			print >> wfile, "sil"
-		
+    lines = []
+    reg = re.compile("([a-z_]+\-sil)|(sil\+[a-z_]+)")
+    
+    for line in open(file):
+        lines.append(reg.sub('sil', reg.sub('sil', line.rstrip())))
+        #print lines[len(lines)-1]
+        
+    with open(file, 'w') as wfile:
+        for line in lines:
+            if not unique or (not line.rstrip() == 'sil' and not line.rstrip() == 'sil+sil'):
+                print >> wfile, line
+        if unique:
+            print >> wfile, "sil"
+        
 def make_fulllist(phone_list, fulllist):
-	phones = []	
-	for phone in open(phone_list):
-		if phone.rstrip() != 'sp': phones.append(phone.rstrip())
-	
-	with open(fulllist, 'w') as flist:
-		for phone1 in phones:
-			for phone2 in phones:
-				if phone2 != 'sil':
-					for phone3 in phones:
-						print >> flist, "%s-%s+%s" % (phone1, phone2, phone3)
-		print >> flist, 'sp'
-		print >> flist, 'sil'
-					
-		
+    phones = [] 
+    for phone in open(phone_list):
+        if phone.rstrip() != 'sp': phones.append(phone.rstrip())
+    
+    with open(fulllist, 'w') as flist:
+        for phone1 in phones:
+            for phone2 in phones:
+                if phone2 != 'sil':
+                    for phone3 in phones:
+                        print >> flist, "%s-%s+%s" % (phone1, phone2, phone3)
+        print >> flist, 'sp'
+        print >> flist, 'sil'
+                    
+        
 def make_tri_hed(triphones_list, phones_list, tri_hed):
-	with open(tri_hed, 'w') as trihed:
-		print >> trihed, "CL %s" % triphones_list
-		for line in open(phones_list):
-			print >> trihed, "TI T_%(phone)s {(*-%(phone)s+*,%(phone)s+*,*-%(phone)s).transP}" % {'phone': line.rstrip()}
+    with open(tri_hed, 'w') as trihed:
+        print >> trihed, "CL %s" % triphones_list
+        for line in open(phones_list):
+            print >> trihed, "TI T_%(phone)s {(*-%(phone)s+*,%(phone)s+*,*-%(phone)s).transP}" % {'phone': line.rstrip()}
 
 def make_tree_hed(phone_rules_files, phones_list, tree_hed_file, tb, ro, statsfile, fulllist, tiedlist, trees):
-	phones = [phone.rstrip() for phone in open(phones_list)]
-	
-	phone_rules = {}
-	for location, prefix in phone_rules_files:
-		for line in open(location):
-			rule, phones = line.split(None, 1)
-			if not phone_rules.has_key(rule):
-				phone_rules[rule] = []
-			phone_rules[rule].extend([prefix + phone.lower() for phone in phones.split()])
-			
-	for phone in open(phones_list):
-		phone_rules[phone.rstrip()] = [phone.rstrip()]
-	
-	if phone_rules.has_key('sp'): del phone_rules['sp']
-	if phone_rules.has_key('sil'): del phone_rules['sil']
-	
-	with open(tree_hed_file, 'w') as tree_hed:
-		print >> tree_hed, "LS %s" % statsfile
-		print >> tree_hed, "RO %.1f" % ro
-		print >> tree_hed, "TR 0"
-		
-		for rule, phones in phone_rules.items():
-			print >> tree_hed, 'QS "L_%s" {%s}' % (rule, ",".join([phone + '-*' for phone in phones]))
-			print >> tree_hed, 'QS "R_%s" {%s}' % (rule, ",".join(['*+' + phone  for phone in phones]))
-		
-		print >> tree_hed, "TR 2"
-		
-		for state in range(2,5):
-			for phone in open(phones_list):
-				print >> tree_hed, 'TB %(tb).1f "%(phone)s_s%(state)d" {("%(phone)s","*-%(phone)s+*","%(phone)s+*","*-%(phone)s").state[%(state)d]}' % {'tb': tb, 'state': state, 'phone': phone.rstrip()}
-		
-		print >> tree_hed, "TR 1"
-		
-		print >> tree_hed, 'AU "%s"' % fulllist
-		print >> tree_hed, 'CO "%s"' % tiedlist
-		print >> tree_hed, 'ST "%s"' % trees
+    phones = [phone.rstrip() for phone in open(phones_list)]
+    
+    phone_rules = {}
+    for location, prefix in phone_rules_files:
+        for line in open(location):
+            rule, phones = line.split(None, 1)
+            if not phone_rules.has_key(rule):
+                phone_rules[rule] = []
+            phone_rules[rule].extend([prefix + phone.lower() for phone in phones.split()])
+            
+    for phone in open(phones_list):
+        phone_rules[phone.rstrip()] = [phone.rstrip()]
+    
+    if phone_rules.has_key('sp'): del phone_rules['sp']
+    if phone_rules.has_key('sil'): del phone_rules['sil']
+    
+    with open(tree_hed_file, 'w') as tree_hed:
+        print >> tree_hed, "LS %s" % statsfile
+        print >> tree_hed, "RO %.1f" % ro
+        print >> tree_hed, "TR 0"
+        
+        for rule, phones in phone_rules.items():
+            print >> tree_hed, 'QS "L_%s" {%s}' % (rule, ",".join([phone + '-*' for phone in phones]))
+            print >> tree_hed, 'QS "R_%s" {%s}' % (rule, ",".join(['*+' + phone  for phone in phones]))
+        
+        print >> tree_hed, "TR 2"
+        
+        for state in range(2,5):
+            for phone in open(phones_list):
+                print >> tree_hed, 'TB %(tb).1f "%(phone)s_s%(state)d" {("%(phone)s","*-%(phone)s+*","%(phone)s+*","*-%(phone)s").state[%(state)d]}' % {'tb': tb, 'state': state, 'phone': phone.rstrip()}
+        
+        print >> tree_hed, "TR 1"
+        
+        print >> tree_hed, 'AU "%s"' % fulllist
+        print >> tree_hed, 'CO "%s"' % tiedlist
+        print >> tree_hed, 'ST "%s"' % trees
 
