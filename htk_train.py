@@ -234,8 +234,15 @@ if current_step >= options.step:
     source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
     
     data_manipulation.make_fulllist('files/monophones1', 'files/fulllist')
+    
+    rules = []
+    rules_id = 1
+    while config.has_option("tierules"+str(rules_id), "location"):
+        rules.append([config.get("tierules"+str(cur_corpus_id), "location"),
+                        config.get("tierules"+str(cur_corpus_id), "prefix")])
+        rules_id += 1
         
-    data_manipulation.make_tree_hed([['../phonetic_rules._en', 'en_']], 'files/monophones1', 'files/tree.hed', config.getfloat("triphonetying", "tying_threshold"), config.getfloat("triphonetying", "required_occupation"), source_hmm_dir + '/stats', 'files/fulllist', 'files/tiedlist', 'files/trees')
+    data_manipulation.make_tree_hed(rules, 'files/monophones1', 'files/tree.hed', config.getfloat("triphonetying", "tying_threshold"), config.getfloat("triphonetying", "required_occupation"), source_hmm_dir + '/stats', 'files/fulllist', 'files/tiedlist', 'files/trees')
     
     htk.HHEd(current_step, source_hmm_dir, target_hmm_dir, 'files/tree.hed', phones_list)
     
