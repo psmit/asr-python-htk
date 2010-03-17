@@ -42,7 +42,7 @@ def import_dictionaries(dicts):
     new_dict = {}
     for word, transcriptions in dict.items():
         new_transcriptions = []
-        for transcription in _unique_listelements(transcriptions):
+        for transcription in _unique_listelements(sorted(transcriptions, lambda x, y: len(x) - len(y))):
             new_transcriptions.append(transcription + ['sp'])
             new_transcriptions.append(transcription + ['sil'])
         new_dict[word] = new_transcriptions
