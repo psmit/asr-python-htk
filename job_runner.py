@@ -359,7 +359,7 @@ class TritonRunner(Runner):
                 if m is not None:
                         self.jobs.append(m.group(0))
                         success = True
-                else
+                else:
                         time.sleep(2)
 
             
