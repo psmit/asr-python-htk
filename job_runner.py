@@ -426,6 +426,8 @@ def signal_handler(signal, frame):
     global verbosity
     global runner
     
+    print 'Signal received!'
+    
     runner.cancel()
     
     if verbosity > 0:
