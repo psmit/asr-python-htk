@@ -139,7 +139,6 @@ def HVite(step, scpfile, hmm_dir, dict, phones_list, word_transcriptions, new_tr
                     "-l", '*',
                     "-C", config,
                     "-o", "ST",
-                    "-b", "_silence_",
                     "-a",
                     "-H", hmm_dir + "/macros",
                     "-H", hmm_dir + "/hmmdefs",
