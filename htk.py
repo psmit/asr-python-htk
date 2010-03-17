@@ -214,7 +214,7 @@ def _get_output_stream_names(step):
     
     
 def split_file(file_name, parts):
-    target_files = [open(name, 'w') for name in [file_name + ".part." + str(i) for i in range(1,parts+1)]
+    target_files = [open(name, 'w') for name in [file_name + ".part." + str(i) for i in range(1,parts+1)]]
     
     source_file = open(file_name)
     

@@ -1,7 +1,6 @@
 #!/usr/bin/env python2.6
-from __future__ import with_statement
-
 import glob
+import itertools
 import os
 import os.path
 import re
@@ -27,26 +26,34 @@ def import_dictionaries(dicts):
     for location, prefix in dicts:
         if not os.path.exists(location + '/dict'):
             sys.exit("Not Found: " + location + '/dict')
+            
         for line in open(location + '/dict'):
             word, transcription = line.split(None, 1)
-            if not dict.has_key(unescape(word.lower())):
-                dict[unescape(word.lower())] = []
-            dict[unescape(word.lower())].append([prefix + phone.lower() for phone in transcription.split()])
-    
-    for word, transcriptions in dict.items():
-        unique_transcriptions = set()
-        for trancription in transcriptions:
-            if transcription[len(transcription) - 1] == 'sil' or
-                transcription[len(transcription) - 1] == 'sp':
+            un_word = unescape(word.lower())
+            
+            if not dict.has_key(un_word):
+                dict[un_word] = []
                 
-    
-    
-    dict['<s>'] = [['sil']]
-    dict['</s>'] = [['sil']]
+            dict[un_word].append(
+                [prefix + phone.lower() for phone in 
+                     itertools.ifilterfalse(lambda x: (x == 'sil' or x == 'sp'),
+                                  transcription.split())])
+            
+    new_dict = {}
+    for word, transcriptions in dict.items():
+        new_transcriptions = []
+        for transcription in _unique_listelements(transcriptions):
+            new_transcriptions.append(transcription + ['sil'])
+            new_transcriptions.append(transcription + ['sp'])
+        new_dict[word] = new_transcriptions
+			
+    new_dict['<s>'] = [['sil']]
+    new_dict['</s>'] = [['sil']]
     
     with open('dictionary/dict', 'w') as dictfile:
-        for key in sorted(dict):
-            print >> dictfile, "%s %s" % (escape(key), ' '.join(dict[key]))
+        for key in sorted(new_dict):
+            for transcription in new_dict[key]:
+                print >> dictfile, "%s %s" % (escape(key), ' '.join(transcription))
     
 def unescape(word):
     if re.match("^\\\\[^a-z0-9<]", word): return word[1:]
@@ -253,3 +260,14 @@ def make_tree_hed(phone_rules_files, phones_list, tree_hed_file, tb, ro, statsfi
         print >> tree_hed, 'CO "%s"' % tiedlist
         print >> tree_hed, 'ST "%s"' % trees
 
+def _unique_listelements(iterable):
+    "List unique elements, preserving order. Remember all elements ever seen."
+    # unique_everseen('AAAABBBCCDAABBB') --> A B C D
+    seen = set()
+    seen_add = seen.add
+
+    for element in iterable:
+        k = ' '.join(element)
+        if k not in seen:
+            seen_add(k)
+            yield element
