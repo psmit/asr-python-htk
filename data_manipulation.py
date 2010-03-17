@@ -43,8 +43,8 @@ def import_dictionaries(dicts):
     for word, transcriptions in dict.items():
         new_transcriptions = []
         for transcription in _unique_listelements(transcriptions):
-            new_transcriptions.append(transcription + ['sil'])
             new_transcriptions.append(transcription + ['sp'])
+            new_transcriptions.append(transcription + ['sil'])
         new_dict[word] = new_transcriptions
 			
     new_dict['<s>'] = [['sil']]
