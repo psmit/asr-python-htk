@@ -357,7 +357,7 @@ class TritonRunner(Runner):
                 #Find the jobid on the end of the line
                 m = re.search('[0-9]+$', output)
                 if m is not None:
-                        self.jobs.append(m.group(0))
+                        self.job = m.group(0)
                         success = True
                 else:
                         time.sleep(2)
