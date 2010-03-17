@@ -13,7 +13,7 @@ default_HERest_pruning = None
 clean_old_logs = True
 log_step = -1
 
-def HLEd(step, input_transcriptions, ledfile, selector, phones_list, output_transcriptions, dict = None):
+def HLEd(step, input_transcriptions, led_file, selector, phones_list, output_transcriptions, dict = None):
 	global num_tasks, extra_HTK_options
 	HLEd = ["HLEd"]
 	HLEd.extend(extra_HTK_options)
@@ -24,10 +24,10 @@ def HLEd(step, input_transcriptions, ledfile, selector, phones_list, output_tran
 	HLEd.extend(["-n", phones_list,
 				"-l", selector,
 				"-i", output_transcriptions,
-				ledfile,
+				led_file,
 				input_transcriptions])
 
-	ostream, estream = getOutputStreamNames(step)
+	ostream, estream = _get_output_stream_names(step)
 	job_runner.submit_job(HLEd, {'numtasks': 1,
 									'ostream': ostream,
 									'estream': estream})
@@ -48,7 +48,7 @@ def HCompV(step, scpfile, target_hmm_dir, protofile, min_variance, config = None
 				"-M", target_hmm_dir,
 				protofile])
 	
-	ostream, estream = getOutputStreamNames(step)
+	ostream, estream = _get_output_stream_names(step)
 	job_runner.submit_job(HCompV, {'numtasks': 1,
 									'ostream': ostream,
 									'estream': estream})			
@@ -82,7 +82,7 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
 					"-p", "%t",
 					phones_list])
 	
-	ostream, estream = getOutputStreamNames(step)
+	ostream, estream = _get_output_stream_names(step)
 	
 	job_runner.submit_job(HERest, {'numtasks': num_tasks,
 									'ostream': ostream,
@@ -117,7 +117,7 @@ def HHEd(step, source_hmm_dir, target_hmm_dir, hed, phones_list):
 				hed,
 				phones_list])
 	
-	ostream, estream = getOutputStreamNames(step)
+	ostream, estream = _get_output_stream_names(step)
 	job_runner.submit_job(HHEd, {'numtasks': 1,
 									'ostream': ostream,
 									'estream': estream})
@@ -153,7 +153,7 @@ def HVite(step, scpfile, hmm_dir, dict, phones_list, word_transcriptions, new_tr
 	HVite.extend([dict,
 				phones_list])
 	
-	ostream, estream = getOutputStreamNames(step)
+	ostream, estream = _get_output_stream_names(step)
 	job_runner.submit_job(HVite, {'numtasks': num_tasks,
 									'ostream': ostream,
 									'estream': estream})
@@ -162,7 +162,8 @@ def HVite(step, scpfile, hmm_dir, dict, phones_list, word_transcriptions, new_tr
 		print >> mlffile, '#!MLF!#'
 		for file in glob.glob(new_transcriptions+".part.*"):
 			for line in open(file):
-				if not line.startswith('#!MLF!#'): print >> mlffile, line.rstrip()
+				if not line.startswith('#!MLF!#'): 
+					print >> mlffile, line.rstrip()
 			os.remove(file)
 	
 	clean_split_file(scpfile)
@@ -180,47 +181,49 @@ def HDMan(step, fulllist, global_ded, mono_dict, tri_dict):
 				  tri_dict,
 				  mono_dict])
 	
-	ostream, estream = getOutputStreamNames(step)
+	ostream, estream = _get_output_stream_names(step)
 	job_runner.submit_job(HDMan, {'numtasks': 1,
 									'ostream': ostream,
 									'estream': estream})
 	
 												
-def HCopy(scpfile, config):
+def HCopy(scp_file, config):
 	global num_tasks, extra_HTK_options
 	
-	split_file(scpfile, num_tasks)
+	split_file(scp_file, num_tasks)
 	
 	command = ["HCopy"]
 	command.extend(extra_HTK_options)
 	
 	command.extend(["-C", config])
-	command.extend(["-S", scpfile+ ".part.%t"])
+	command.extend(["-S", scp_file+ ".part.%t"])
 	
 	job_runner.submit_job(command, {"numtasks": num_tasks})
 	
-	for file in glob.glob(scpfile+".part.*"): shutil.rm(file)
+	for file in glob.glob(scp_file+".part.*"): shutil.rm(file)
 	
 	
-def getOutputStreamNames(step):
+def _get_output_stream_names(step):
 	global clean_old_logs, log_step
+	
 	if clean_old_logs and step != log_step:
 		for file in glob.glob('log/tasks/%03d.*' % step): os.remove(file)
 		
 	log_step = step
 	return ('log/tasks/%03d.%%c.o%%j.%%t' % step, 'log/tasks/%03d.%%c.e%%j.%%t' % step)
 	
-def split_file(filename, parts):
-	targetfilenames = [filename + ".part." + str(i) for i in range(1,parts+1)]
-	targetfiles = [open(fname, 'w') for fname in targetfilenames]
 	
-	sourcefile = open(filename)
+def split_file(file_name, parts):
+	target_files = [open(name, 'w') for name in [file_name + ".part." + str(i) for i in range(1,parts+1)]
+	
+	source_file = open(file_name)
+	
 	counter = 0
-	for line in sourcefile:
-		targetfiles[counter].write(line)
+	for line in source_file:
+		target_files[counter].write(line)
 		counter = (counter + 1)%parts
 	
-	for f in targetfiles: f.close()
+	for file in target_files: file.close()
 
-def clean_split_file(filename):
-	for file in glob.glob(filename+".part.*"): os.remove(file)
+def clean_split_file(file_name):
+	for file in glob.glob(file_name+".part.*"): os.remove(file)

@@ -29,13 +29,20 @@ def import_dictionaries(dicts):
 			sys.exit("Not Found: " + location + '/dict')
 		for line in open(location + '/dict'):
 			word, transcription = line.split(None, 1)
-			dict[unescape(word.lower())] = [prefix + phone.lower() for phone in transcription.split()]
+			if not dict.has_key(unescape(word.lower())):
+				dict[unescape(word.lower())] = []
+			dict[unescape(word.lower())].append([prefix + phone.lower() for phone in transcription.split()])
 	
-	for key in dict.keys():
-		dict[key].append('sp')
-		
-	dict['<s>'] = ['sil']
-	dict['</s>'] = ['sil']
+	for word, transcriptions in dict.items():
+		unique_transcriptions = set()
+		for trancription in transcriptions:
+			if transcription[len(transcription) - 1] == 'sil' or
+				transcription[len(transcription) - 1] == 'sp':
+				
+	
+	
+	dict['<s>'] = [['sil']]
+	dict['</s>'] = [['sil']]
 	
 	with open('dictionary/dict', 'w') as dictfile:
 		for key in sorted(dict):
