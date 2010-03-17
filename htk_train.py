@@ -23,7 +23,7 @@ logger = htk_logger.logger
 logger.info("Start htk_train")
 
 
-job_runner.default_options["verbosity"] = 5
+job_runner.default_options["verbosity"] = 1
 job_runner.default_options["nodes"] = 4
 htk.num_tasks = 12
 
@@ -239,8 +239,8 @@ if current_step >= options.step:
     rules = []
     rules_id = 1
     while config.has_option("tierules"+str(rules_id), "location"):
-        rules.append([config.get("tierules"+str(cur_corpus_id), "location"),
-                        config.get("tierules"+str(cur_corpus_id), "prefix")])
+        rules.append([config.get("tierules"+str(rules_id), "location"),
+                        config.get("tierules"+str(rules_id), "prefix")])
         rules_id += 1
         
     data_manipulation.make_tree_hed(rules, 'files/monophones1', 'files/tree.hed', config.getfloat("triphonetying", "tying_threshold"), config.getfloat("triphonetying", "required_occupation"), source_hmm_dir + '/stats', 'files/fulllist', 'files/tiedlist', 'files/trees')
