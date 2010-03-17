@@ -47,6 +47,7 @@ default_options = {}
 def submit_job(commandarr, extra_options = {}):
     global runner
     global default_options
+    global verbosity
     
     if type(extra_options).__name__ == 'dict':
         input_options = dict(default_options, **extra_options)
@@ -59,7 +60,9 @@ def submit_job(commandarr, extra_options = {}):
     
     for a,b in input_options.items():
         setattr(options,a,b)
-        
+    
+    verbosity = options.verbosity
+    
     setNewRunner(options, commandarr)
     
     runner.run()
@@ -117,9 +120,11 @@ class Runner(object):
     options = []
     commandarr = []
     jobname = ""
+    verbosity = 0
     
     def __init__(self, options, commandarr):
         self.options = options
+        self.verbosity = options.verbosity
         
         # Prepend full path if local script is given for the command and the output streams
         if commandarr[0][0] != '.' and commandarr[0][0] != '/' and os.path.isfile(os.getcwd() + '/' + commandarr[0]):
@@ -325,8 +330,7 @@ class LocalRunner(Runner):
     
     processes = []
     mainprocess = None
-    
-    verbosity
+
     
     def __init__(self, options, commandarr):
         super(LocalRunner,self).__init__(options, commandarr)
@@ -336,8 +340,6 @@ class LocalRunner(Runner):
             self.num_cores = options.cores
         else:
             self.num_cores = max(1, multiprocessing.cpu_count() + options.cores)
-        
-        self.verbosity = options.verbosity
         
         if options.verbosity > 1:
             print str(self.num_cores) + " cores are used"
