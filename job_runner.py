@@ -243,7 +243,7 @@ class TritonRunner(Runner):
         
         
         # submit tasks to sbatch
-        if options.numtasks > 1:
+        if self.options.numtasks > 1:
             self.sbatch_multi_runner()
         else:
             self.sbatch_single_runner()
