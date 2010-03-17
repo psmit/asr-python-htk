@@ -8,13 +8,14 @@ import htk_logger
 
 import logging
 import os
+import os.path
 import shutil
 import sys
 
 from ConfigParser import SafeConfigParser
 from optparse import OptionParser
 
-
+if not os.path.exists('log'): os.mkdir('log')
 htk_logger.create_logger('htk_train', 'log/htk_train.log')
 
 logger = htk_logger.logger
