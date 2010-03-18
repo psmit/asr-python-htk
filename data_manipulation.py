@@ -269,6 +269,7 @@ def create_scp_lists_speecon(speecon_dir):
     
     for waveset in ['train', 'devel', 'eval']:
         waves = []
+       
         if not os.path.exists(speecon_dir + '/' + 'speecon_adult_' + waveset + '.recipe'):
             sys.exit("Not Found: " + speecon_dir + '/' + 'speecon_adult_' + waveset + '.recipe')
         
@@ -279,7 +280,6 @@ def create_scp_lists_speecon(speecon_dir):
                 map[key] = value
             waves.append(map['audio'])
         
-        
         with open(waveset + '.scp', 'w') as real_scp:
         
             for wave in waves:
@@ -288,7 +288,7 @@ def create_scp_lists_speecon(speecon_dir):
                 hcopy_paths.append( (wave , 'mfc/'+'/'.join(pathcomps[len(pathcomps)-3:]) ) )
                 create_dirs.add('mfc/'+'/'.join(pathcomps[len(pathcomps)-3:len(pathcomps)-1]))
                 
-                print >> real_scp, "%s" % wave
+                print >> real_scp, "%s" % 'mfc/'+'/'.join(pathcomps[len(pathcomps)-3:])
         
         
     for dir in create_dirs:
