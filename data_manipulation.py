@@ -261,3 +261,41 @@ def _unique_listelements(iterable):
         if k not in seen:
             seen_add(k)
             yield element
+
+
+def create_scp_lists_speecon(speecon_dir):
+    hcopy_paths = []
+    create_dirs = set()
+    
+    for waveset in ['train', 'devel', 'eval']:
+        waves = []
+        if not os.path.exists(speecon_dir + '/' + 'speecon_adult_' + waveset + '.recipe'):
+            sys.exit("Not Found: " + speecon_dir + '/' + 'speecon_adult_' + waveset + '.recipe')
+        
+        for line in open(speecon_dir + '/' + 'speecon_adult_' + waveset + '.recipe'):
+            map = {}
+            for part in line.split():
+                (key, value) = part.split('=', 1)
+                map[key] = value
+            waves.append(map['audio'])
+        
+        
+        with open(waveset + '.scp', 'w') as real_scp:
+        
+            for wave in waves:
+                pathcomps = wave.split('/')
+                pathcomps[len(pathcomps)-1] = pathcomps[len(pathcomps)-1].replace('FI0', 'mfc')
+                hcopy_paths.append( (wave , 'mfc/'+'/'.join(pathcomps[len(pathcomps)-3:]) ) )
+                create_dirs.add('mfc/'+'/'.join(pathcomps[len(pathcomps)-3:len(pathcomps)-1]))
+                
+                print >> real_scp, "%s" % wave
+        
+        
+    for dir in create_dirs:
+        if not os.path.exists(dir): os.makedirs(dir)
+            
+    with open('hcopy.scp', 'w') as hcopy_scp:
+        
+        for path in hcopy_paths:
+            print >> hcopy_scp, "%s %s" % path
+                    

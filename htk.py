@@ -187,20 +187,22 @@ def HVite(step, scpfile, hmm_dir, dict, phones_list, word_transcriptions, new_tr
 #                                    'estream': estream})
     
                                                 
-def HCopy(scp_file, config):
+def HCopy(step, scp_file, config):
     global num_tasks, extra_HTK_options
     
     split_file(scp_file, num_tasks)
     
-    command = ["HCopy"]
-    command.extend(extra_HTK_options)
+    HCopy = ["HCopy"]
+    HCopy.extend(extra_HTK_options)
+    HCopy.extend(["-C", config,
+                "-S", scp_file+ ".part.%t"])
     
-    command.extend(["-C", config])
-    command.extend(["-S", scp_file+ ".part.%t"])
-    
-    job_runner.submit_job(command, {"numtasks": num_tasks})
-    
-    for file in glob.glob(scp_file+".part.*"): shutil.rm(file)
+    ostream, estream = _get_output_stream_names(step)
+    job_runner.submit_job(HCopy, {'numtasks': num_tasks,
+                                    'ostream': ostream,
+                                    'estream': estream})    
+                                    
+    clean_split_file(scp_file)
     
     
 def _get_output_stream_names(step):

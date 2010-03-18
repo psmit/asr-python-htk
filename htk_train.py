@@ -25,7 +25,7 @@ logger.info("Start htk_train")
 
 job_runner.default_options["verbosity"] = 1
 job_runner.default_options["nodes"] = 4
-htk.num_tasks = 12
+htk.num_tasks = 48
 
 
 
