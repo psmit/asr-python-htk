@@ -294,8 +294,10 @@ def create_scp_lists_speecon(speecon_dir):
     for dir in create_dirs:
         if not os.path.exists(dir): os.makedirs(dir)
             
-    with open('hcopy.scp', 'w') as hcopy_scp:
+    with open('hcopy.scp', 'a') as hcopy_scp:
         
         for path in hcopy_paths:
             print >> hcopy_scp, "%s %s" % path
                     
+def create_scp_lists_wsj(wsj_dir):
+   

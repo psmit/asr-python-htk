@@ -46,8 +46,12 @@ if current_step >= options.step:
     if not config.has_option("audiofiles", "location") or not config.has_option("audiofiles", "type"):
         sys.exit("Configuration is not valid")
 
+	if os.path.exists('hcopy.scp'): os.rm('hcopy.scp')
     if config.get("audiofiles", "type") == 'speecon':
         data_manipulation.create_scp_lists_speecon(config.get("audiofiles", "location"))
+        
+    if config.get("audiofiles", "type") == 'wsj':
+        data_manipulation.create_scp_lists_wsj(config.get("audiofiles", "location"))
 
 
 current_step += 1
