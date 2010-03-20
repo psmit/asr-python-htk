@@ -22,8 +22,8 @@ logger = htk_logger.logger
 logger.info("Start create_mfcc")
 
 job_runner.default_options["verbosity"] = 1
-job_runner.default_options["nodes"] = 4
-job_runner.default_options["timelimit"] = '01:00:00'
+job_runner.default_options["nodes"] = 1
+job_runner.default_options["timelimit"] = '04:00:00'
 job_runner.default_options["memlimit"] = 500
 
 htk.num_tasks = 48
@@ -56,3 +56,4 @@ if current_step >= options.step:
     htk.HCopy(1, 'hcopy.scp', 'config.hcopy')
             
                
+print "Finished!"
