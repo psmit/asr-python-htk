@@ -340,7 +340,7 @@ def create_wordtranscriptions_speecon(scp_files, speecon_dir, word_transcription
         print >> transcriptions_file, "#!MLF!#"
         for scp_file in scp_files:
             for line in scp_file:
-                name = os.path.splitext(os.path.basename(line.rstrip))[0]
+                name = os.path.basename(line.rstrip).replace('.mfc', '')
                 if not transcriptions.has_key(name):
                     sys.exit("No transcription found for %s", name)
 
