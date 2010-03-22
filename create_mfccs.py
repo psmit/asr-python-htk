@@ -46,7 +46,7 @@ if current_step >= options.step:
     if not config.has_option("audiofiles", "location") or not config.has_option("audiofiles", "type"):
         sys.exit("Configuration is not valid")
 
-	if os.path.exists('hcopy.scp'): os.rm('hcopy.scp')
+	if os.path.exists('hcopy.scp'): os.remove('hcopy.scp')
     if config.get("audiofiles", "type") == 'speecon':
         data_manipulation.create_scp_lists_speecon(config.get("audiofiles", "location"))
         
@@ -58,6 +58,17 @@ current_step += 1
 if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'HCopying everything'))
     htk.HCopy(1, 'hcopy.scp', 'config.hcopy')
-            
-               
+
+current_step += 1
+if current_step >= options.step:
+    logger.info("Start step: %d (%s)" % (current_step, 'Making words.mlf'))
+
+    if config.get("audiofiles", "type") == 'speecon':
+        data_manipulation.create_wordtranscriptions_speecon(['train.scp', 'devel.scp', 'eval.scp'],config.get('audiofiles', 'location'), 'words.mlf')
+
+    if config.get("audiofiles", "type") == 'wsj':
+        sys.exit("Not implemented for wsj")
+
+
+
 print "Finished!"
