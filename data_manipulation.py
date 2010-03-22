@@ -336,19 +336,19 @@ def create_wordtranscriptions_speecon(scp_files, speecon_dir, word_transcription
         if len(parts) > 9:
             transcriptions['S'+parts[3]+parts[2]] = parts[9].split('#')[0].split()
 
-    with open(word_transcriptions) as _word_transcriptions:
-        print >> _word_transcriptions, "#!MLF!#"
+    with open(word_transcriptions, 'w') as transcriptions_file:
+        print >> transcriptions_file, "#!MLF!#"
         for scp_file in scp_files:
             for line in scp_file:
                 name = os.path.splitext(os.path.basename(line.rstrip))[0]
                 if not transcriptions.has_key(name):
                     sys.exit("No transcription found for %s", name)
 
-                print >> _word_transcriptions, '"*/%s.mfc"' % name
-                print >> _word_transcriptions, '<s>'
+                print >> transcriptions_file, '"*/%s.mfc"' % name
+                print >> transcriptions_file, '<s>'
                 for word in transcriptions[name]:
-                    print >> _word_transcriptions, word   
-                print >> _word_transcriptions, '</s>'
-                print >> _word_transcriptions, '.'
+                    print >> transcriptions_file, word
+                print >> transcriptions_file, '</s>'
+                print >> transcriptions_file, '.'
         
 
