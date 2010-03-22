@@ -168,24 +168,6 @@ def HVite(step, scpfile, hmm_dir, dict, phones_list, word_transcriptions, new_tr
     
     clean_split_file(scpfile)
     
-    
-#def HDMan(step, fulllist, global_ded, mono_dict, tri_dict):
-#    global extra_HTK_options
-#    
-#    HDMan = ["HDMan"]
-#    HDMan.extend(extra_HTK_options)
-#    HDMan.extend(['-n', fulllist,
-#                  '-b', 'sp',
-#                  '-g', global_ded,
-#                  '-l', 'flog',
-#                  tri_dict,
-#                  mono_dict])
-#    
-#    ostream, estream = _get_output_stream_names(step)
-#    job_runner.submit_job(HDMan, {'numtasks': 1,
-#                                    'ostream': ostream,
-#                                    'estream': estream})
-    
                                                 
 def HCopy(step, scp_file, config):
     global num_tasks, extra_HTK_options

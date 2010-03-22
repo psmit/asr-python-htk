@@ -252,7 +252,6 @@ def make_tree_hed(phone_rules_files, phones_list, tree_hed_file, tb, ro, statsfi
 
 def _unique_listelements(iterable):
     "List unique elements, preserving order. Remember all elements ever seen."
-    # unique_everseen('AAAABBBCCDAABBB') --> A B C D
     seen = set()
     seen_add = seen.add
 
@@ -300,4 +299,30 @@ def create_scp_lists_speecon(speecon_dir):
             print >> hcopy_scp, "%s %s" % path
                     
 def create_scp_lists_wsj(wsj_dir):
-   
+    hcopy_paths = []
+    create_dirs = set()
+    source_dirs_map = {'train': [os.path.join(wsj_dir, 'wsj1', 'wsj1', dir) for dir in ['si_tr_s', 'si_tr_j', 'si_tr_jd', 'si_tr_l', 'si_dt_s6']],
+                   'devel': [os.path.join(wsj_dir, 'wsj1', 'wsj1', dir) for dir in ['si_dt_05']],
+                   'eval': [os.path.join(wsj_dir, 'wsj0', dir) for dir in ['si_tr_s', 'si_et_05']]}
+
+    for wave_set in ['train', 'devel', 'eval']:
+        source_dirs = source_dirs_map[waveset]
+
+        with open(wave_set + '.scp', 'w') as scp_file:
+            for source_dir in source_dirs:
+                if not os.path.isdir(source_dir):
+                    sys.exit("Location %s not found" % source_dir)
+
+                for file in glob.iglob(source_dir + '/*/*.wv1'):
+                    mfc_file = file.replace(source_dir, 'mfc').replace('wv1','mfc')
+                    hcopy_paths.append( (file, mfc_file) )
+                    create_dirs.add(os.path.dirname(mfc_file))
+                    print >> scp_file, mfc_file
+
+    for dir in create_dirs:
+        if not os.path.exists(dir): os.makedirs(dir)
+
+    with open('hcopy.scp', 'a') as hcopy_scp_file:
+        for path in hcopy_paths:
+            print >> hcopy_scp_file, "%s %s" % path
+
