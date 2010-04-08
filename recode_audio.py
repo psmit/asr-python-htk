@@ -34,16 +34,17 @@ for input_file, output_file in file_pairs:
 
     if options.amr:
         ini_process = Popen(ini_command, stdout=PIPE)
-        iwav_file = input_file + '.iwav'
-        amr_file = input_file + '.amr'
-        owav_file = input_file + '.owav'
+        iwav_file = output_file + '.iwav'
+        amr_file = output_file + '.amr'
+        owav_file = output_file + '.owav'
         
         second_process = Popen(['sox', '-b', '16', '-e', 'signed-integer', '-r', '16000', '-t', 'wav', '-',
                            '-b', '16', '-e', 'signed-integer', '-r', '8000', '-t', 'raw', iwav_file, 'rate', '-ql'], stdin=ini_process.stdout)
         ini_process.wait()
         second_process.wait()
         Popen(['amr-encoder', 'MR122', iwav_file, amr_file]).wait()
-        Popen(['amr-decoder', amr_file, owav_file])
+        Popen(['amr-decoder', amr_file, owav_file]).wait()
+
         ofile = open(output_file, 'w+b')
         Popen(['sox', '-b', '16', '-e', 'signed-integer', '-r', '8000', '-t', 'raw', owav_file,
                            '-b', '16', '-e', 'signed-integer', '-r', '16000', '-t', 'wav', '-', 'rate', '-ql'], stdout=ofile).wait()
