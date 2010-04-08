@@ -186,7 +186,23 @@ def HCopy(step, scp_file, config):
                                     
     clean_split_file(scp_file)
     
-    
+def recode_audio(step, scp_file, data_set, amr):
+    global num_tasks
+
+    split_file(scp_file, num_tasks)
+    recode_audio = ["recode_audio.py"]
+    recode_audio.extend(["-s", data_set,
+                         "-S", scp_file+ ".part.%t"])
+    if amr:
+        recode_audio.append('-a')
+        
+    ostream, estream = _get_output_stream_names(step)
+    job_runner.submit_job(recode_audio, {'numtasks': num_tasks,
+                                    'ostream': ostream,
+                                    'estream': estream})
+
+    clean_split_file(scp_file)
+
 def _get_output_stream_names(step):
     global clean_old_logs, log_step
     

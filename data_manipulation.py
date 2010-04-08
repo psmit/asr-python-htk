@@ -173,7 +173,7 @@ def filter_scp_by_mlf(scp_orig, scp_new, mlf, report_list):
                     print >>  scpfile, scp[m.group(0)]
                     del scp[m.group(0)]
     with open(report_list, 'w') as reportfile:  
-        for key, value in scp.items():
+        for key in scp.keys():
             print >> reportfile, key
     
 def remove_triphone_sil(file, unique = False):
@@ -262,84 +262,108 @@ def _unique_listelements(iterable):
             yield element
 
 
-def create_scp_lists_speecon(speecon_dir):
-    hcopy_paths = []
+#def create_scp_lists_speecon(speecon_dir):
+#    hcopy_paths = []
+#    create_dirs = set()
+#
+#    for waveset in ['train', 'devel', 'eval']:
+#        waves = []
+#
+#        if not os.path.exists(speecon_dir + '/' + 'speecon_adult_' + waveset + '.recipe'):
+#            sys.exit("Not Found: " + speecon_dir + '/' + 'speecon_adult_' + waveset + '.recipe')
+#
+#        for line in open(speecon_dir + '/' + 'speecon_adult_' + waveset + '.recipe'):
+#            map = {}
+#            for part in line.split():
+#                (key, value) = part.split('=', 1)
+#                map[key] = value
+#            waves.append(map['audio'])
+#
+#        with open(waveset + '.scp', 'w') as real_scp:
+#
+#            for wave in waves:
+#                pathcomps = wave.split('/')
+#                pathcomps[len(pathcomps)-1] = pathcomps[len(pathcomps)-1].replace('FI0', 'mfc')
+#                hcopy_paths.append( (wave , 'mfc/'+'/'.join(pathcomps[len(pathcomps)-3:]) ) )
+#                create_dirs.add('mfc/'+'/'.join(pathcomps[len(pathcomps)-3:len(pathcomps)-1]))
+#
+#                print >> real_scp, "%s" % 'mfc/'+'/'.join(pathcomps[len(pathcomps)-3:])
+#
+#
+#    for dir in create_dirs:
+#        if not os.path.exists(dir): os.makedirs(dir)
+#
+#    with open('hcopy.scp', 'a') as hcopy_scp:
+#
+#        for path in hcopy_paths:
+#            print >> hcopy_scp, "%s %s" % path
+#
+#def create_scp_lists_wsj(wsj_dir):
+#    hcopy_paths = []
+#    create_dirs = set()
+#    source_dirs_map = {'train': [os.path.join(wsj_dir, 'wsj1', 'wsj1', dir) for dir in ['si_tr_s', 'si_tr_j', 'si_tr_jd', 'si_tr_l', 'si_dt_s6']],
+#                   'devel': [os.path.join(wsj_dir, 'wsj1', 'wsj1', dir) for dir in ['si_dt_05']],
+#                   'eval': [os.path.join(wsj_dir, 'wsj0', dir) for dir in ['si_tr_s', 'si_et_05']]}
+#
+#    for wave_set in ['train', 'devel', 'eval']:
+#        source_dirs = source_dirs_map[waveset]
+#
+#        with open(wave_set + '.scp', 'w') as scp_file:
+#            for source_dir in source_dirs:
+#                if not os.path.isdir(source_dir):
+#                    sys.exit("Location %s not found" % source_dir)
+#
+#                for file in glob.iglob(source_dir + '/*/*.wv1'):
+#                    mfc_file = file.replace(source_dir, 'mfc').replace('wv1','mfc')
+#                    hcopy_paths.append( (file, mfc_file) )
+#                    create_dirs.add(os.path.dirname(mfc_file))
+#                    print >> scp_file, mfc_file
+#
+#    for dir in create_dirs:
+#        if not os.path.exists(dir): os.makedirs(dir)
+#
+#    with open('hcopy.scp', 'a') as hcopy_scp_file:
+#        for path in hcopy_paths:
+#            print >> hcopy_scp_file, "%s %s" % path
+
+def create_scp_lists(waveforms, raw_to_wav_list, wav_to_mfc_list):
     create_dirs = set()
+    with open(raw_to_wav_list, 'w') as rtw_list:
+        with open(wav_to_mfc_list, 'w') as wtm_list:
+            for dset, files in waveforms.items():
+                with open(dset + '.scp', 'w') as set_list:
+                    for file in files:
+                        dir, filename = os.path.split(file)
+                        basen, ext = os.path.splitext(filename)
+                        wav_file = os.path.join('wav', dset, os.path.basename(dir), basen + '.wav')
+                        mfc_file = os.path.join('mfc', dset, os.path.basename(dir), basen + '.mfc')
+                        create_dirs.add(os.path.join('wav', dset, os.path.basename(dir)))
+                        create_dirs.add(os.path.join('mfc', dset, os.path.basename(dir)))
+                        print >> rtw_list, "%s %s" % (file, wav_file)
+                        print >> wtm_list, "%s %s" % (wav_file, mfc_file)
+                        print >> set_list, mfc_file
     
-    for waveset in ['train', 'devel', 'eval']:
-        waves = []
-       
-        if not os.path.exists(speecon_dir + '/' + 'speecon_adult_' + waveset + '.recipe'):
-            sys.exit("Not Found: " + speecon_dir + '/' + 'speecon_adult_' + waveset + '.recipe')
-        
-        for line in open(speecon_dir + '/' + 'speecon_adult_' + waveset + '.recipe'):
-            map = {}
-            for part in line.split():
-                (key, value) = part.split('=', 1)
-                map[key] = value
-            waves.append(map['audio'])
-        
-        with open(waveset + '.scp', 'w') as real_scp:
-        
-            for wave in waves:
-                pathcomps = wave.split('/')
-                pathcomps[len(pathcomps)-1] = pathcomps[len(pathcomps)-1].replace('FI0', 'mfc')
-                hcopy_paths.append( (wave , 'mfc/'+'/'.join(pathcomps[len(pathcomps)-3:]) ) )
-                create_dirs.add('mfc/'+'/'.join(pathcomps[len(pathcomps)-3:len(pathcomps)-1]))
-                
-                print >> real_scp, "%s" % 'mfc/'+'/'.join(pathcomps[len(pathcomps)-3:])
-        
-        
     for dir in create_dirs:
         if not os.path.exists(dir): os.makedirs(dir)
-            
-    with open('hcopy.scp', 'a') as hcopy_scp:
-        
-        for path in hcopy_paths:
-            print >> hcopy_scp, "%s %s" % path
-                    
-def create_scp_lists_wsj(wsj_dir):
-    hcopy_paths = []
-    create_dirs = set()
-    source_dirs_map = {'train': [os.path.join(wsj_dir, 'wsj1', 'wsj1', dir) for dir in ['si_tr_s', 'si_tr_j', 'si_tr_jd', 'si_tr_l', 'si_dt_s6']],
-                   'devel': [os.path.join(wsj_dir, 'wsj1', 'wsj1', dir) for dir in ['si_dt_05']],
-                   'eval': [os.path.join(wsj_dir, 'wsj0', dir) for dir in ['si_tr_s', 'si_et_05']]}
-
-    for wave_set in ['train', 'devel', 'eval']:
-        source_dirs = source_dirs_map[waveset]
-
-        with open(wave_set + '.scp', 'w') as scp_file:
-            for source_dir in source_dirs:
-                if not os.path.isdir(source_dir):
-                    sys.exit("Location %s not found" % source_dir)
-
-                for file in glob.iglob(source_dir + '/*/*.wv1'):
-                    mfc_file = file.replace(source_dir, 'mfc').replace('wv1','mfc')
-                    hcopy_paths.append( (file, mfc_file) )
-                    create_dirs.add(os.path.dirname(mfc_file))
-                    print >> scp_file, mfc_file
-
-    for dir in create_dirs:
-        if not os.path.exists(dir): os.makedirs(dir)
-
-    with open('hcopy.scp', 'a') as hcopy_scp_file:
-        for path in hcopy_paths:
-            print >> hcopy_scp_file, "%s %s" % path
-
 
 def create_wordtranscriptions_speecon(scp_files, speecon_dir, word_transcriptions):
     transcriptions = {}
-    word_transcriptions_dict = {}
+    mappings = {}
+
+    for line in open(os.path.join(speecon_dir, 'adult', 'TABLE', 'LEXICON.TBL')):
+        parts = line.split('\t', 3)
+        mappings[parts[0]] = parts[3].rstrip()
+
 
     for line in open(os.path.join(speecon_dir, 'adult', 'INDEX', 'CONTENT0.LST')):
-        parts = line.split(None, 9)
-        if len(parts) > 9:
-            transcriptions['S'+parts[3]+parts[2]] = parts[9].split('#')[0].split()
+        parts = line.split(None, 8)
+        if len(parts) > 8:
+            transcriptions[parts[1][0:8]] = parts[8].split('#')[0].split()
 
     with open(word_transcriptions, 'w') as transcriptions_file:
         print >> transcriptions_file, "#!MLF!#"
         for scp_file in scp_files:
-            for line in scp_file:
+            for line in open(scp_file):
                 name = os.path.splitext(os.path.basename(line.rstrip()))[0]
                 if not transcriptions.has_key(name):
                     sys.exit("No transcription found for %s" % name)
@@ -347,8 +371,70 @@ def create_wordtranscriptions_speecon(scp_files, speecon_dir, word_transcription
                 print >> transcriptions_file, '"*/%s.mfc"' % name
                 print >> transcriptions_file, '<s>'
                 for word in transcriptions[name]:
-                    print >> transcriptions_file, word
+                    if not word.startswith('['):
+                        if word.startswith('_') and mappings.has_key(word):
+                            print >> transcriptions_file, mappings[word]
+                        else:
+                            print >> transcriptions_file, word
                 print >> transcriptions_file, '</s>'
                 print >> transcriptions_file, '.'
         
+def create_wordtranscriptions_wsj(scp_files, wsj_dirs, word_transcriptions):
+    transcriptions = {}
+
+    for file in itertools.chain(
+            glob.iglob(os.path.join(wsj_dirs[0], 'transcrp', 'dots') + '/*/*/*.dot'),
+            glob.iglob(wsj_dirs[0] + '/si_et_*/*/*.dot'),
+            glob.iglob(os.path.join(wsj_dirs[1], 'trans', 'wsj1') + '/*/*/*.lsn')):
+        for line in open(file):
+            parts = line.split()
+            transcription = [trans.lower() for trans in parts[0:len(parts) - 1]]
+            file = parts[len(parts) -1][1:9].lower()
+            transcriptions[file] = transcription
+
+    with open(word_transcriptions, 'w') as transcriptions_file:
+        print >> transcriptions_file, "#!MLF!#"
+        for scp_file in scp_files:
+            for line in open(scp_file):
+                name = os.path.splitext(os.path.basename(line.rstrip()))[0]
+                if not transcriptions.has_key(name):
+                    sys.exit("No transcription found for %s" % name)
+
+                print >> transcriptions_file, '"*/%s.mfc"' % name
+                print >> transcriptions_file, '<s>'
+                for word in transcriptions[name]:
+                    if not word.startswith('['):
+                        print >> transcriptions_file, word
+                print >> transcriptions_file, '</s>'
+                print >> transcriptions_file, '.'
+
+def wsj_selection(wsj_dirs, set):
+    wv1_files = []
+    if set == 'si-84' or set == 'si-284':
+        for line in open(os.path.join(wsj_dirs[0], 'doc', 'indices', 'train', 'tr_s_wv1.ndx')):
+            if not line.startswith(';'):
+                wv1_files.append(os.path.join(wsj_dirs[0], line.rstrip().split(':', 1)[1].split('/',1)[1]))
+    if set == 'si-284':
+        for file in glob.iglob(wsj_dirs[1] + '/si_tr_s/*/*.wv1'):
+            wv1_files.append(file)
+    if set == 'si_dt_05':
+        for file in glob.iglob(wsj_dirs[1] + '/si_dt_05/*/*.wv1'):
+            wv1_files.append(file)
+    if set == 'si_et_05':
+        for file in glob.iglob(wsj_dirs[0] + '/si_et_05/*/*.wv1'):
+            wv1_files.append(file)
+    return wv1_files
+
+def speecon_fi_selection(speecon_dir, set):
+    fi0_files = []
+    if not os.path.exists(speecon_dir + '/' + 'speecon_adult_' + set + '.recipe'):
+        sys.exit("Not Found: " + speecon_dir + '/' + 'speecon_adult_' + set + '.recipe')
+
+    for line in open(speecon_dir + '/' + 'speecon_adult_' + set + '.recipe'):
+        map = {}
+        for part in line.split():
+            (key, value) = part.split('=', 1)
+            map[key] = value
+        fi0_files.append(map['audio'])
+    return fi0_files
 
