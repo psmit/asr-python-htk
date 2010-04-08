@@ -83,7 +83,7 @@ if current_step >= options.step:
     if config.has_option('amr', 'do_encode_decode') and config.getboolean('amr', 'do_encode_decode'):
         use_amr = True
     htk.recode_audio(current_step, raw_to_wav_list, config.get("audiofiles", "type"), use_amr)
-sys.exit()
+
 
 current_step += 1
 if current_step >= options.step:
