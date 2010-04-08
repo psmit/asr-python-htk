@@ -79,8 +79,12 @@ if current_step >= options.step:
 current_step += 1
 if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Creating wav files'))
-    htk.recode_audio(current_step, raw_to_wav_list, config.get("audiofiles", "type"), False)
-    
+    use_amr = False
+    if config.has_option('amr', 'do_encode_decode') and config.getboolean('amr', 'do_encode_decode'):
+        use_amr = True
+    htk.recode_audio(current_step, raw_to_wav_list, config.get("audiofiles", "type"), use_amr)
+sys.exit()
+
 current_step += 1
 if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'HCopying everything'))

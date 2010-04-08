@@ -34,17 +34,16 @@ for input_file, output_file in file_pairs:
 
     if options.amr:
         ini_process = Popen(ini_command, stdout=PIPE)
-        fd, iwav_file = mkstemp()
-        fd.close()
-        fd, amr_file = mkstemp()
-        fd.close()
-        fd, owav_file = mkstemp()
-        fd.close()
-
-        Popen(['sox', '-b', '16', '-e', 'signed-integer', '-r', '16000', '-t', 'wav', ini_process.stdout,
-                           '-b', '16', '-e', 'signed-integer', '-r', '8000', '-t', 'raw', iwav_file, 'rate', '-ql']).wait()
-        Popen(['amr-encode', 'MR122', iwav_file, amr_file]).wait()
-        Popen(['amr-decode', amr_file, owav_file])
+        iwav_file = input_file + '.iwav'
+        amr_file = input_file + '.amr'
+        owav_file = input_file + '.owav'
+        
+        second_process = Popen(['sox', '-b', '16', '-e', 'signed-integer', '-r', '16000', '-t', 'wav', '-',
+                           '-b', '16', '-e', 'signed-integer', '-r', '8000', '-t', 'raw', iwav_file, 'rate', '-ql'], stdin=ini_process.stdout)
+        ini_process.wait()
+        second_process.wait()
+        Popen(['amr-encoder', 'MR122', iwav_file, amr_file]).wait()
+        Popen(['amr-decoder', amr_file, owav_file])
         ofile = open(output_file, 'w+b')
         Popen(['sox', '-b', '16', '-e', 'signed-integer', '-r', '8000', '-t', 'raw', owav_file,
                            '-b', '16', '-e', 'signed-integer', '-r', '16000', '-t', 'wav', '-', 'rate', '-ql'], stdout=ofile).wait()
