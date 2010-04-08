@@ -435,6 +435,6 @@ def speecon_fi_selection(speecon_dir, set):
         for part in line.split():
             (key, value) = part.split('=', 1)
             map[key] = value
-        fi0_files.append(map['audio'])
+        fi0_files.append(map['audio'].replace('/share/puhe/audio/speecon-fi', speecon_dir))
     return fi0_files
 
