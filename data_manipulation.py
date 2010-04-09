@@ -379,17 +379,17 @@ def create_wordtranscriptions_speecon(scp_files, speecon_dir, word_transcription
                 print >> transcriptions_file, '"*/%s.mfc"' % name
                 print >> transcriptions_file, '<s>'
                 for word in transcriptions[name]:
-                    word = word.lstrip()
+                    word = word.replace('*', '')
                     if not word.startswith('[') and not word.startswith('Ö'):
                         if word.startswith('_') and mappings.has_key(word):
                             if mappings.has_key(mappings[word].lower()):
-                                print >> transcriptions_file, mappings[mappings[word].lower()].replace('*', '') + '_'
+                                print >> transcriptions_file, mappings[mappings[word].lower()] + '_'
                             elif mappings.has_key(mappings[word].upper()):
-                                print >> transcriptions_file, mappings[mappings[word].upper()].replace('*', '') + '_'
+                                print >> transcriptions_file, mappings[mappings[word].upper()] + '_'
                             else:
-                                print >> transcriptions_file, word.lower().lstrip('_').replace('*', '') + '_'
+                                print >> transcriptions_file, word.lower().lstrip('_') + '_'
                         else:
-                            print >> transcriptions_file, word.lower().replace('*', '') + '_'
+                            print >> transcriptions_file, word.lower() + '_'
                 print >> transcriptions_file, '</s>'
                 print >> transcriptions_file, '.'
         
