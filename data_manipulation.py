@@ -373,9 +373,9 @@ def create_wordtranscriptions_speecon(scp_files, speecon_dir, word_transcription
                 for word in transcriptions[name]:
                     if not word.startswith('['):
                         if word.startswith('_') and mappings.has_key(word):
-                            print >> transcriptions_file, mappings[word] + '_'
+                            print >> transcriptions_file, mappings[word].lower() + '_'
                         else:
-                            print >> transcriptions_file, word + '_'
+                            print >> transcriptions_file, word.lower() + '_'
                 print >> transcriptions_file, '</s>'
                 print >> transcriptions_file, '.'
         
