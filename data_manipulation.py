@@ -386,7 +386,7 @@ def create_wordtranscriptions_speecon(scp_files, speecon_dir, word_transcription
                             elif mappings.has_key(mappings[word].upper()):
                                 print >> transcriptions_file, mappings[mappings[word].upper()].replace('*', '') + '_'
                             else:
-                                print >> transcriptions_file, word.lower()[1:].replace('*', '') + '_'
+                                print >> transcriptions_file, word.lower().lstrip('_').replace('*', '') + '_'
                         else:
                             print >> transcriptions_file, word.lower().replace('*', '') + '_'
                 print >> transcriptions_file, '</s>'
