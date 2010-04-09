@@ -1,4 +1,5 @@
 #!/usr/bin/env python2.6
+# -*- coding: utf-8 -*-
 import glob
 import itertools
 import os
@@ -371,7 +372,7 @@ def create_wordtranscriptions_speecon(scp_files, speecon_dir, word_transcription
                 print >> transcriptions_file, '"*/%s.mfc"' % name
                 print >> transcriptions_file, '<s>'
                 for word in transcriptions[name]:
-                    if not word.startswith('[') and word is not u'Ö':
+                    if not word.startswith('[') and word is not 'Ö':
                         if word.startswith('_') and mappings.has_key(word):
                             if mappings.has_key(mappings[word].lower()) or mappings.has_key(mappings[word].upper()) :
                                 print >> transcriptions_file, mappings[word].lower().replace('*', '') + '_'
