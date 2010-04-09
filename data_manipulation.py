@@ -402,7 +402,7 @@ def create_wordtranscriptions_wsj(scp_files, wsj_dirs, word_transcriptions):
             glob.iglob(os.path.join(wsj_dirs[1], 'trans', 'wsj1') + '/*/*/*.lsn')):
         for line in open(file):
             parts = line.split()
-            transcription = [trans.lower().replace('*', '').replace('(', '').replace(')', '').replace('-', '') for trans in parts[0:len(parts) - 1]]
+            transcription = [trans.lower().replace('*', '').replace('(', '').replace(')', '').rstrip('-') for trans in parts[0:len(parts) - 1]]
             file = parts[len(parts) -1][1:9].lower()
             transcriptions[file] = transcription
 
