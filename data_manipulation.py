@@ -419,7 +419,7 @@ def create_wordtranscriptions_wsj(scp_files, wsj_dirs, word_transcriptions):
                 print >> transcriptions_file, '"*/%s.mfc"' % name
                 print >> transcriptions_file, '<s>'
                 for word in transcriptions[name]:
-                    if not word.startswith('['):
+                    if not word.startswith('[') and not word.startswith('<'):
                         if word.startswith('"'):
                            print >> transcriptions_file, "\%s" %  word 
                         else:
