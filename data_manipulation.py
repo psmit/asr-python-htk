@@ -404,7 +404,7 @@ def create_wordtranscriptions_wsj(scp_files, wsj_dirs, word_transcriptions):
             glob.iglob(os.path.join(wsj_dirs[1], 'trans', 'wsj1') + '/*/*/*.dot')):
         for line in open(file):
             parts = line.split()
-            transcription = [re.sub(delete_pattern, '',  trans.lower().lstrip('(').rstrip('-)').replace('*', '').replace(':', '')) for trans in parts[0:len(parts) - 1]]
+            transcription = [re.sub(delete_pattern, '',  trans.lower().lstrip('(').rstrip(')').replace('*', '').replace(':', '')) for trans in parts[0:len(parts) - 1]]
             file = parts[len(parts) -1][1:9].lower()
             transcriptions[file] = transcription
 
@@ -419,7 +419,7 @@ def create_wordtranscriptions_wsj(scp_files, wsj_dirs, word_transcriptions):
                 print >> transcriptions_file, '"*/%s.mfc"' % name
                 print >> transcriptions_file, '<s>'
                 for word in transcriptions[name]:
-                    if not word.startswith('[') and not word.startswith('<'):
+                    if not word.startswith('[') and not word.startswith('<') and not word.endswith('-'):
                         if word.startswith('"'):
                            print >> transcriptions_file, "\%s" %  word 
                         else:
