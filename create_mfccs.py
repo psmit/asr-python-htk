@@ -72,7 +72,10 @@ if current_step >= options.step:
         for dset in ['train', 'eval', 'devel']:
             waveforms[dset] = data_manipulation.wsj_selection(locations, config.get("audiofiles", dset+"_set"))
 
-    data_manipulation.create_scp_lists(waveforms, raw_to_wav_list, wav_to_mfc_list)
+    exclude_list = None
+    if config.has_option("audiofiles", "exclude_list"):
+        exclude_list = config.get("audiofiles", "exclude_list")
+    data_manipulation.create_scp_lists(waveforms, raw_to_wav_list, wav_to_mfc_list, exclude_list)
 
 
 

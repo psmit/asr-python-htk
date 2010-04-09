@@ -327,7 +327,11 @@ def _unique_listelements(iterable):
 #        for path in hcopy_paths:
 #            print >> hcopy_scp_file, "%s %s" % path
 
-def create_scp_lists(waveforms, raw_to_wav_list, wav_to_mfc_list):
+def create_scp_lists(waveforms, raw_to_wav_list, wav_to_mfc_list, exclude_list=None):
+    excludes = []
+    if exclude_list is not None:
+        for line in open(exclude_list): excludes.append(line.rstrip())
+
     create_dirs = set()
     with open(raw_to_wav_list, 'w') as rtw_list:
         with open(wav_to_mfc_list, 'w') as wtm_list:
@@ -336,6 +340,9 @@ def create_scp_lists(waveforms, raw_to_wav_list, wav_to_mfc_list):
                     for file in files:
                         dir, filename = os.path.split(file)
                         basen, ext = os.path.splitext(filename)
+                        if basen in excludes:
+                            print basen + "excluded"
+                            break
                         wav_file = os.path.join('wav', dset, os.path.basename(dir), basen + '.wav')
                         mfc_file = os.path.join('mfc', dset, os.path.basename(dir), basen + '.mfc')
                         create_dirs.add(os.path.join('wav', dset, os.path.basename(dir)))
