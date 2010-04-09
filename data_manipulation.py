@@ -420,7 +420,10 @@ def create_wordtranscriptions_wsj(scp_files, wsj_dirs, word_transcriptions):
                 print >> transcriptions_file, '<s>'
                 for word in transcriptions[name]:
                     if not word.startswith('['):
-                        print >> transcriptions_file, word
+                        if word.startswith('"'):
+                           print >> transcriptions_file, "\%s" %  word 
+                        else:
+                            print >> transcriptions_file, word
                 print >> transcriptions_file, '</s>'
                 print >> transcriptions_file, '.'
 
