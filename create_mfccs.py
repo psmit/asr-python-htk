@@ -107,8 +107,8 @@ if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Making transcription file'))
 
     if config.get("audiofiles", "type") == 'speecon':
-        data_manipulation.create_wordtranscriptions_speecon(['train.scp', 'devel.scp', 'eval.scp'],config.get('audiofiles', 'location'), 'words.mlf')
-
+        data_manipulation.create_wordtranscriptions_speecon(['train.scp'],config.get('audiofiles', 'location'), 'words.mlf')
+    #, 'devel.scp', 'eval.scp'
     if config.get("audiofiles", "type") == 'wsj':
         locations = [os.path.join(config.get("audiofiles", "location"), 'wsj0'),
                      os.path.join(config.get("audiofiles", "location"), 'wsj1', 'wsj1')]
