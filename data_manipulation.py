@@ -1,4 +1,5 @@
 #!/usr/bin/env python2.6
+import codecs
 import glob
 import itertools
 import os
@@ -355,7 +356,7 @@ def create_wordtranscriptions_speecon(scp_files, speecon_dir, word_transcription
         mappings[parts[0]] = parts[3].rstrip()
 
 
-    for line in open(os.path.join(speecon_dir, 'adult', 'INDEX', 'CONTENT0.LST')):
+    for line in codecs.open(os.path.join(speecon_dir, 'adult', 'INDEX', 'CONTENT0.LST'), 'r', 'iso8859_15'):
         parts = line.split(None, 8)
         if len(parts) > 8:
             transcriptions[parts[1][0:8]] = parts[8].split('#')[0].split()
