@@ -396,7 +396,7 @@ def create_wordtranscriptions_speecon(scp_files, speecon_dir, word_transcription
 def create_wordtranscriptions_wsj(scp_files, wsj_dirs, word_transcriptions):
     transcriptions = {}
 
-    delete_pattern = re.compile("(?<=[a-z])[\(\)](?=[a-z])|(?<![\\\])!|[\(\)](?!paren)")
+    delete_pattern = re.compile("(?<=[a-z])[\(\)](?=[a-z])|(?<![\\\])!|[\(\)](?!paren|left-paren|right-paren)")
 
     for file in itertools.chain(
             glob.iglob(os.path.join(wsj_dirs[0], 'transcrp', 'dots') + '/*/*/*.dot'),
