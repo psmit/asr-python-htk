@@ -88,10 +88,8 @@ if current_step >= options.step:
     os.mkdir('files')
 
     excluded = data_manipulation.prune_transcriptions(dict, 'corpora/words.mlf', 'files/words.mlf')
-    if len(excluded) > 0:
-        for exclude in excluded:
-            print exclude
-        sys.exit("boo")
+    data_manipulation.update_exclude_list('files/exclude_list', excluded, ['corpora/train.scp','corpora/eval.scp','corpora/devel.scp'], ['files/train.scp','files/eval.scp','files/devel.scp'])
+
     htk.HLEd(current_step, 'corpora/words.mlf', mkmono0_led, '*', 'files/monophones0', 'files/mono0.mlf', dict)
     htk.HLEd(current_step, 'corpora/words.mlf', mkmono1_led, '*', 'files/monophones1', 'files/mono1.mlf', dict)
     
@@ -99,7 +97,7 @@ if current_step >= options.step:
 current_step += 1   
 
 # Set some common variables
-scpfile = 'corpora/train.scp'
+scpfile = 'files/train.scp'
 configfile = 'config/config'
 if not os.path.exists(scpfile): sys.exit("Not Found: " + scpfile)
 if not os.path.exists(configfile): sys.exit("Not Found: " + configfile)

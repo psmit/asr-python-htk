@@ -394,7 +394,27 @@ def create_wordtranscriptions_speecon(scp_files, speecon_dir, word_transcription
                 print >> transcriptions_file, '</s>'
                 print >> transcriptions_file, '.'
 
+def update_exclude_list(exclude_list, excludes, scp_files, new_scp_files):
+    with open(exclude_list, 'a') as exclude_file:
+        for exclude in excludes:
+            print >> exclude_file, exclude
 
+    excludes = set()
+    for exclude in open(exclude_list):
+        excludes.add(exclude)
+
+    for old_scp, new_scp in itertools.izip(scp_files, new_scp_files):
+        scp_lines = []
+        for line in open(old_scp):
+            line = line.rstrip()
+            if os.path.splitext(os.path.basename(line))[0] not in excludes:
+                scp_lines.append(line)
+
+        with open(new_scp, 'w') as scp_file:
+            for line in scp_lines:
+                print >> scp_file, line
+                
+        
 def prune_transcriptions(dict_file, orig_words_mlf, new_words_mlf):
     pruned_trans = []
     dict = {}
