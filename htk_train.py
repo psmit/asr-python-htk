@@ -90,8 +90,8 @@ if current_step >= options.step:
     excluded = data_manipulation.prune_transcriptions(dict, 'corpora/words.mlf', 'files/words.mlf')
     data_manipulation.update_exclude_list('files/exclude_list', excluded, ['corpora/train.scp','corpora/eval.scp','corpora/devel.scp'], ['files/train.scp','files/eval.scp','files/devel.scp'])
 
-    htk.HLEd(current_step, 'corpora/words.mlf', mkmono0_led, '*', 'files/monophones0', 'files/mono0.mlf', dict)
-    htk.HLEd(current_step, 'corpora/words.mlf', mkmono1_led, '*', 'files/monophones1', 'files/mono1.mlf', dict)
+    htk.HLEd(current_step, 'files/words.mlf', mkmono0_led, '*', 'files/monophones0', 'files/mono0.mlf', dict)
+    htk.HLEd(current_step, 'files/words.mlf', mkmono1_led, '*', 'files/monophones1', 'files/mono1.mlf', dict)
     
     
 current_step += 1   
