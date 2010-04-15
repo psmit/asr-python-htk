@@ -23,19 +23,23 @@ logger = htk_logger.logger
 logger.info("Start create_mfcc")
 
 job_runner.default_options["verbosity"] = 1
-job_runner.default_options["nodes"] = 1
+
 job_runner.default_options["timelimit"] = '04:00:00'
 job_runner.default_options["memlimit"] = 500
 
-htk.num_tasks = 48
+
 
 usage = "usage: %prog [options] configfiles"
 parser = OptionParser(usage=usage)
+parser.add_option("-n", "--number-nodes", type="int", dest="nodes",help="Number of nodes for jobrunner", default=1)
 parser.add_option("-s", "--step", type="int", dest="step",help="Starting step", default=0)
 parser.add_option("-V", "--verbosity", type="int", dest="verbosity", help="Verbosity", default=1)
 parser.add_option("-D", "--no-wav-delete", action="store_false", dest="delete_wav", default=True, help="Do not delete intermediate wav files")
 
 options, configs = parser.parse_args()
+
+job_runner.default_options["nodes"] = options.nodes
+htk.num_tasks = options.nodes * 48
 
 config = SafeConfigParser({'train_set': 'train',
                             'eval_set': 'eval',

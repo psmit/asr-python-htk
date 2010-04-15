@@ -24,17 +24,18 @@ logger.info("Start htk_train")
 
 
 job_runner.default_options["verbosity"] = 1
-job_runner.default_options["nodes"] = 1
 job_runner.default_options["memlimit"] = 500
-htk.num_tasks = 48
-
 
 
 usage = "usage: %prog [options] configfiles"
 parser = OptionParser(usage=usage)
+parser.add_option("-n", "--number-nodes", type="int", dest="nodes",help="Number of nodes for jobrunner", default=1)
 parser.add_option("-s", "--step",      type="int", dest="step",      help="Starting step", default=0)
 parser.add_option("-V", "--verbosity", type="int", dest="verbosity", help="Verbosity",     default=1)
 options, configs = parser.parse_args()
+
+job_runner.default_options["nodes"] = options.nodes
+htk.num_tasks = options.nodes * 48
 
 config = SafeConfigParser({'name': 'EXPERIMENT NAME_TO_BE_FILLED!',
                             'prefix': '',
