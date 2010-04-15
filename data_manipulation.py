@@ -31,6 +31,7 @@ def import_dictionaries(dicts):
         for line in open(location + '/dict'):
             word, transcription = line.split(None, 1)
             un_word = unescape(word.lower())
+            un_word = un_word[0] + un_word[1:].replace('\\','')
             
             if not dict.has_key(un_word):
                 dict[un_word] = []
@@ -402,7 +403,7 @@ def prune_transcriptions(dict_file, orig_words_mlf, new_words_mlf):
         dict[key] = value
 
 
-    reg_exp = re.compile('\"\*/([a-z0-9]+)\.lab\"')
+    reg_exp = re.compile('\"\*/([a-z0-9]+)\.mfc\"')
     with open(new_words_mlf, 'w') as mlf_out:
         print >> mlf_out, "#!MLF!#"
         utt_name = None
@@ -420,21 +421,24 @@ def prune_transcriptions(dict_file, orig_words_mlf, new_words_mlf):
                 utt_name = m.group(1)
             elif line.lstrip().rstrip() == '.':
                 utt_trans.append('.')
-                if success:
-                    print >> mlf_out, '"*/%s.lab"' % utt_name
+                if success and utt_name is not None:
+                    print >> mlf_out, '"*/%s.mfc"' % utt_name
                     for word in utt_trans:
                         print >> mlf_out, word
                 else:
-                    pruned_trans.append(utt_name)
+                    if utt_name is not None:
+                        pruned_trans.append(utt_name)
 
                 utt_name = None
                 utt_trans = []
                 success = True
             else:
+                line = line[0] + line[1:].replace('\\','')
                 if dict.has_key(line):
                     utt_trans.append(line)
                 else:
                     success = False
+                    print "%s %s" % (utt_name, line)
 
     return pruned_trans
 
@@ -442,7 +446,7 @@ def prune_transcriptions(dict_file, orig_words_mlf, new_words_mlf):
 def create_wordtranscriptions_wsj(scp_files, wsj_dirs, word_transcriptions):
     transcriptions = {}
 
-    delete_pattern = re.compile("(?<![\\\])[\(\)!]")
+    delete_pattern = re.compile("(?<![\\\])[\(\)!:]")
 
     for file in itertools.chain(
             glob.iglob(os.path.join(wsj_dirs[0], 'transcrp', 'dots') + '/*/*/*.dot'),
@@ -450,7 +454,7 @@ def create_wordtranscriptions_wsj(scp_files, wsj_dirs, word_transcriptions):
             glob.iglob(os.path.join(wsj_dirs[1], 'trans', 'wsj1') + '/*/*/*.dot')):
         for line in open(file):
             parts = line.split()
-            transcription = [re.sub(delete_pattern, '',  trans.lower().lstrip('(-').rstrip('-)').replace('*', '').replace(':', '')) for trans in parts[0:len(parts) - 1]]
+            transcription = [re.sub(delete_pattern, '',  trans.lower().lstrip('(-').rstrip('-)').replace('*', '')) for trans in parts[0:len(parts) - 1]]
             file = parts[len(parts) -1][1:9].lower()
             transcriptions[file] = transcription
 
