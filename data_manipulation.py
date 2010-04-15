@@ -432,7 +432,7 @@ def prune_transcriptions(dict_file, orig_words_mlf, new_words_mlf):
                 success = True
             else:
                 if dict.has_key(line):
-                    utt_trans.appen(line)
+                    utt_trans.append(line)
                 else:
                     success = False
 
