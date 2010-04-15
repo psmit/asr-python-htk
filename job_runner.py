@@ -167,12 +167,12 @@ class Runner(object):
             ret = ret.replace('%c', self.jobname)
             ret = ret.replace('%t', str(task))
             
-            if jobid_l == None:
+            if jobid_l is None:
                 ret = ret.replace('%j', '%J')
             else:
                 ret = ret.replace('%j', str(jobid_l))
             
-            if jobid_u != None:
+            if jobid_u is not None:
                 ret = ret.replace('%J', str(jobid_u))
         
         return ret
