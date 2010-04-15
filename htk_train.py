@@ -86,6 +86,12 @@ if current_step >= options.step:
     if not os.path.exists(mkmono1_led): sys.exit("Not Found: " + mkmono1_led)
     if os.path.isdir('files'): shutil.rmtree('files')
     os.mkdir('files')
+
+    excluded = data_manipulation.prune_transcriptions(dict, 'corpora/words.mlf', 'files/words.mlf')
+    if len(excluded) > 0:
+        for exclude in excluded:
+            print exclude
+        sys.exit("boo")
     htk.HLEd(current_step, 'corpora/words.mlf', mkmono0_led, '*', 'files/monophones0', 'files/mono0.mlf', dict)
     htk.HLEd(current_step, 'corpora/words.mlf', mkmono1_led, '*', 'files/monophones1', 'files/mono1.mlf', dict)
     

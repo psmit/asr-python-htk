@@ -392,7 +392,53 @@ def create_wordtranscriptions_speecon(scp_files, speecon_dir, word_transcription
                             print >> transcriptions_file, "%s_" % word.lower()
                 print >> transcriptions_file, '</s>'
                 print >> transcriptions_file, '.'
-        
+
+
+def prune_transcriptions(dict_file, orig_words_mlf, new_words_mlf):
+    pruned_trans = []
+    dict = {}
+    for trans in open(dict_file):
+        key,value = trans.split(None, 1)
+        dict[key] = value
+
+
+    reg_exp = re.compile('\"\*/([a-z0-9]+)\.lab\"')
+    with open(new_words_mlf, 'w') as mlf_out:
+        print >> mlf_out, "#!MLF!#"
+        utt_name = None
+        utt_trans = []
+        success = True
+
+        for line in open(orig_words_mlf):
+            line = line.rstrip()
+
+            if line.startswith("#!MLF!#"):
+                continue
+
+            m = reg_exp.match(line)
+            if m is not None:
+                utt_name = m.group(1)
+            elif line.lstrip().rstrip() == '.':
+                utt_trans.append('.')
+                if success:
+                    print >> mlf_out, '"*/%s.lab"' % utt_name
+                    for word in utt_trans:
+                        print >> mlf_out, word
+                else:
+                    pruned_trans.append(utt_name)
+
+                utt_name = None
+                utt_trans = []
+                success = True
+            else:
+                if dict.has_key(line):
+                    utt_trans.appen(line)
+                else:
+                    success = False
+
+    return pruned_trans
+
+
 def create_wordtranscriptions_wsj(scp_files, wsj_dirs, word_transcriptions):
     transcriptions = {}
 
