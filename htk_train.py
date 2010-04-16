@@ -182,8 +182,9 @@ if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Realign data'))
     
     htk.HVite(current_step, scpfile, target_hmm_dir, dict, phones_list, 'files/words.mlf', transcriptions)
-    
-    data_manipulation.filter_scp_by_mlf(scpfile, 'files/train.scp', transcriptions, 'files/excluded_utterances')
+
+    os.rename(scpfile, scpfile +'.backup')
+    data_manipulation.filter_scp_by_mlf(scpfile +'.backup', scpfile, transcriptions, 'files/excluded_utterances')
     
 scpfile = 'files/train.scp'
 
