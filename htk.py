@@ -10,6 +10,7 @@ extra_HTK_options = ["-A", "-D", "-V", "-T", "1"]
 default_config_file = None
 default_HERest_pruning = None
 
+clean_scp_files = True
 clean_old_logs = True
 log_step = -1
 
@@ -226,4 +227,6 @@ def split_file(file_name, parts):
     for file in target_files: file.close()
 
 def clean_split_file(file_name):
-    for file in glob.glob(file_name+".part.*"): os.remove(file)
+    global clean_scp_files
+    if clean_scp_files:
+        for file in glob.glob(file_name+".part.*"): os.remove(file)

@@ -41,6 +41,9 @@ options, configs = parser.parse_args()
 job_runner.default_options["nodes"] = options.nodes
 htk.num_tasks = options.nodes * 48
 
+if not options.delete_wav:
+    htk.clean_scp_files = False
+
 config = SafeConfigParser({'train_set': 'train',
                             'eval_set': 'eval',
                             'devel_set': 'devel'})
