@@ -401,7 +401,7 @@ def update_exclude_list(exclude_list, excludes, scp_files, new_scp_files):
 
     excludes = set()
     for exclude in open(exclude_list):
-        excludes.add(exclude)
+        excludes.add(exclude.rstrip())
 
     for old_scp, new_scp in itertools.izip(scp_files, new_scp_files):
         scp_lines = []
@@ -423,7 +423,7 @@ def prune_transcriptions(dict_file, orig_words_mlf, new_words_mlf):
         dict[key] = value
 
 
-    reg_exp = re.compile('\"\*/([a-z0-9]+)\.mfc\"')
+    reg_exp = re.compile('\"\*/([a-z0-9]+)\.(mfc|lab)\"')
     with open(new_words_mlf, 'w') as mlf_out:
         print >> mlf_out, "#!MLF!#"
         utt_name = None
@@ -442,7 +442,7 @@ def prune_transcriptions(dict_file, orig_words_mlf, new_words_mlf):
             elif line.lstrip().rstrip() == '.':
                 utt_trans.append('.')
                 if success and utt_name is not None:
-                    print >> mlf_out, '"*/%s.mfc"' % utt_name
+                    print >> mlf_out, '"*/%s.lab"' % utt_name
                     for word in utt_trans:
                         print >> mlf_out, word
                 else:
