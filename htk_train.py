@@ -267,7 +267,31 @@ for i in range(0,2):
         
         htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions)
     
+#Mixture splitting !
+for mix in [1, 2, 4, 6, 8, 12, 16, 24, 32]:
+    current_step += 1
+    if current_step >= options.step:
+        logger.info("Start step: %d (%s)" % (current_step, 'Mixture splitting'))
+        source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+        hed_file =  'files/mix%d.hed' % mix
+        with open(hed_file, 'w') as hed:
+            print >> hed, "MU %d {*.state[2-4].stream[1].mix}" % mix
+            print >> hed, "MU %d {sil.state[2-4].stream[1].mix}" % 2*mix
 
+        htk.HHEd(current_step,source_hmm_dir, target_hmm_dir,hed_file,phones_list)
+
+
+    # Re estimate model 2 times
+    for i in range(0,2):
+        current_step += 1
+
+        if current_step >= options.step:
+            logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest'))
+            source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+
+            htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions)
+            
+        
 print "Finished!"
 
 
