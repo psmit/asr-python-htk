@@ -281,8 +281,8 @@ for mix in [1, 2, 4, 6, 8, 12, 16, 24, 32]:
         htk.HHEd(current_step,source_hmm_dir, target_hmm_dir,hed_file,phones_list)
 
 
-    # Re estimate model 2 times
-    for i in range(0,2):
+    # Re estimate model 4 times
+    for i in range(0,4):
         current_step += 1
 
         if current_step >= options.step:
