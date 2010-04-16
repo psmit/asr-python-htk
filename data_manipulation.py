@@ -512,7 +512,7 @@ def wsj_selection(wsj_dirs, set):
     if set == 'si_et_05':
         for file in glob.iglob(wsj_dirs[0] + '/si_et_05/*/*.wv1'):
             wv1_files.append(file)
-    return wv1_files
+    return list(set(wv1_files))
 
 def speecon_fi_selection(speecon_dir, set):
     fi0_files = []
