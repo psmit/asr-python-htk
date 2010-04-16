@@ -1,6 +1,7 @@
 #!/usr/bin/env python2.6
 from subprocess import Popen,PIPE
 import os
+import sys
 from optparse import OptionParser
 from tempfile import mkstemp
 
@@ -57,6 +58,10 @@ for input_file, output_file in file_pairs:
         ofile = open(output_file, 'w+b')
         Popen(ini_command, stdout=ofile).wait()
         ofile.close()
+
+    if not os.path.exists(output_file):
+        print >> sys.stderr, "Error: %s not created!" % output_file
+        sys.exit(35)
         
 
 
