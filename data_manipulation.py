@@ -343,7 +343,7 @@ def create_scp_lists(waveforms, raw_to_wav_list, wav_to_mfc_list, exclude_list=N
                         basen, ext = os.path.splitext(filename)
                         if basen in excludes:
                             print basen + "excluded"
-                            break
+                            continue
                         wav_file = os.path.join('wav', dset, os.path.basename(dir), basen + '.wav')
                         mfc_file = os.path.join('mfc', dset, os.path.basename(dir), basen + '.mfc')
                         create_dirs.add(os.path.join('wav', dset, os.path.basename(dir)))
