@@ -497,19 +497,19 @@ def create_wordtranscriptions_wsj(scp_files, wsj_dirs, word_transcriptions):
                 print >> transcriptions_file, '</s>'
                 print >> transcriptions_file, '.'
 
-def wsj_selection(wsj_dirs, set):
+def wsj_selection(wsj_dirs, files_set):
     wv1_files = []
-    if set == 'si-84' or set == 'si-284':
+    if files_set == 'si-84' or set == 'si-284':
         for line in open(os.path.join(wsj_dirs[0], 'doc', 'indices', 'train', 'tr_s_wv1.ndx')):
             if not line.startswith(';'):
                 wv1_files.append(os.path.join(wsj_dirs[0], line.rstrip().split(':', 1)[1].split('/',1)[1]))
-    if set == 'si-284':
+    if files_set == 'si-284':
         for file in glob.iglob(wsj_dirs[1] + '/si_tr_s/*/*.wv1'):
             wv1_files.append(file)
-    if set == 'si_dt_05':
+    if files_set == 'si_dt_05':
         for file in glob.iglob(wsj_dirs[1] + '/si_dt_05/*/*.wv1'):
             wv1_files.append(file)
-    if set == 'si_et_05':
+    if files_set == 'si_et_05':
         for file in glob.iglob(wsj_dirs[0] + '/si_et_05/*/*.wv1'):
             wv1_files.append(file)
     return list(set(wv1_files))
