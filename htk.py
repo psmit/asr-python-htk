@@ -38,7 +38,7 @@ def HLEd(step, input_transcriptions, led_file, selector, phones_list, output_tra
 def HCompV(step, scpfile, target_hmm_dir, protofile, min_variance, config = None):
     global num_tasks, extra_HTK_options, default_config_file
     
-    if config == None: config = default_config_file
+    if config is None: config = default_config_file
     
     HCompV = ["HCompV"]
     HCompV.extend(extra_HTK_options)
@@ -58,8 +58,8 @@ def HCompV(step, scpfile, target_hmm_dir, protofile, min_variance, config = None
 def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, stats = False, config = None, pruning = None):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
     
-    if config == None: config = default_config_file
-    if pruning == None: pruning = default_HERest_pruning
+    if config is None: config = default_config_file
+    if pruning is None: pruning = default_HERest_pruning
     
     # divide scp files over HERest tasks
     split_file(scpfile, num_tasks)
@@ -127,8 +127,8 @@ def HHEd(step, source_hmm_dir, target_hmm_dir, hed, phones_list):
 def HVite(step, scpfile, hmm_dir, dict, phones_list, word_transcriptions, new_transcriptions, config = None, pruning = None):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
     
-    if config == None: config = default_config_file
-    if pruning == None: pruning = default_HERest_pruning
+    if config is None: config = default_config_file
+    if pruning is None: pruning = default_HERest_pruning
     
     # divide scp files over HERest tasks
     split_file(scpfile, num_tasks)
