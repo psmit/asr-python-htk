@@ -423,7 +423,7 @@ def prune_transcriptions(dict_file, orig_words_mlf, new_words_mlf):
         dict[key] = value
 
 
-    reg_exp = re.compile('\"\*/([a-z0-9]+)\.(mfc|lab)\"')
+    reg_exp = re.compile('\"\*/([A-Za-z0-9]+)\.(mfc|lab)\"')
     with open(new_words_mlf, 'w') as mlf_out:
         print >> mlf_out, "#!MLF!#"
         utt_name = None
@@ -458,7 +458,7 @@ def prune_transcriptions(dict_file, orig_words_mlf, new_words_mlf):
                     utt_trans.append(line)
                 else:
                     success = False
-                    print "%s %s" % (utt_name, line)
+                    #print "%s %s" % (utt_name, line)
 
     return pruned_trans
 
