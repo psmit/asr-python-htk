@@ -181,7 +181,7 @@ transcriptions = 'files/mono1_aligned.mlf'
 if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Realign data'))
     
-    htk.HVite(current_step, scpfile, target_hmm_dir, dict, phones_list, 'corpora/words.mlf', transcriptions)
+    htk.HVite(current_step, scpfile, target_hmm_dir, dict, phones_list, 'files/words.mlf', transcriptions)
     
     data_manipulation.filter_scp_by_mlf(scpfile, 'files/train.scp', transcriptions, 'files/excluded_utterances')
     
