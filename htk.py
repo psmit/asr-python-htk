@@ -55,7 +55,7 @@ def HCompV(step, scpfile, target_hmm_dir, protofile, min_variance, config = None
                                     'estream': estream,
                                     'timelimit': '01:00:00'})            
 
-def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions,  config, num_chars = 3, pruning = None, min_mix_weigth = 0, prune_treshold = 20.0):
+def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions,  config, num_chars = 3, pruning = None, min_mix_weigth = 0.1, prune_treshold = 20.0):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
 
     if config is None: config = default_config_file
