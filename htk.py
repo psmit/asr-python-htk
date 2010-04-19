@@ -83,7 +83,7 @@ def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_hmm_dir, pho
                     "-M", target_hmm_dir,
                     "-S", scpfile+ ".part.%t",
                     "-w", min_mix_weigth,
-                    "-m", 0
+                    "-m", 0,
                     "-u", "a",
                     "-c", prune_treshold])
 
