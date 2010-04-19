@@ -62,7 +62,7 @@ def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_hmm_dir, pho
     if pruning is None: pruning = default_HERest_pruning
 
     # divide scp files over HERest tasks
-    max_tasks = split_file(scpfile, num_tasks, True)
+    max_tasks = split_file(scpfile, num_tasks, True, num_chars)
 
     HERest = ["HERest"]
     HERest.extend(extra_HTK_options)
@@ -294,6 +294,7 @@ def split_file(file_name, parts, keep_speaker_together = False, num_speaker_char
             cur_speaker = os.path.basename(line.rstrip())[:num_speaker_chars]
 
             if prev_speaker is not cur_speaker:
+                prev_speaker = cur_speaker
                 counter = (counter + 1)%parts
                 real_num_parts = max(counter, real_num_parts)
             target_files[counter].write(line)
