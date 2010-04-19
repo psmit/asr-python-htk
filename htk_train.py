@@ -42,7 +42,8 @@ config = SafeConfigParser({'name': 'EXPERIMENT NAME_TO_BE_FILLED!',
                             'minvariance': 0.05,
                             'HERest_pruning': '300.0 500.0 2000.0',
                             'tying_threshold': 1000.0,
-                            'required_occupation': 200.0})
+                            'required_occupation': 200.0,
+                            'speaker_name_width': 5})
 config.read(configs if len(configs) > 0 else "train_config")
 
 
@@ -291,23 +292,56 @@ for mix in [1, 2, 4, 6, 8, 12, 16]:
 
             htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, mix == 16 and i == 3)
 
-
-sys.exit()
+####################################
 #Speaker Adaptive Training
+####################################
+for number_sat_round in range(0,2):
             
-#Create regtree.hed
-current_step += 1
-if current_step >= options.step:
-    logger.info("Start step: %d (%s)" % (current_step, 'Regression tree creation'))
-    
-    source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
-    regtree_hed =  'files/regtree_%d.hed'  % current_step
-    with open(regtree_hed, 'w') as hed_file:
-        print >> hed_file, 'LS "%s/stats"' % source_hmm_dir
-        print >> hed_file, 'RC 32 "regtree"'
+    #Create regtree.hed
 
-    os.mkdir(source_hmm_dir + '/cmllr')
-    htk.HHEd(current_step, source_hmm_dir, source_hmm_dir + '/cmllr', regtree_hed, phones_list)
+    current_step += 1
+
+    cmllr_config = 'files/config.cmllr.%d' % current_step
+
+    if current_step >= options.step:
+        logger.info("Start step: %d (%s)" % (current_step, 'Regression tree creation'))
+
+        source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+
+        regtree_hed =  'files/regtree.hed'  % current_step
+        with open(regtree_hed, 'w') as hed_file:
+            print >> hed_file, 'LS "%s/stats"' % source_hmm_dir
+            print >> hed_file, 'RC 32 "regtree"'
+
+        os.mkdir(source_hmm_dir + '/cmllr')
+        logger.info("Start step: %d (%s)" % (current_step, 'Generate tree'))
+        htk.HHEd(current_step, source_hmm_dir, source_hmm_dir + '/cmllr', regtree_hed, phones_list, '/dev/null')
+
+
+
+        with open(cmllr_config, 'w') as cmllr_config_stream:
+            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\
+             HADAPT:TRANSKIND              = CMLLR\
+             HADAPT:USEBIAS                = TRUE\
+             HADAPT:REGTREE                = %s\
+             HADAPT:ADAPTKIND              = TREE\
+             HADAPT:BLOCKSIZE              = \"IntVec 3 13 13 13\"\
+             HMODEL:SAVEBINARY             = FALSE" % source_hmm_dir +'/cmllr/regtree.tree'
+
+        logger.info("Start step: %d (%s)" % (current_step, 'Estimate transform'))
+        htk.HERest_estimate_transform(current_step, scpfile, source_hmm_dir, target_hmm_dir + 'cmllr', phones_list, transcriptions, ['files/config', cmllr_config], config.get('corpora', 'speaker_name_width'))
+
+        logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest (SAT)'))
+        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, False, ['files/config', cmllr_config])
+
+
+    current_step += 1
+
+    if current_step >= options.step:
+        logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest (SAT)'))
+        source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+
+        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, False, ['files/config', cmllr_config])
 
 
 

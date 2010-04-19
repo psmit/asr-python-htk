@@ -54,7 +54,55 @@ def HCompV(step, scpfile, target_hmm_dir, protofile, min_variance, config = None
                                     'ostream': ostream,
                                     'estream': estream,
                                     'timelimit': '01:00:00'})            
-    
+
+def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions,  config, num_chars = 3, pruning = None, min_mix_weigth = 0, prune_treshold = 20.0):
+    global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
+
+    if config is None: config = default_config_file
+    if pruning is None: pruning = default_HERest_pruning
+
+    # divide scp files over HERest tasks
+    max_tasks = split_file(scpfile, num_tasks, True)
+
+    HERest = ["HERest"]
+    HERest.extend(extra_HTK_options)
+
+
+    if type(config).__name__=='list':
+        for c in config:
+            HERest.extend(["-C", c])
+    else:
+        HERest.extend(["-C", config])
+
+    pattern = "*/" + ('%' * num_chars) + "*.*" 
+
+    HERest.extend(["-h", pattern,
+                    "-I", transcriptions,
+                    "-H", source_hmm_dir + "/macros",
+                    "-H", source_hmm_dir + "/hmmdefs",
+                    "-M", target_hmm_dir,
+                    "-S", scpfile+ ".part.%t",
+                    "-w", min_mix_weigth,
+                    "-m", 0
+                    "-u", "a",
+                    "-c", prune_treshold])
+
+
+    HERest.extend(["-t"])
+    HERest.extend(pruning)
+
+    HERest.extend([phones_list])
+
+    ostream, estream = _get_output_stream_names(step)
+
+    job_runner.submit_job(HERest, {'numtasks': min(max_tasks, num_tasks),
+                                    'ostream': ostream,
+                                    'estream': estream} )
+
+    # remove splitted scp files
+    clean_split_file(scpfile)
+
+
 def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, stats = False, config = None, pruning = None):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
     
@@ -63,12 +111,18 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
     
     # divide scp files over HERest tasks
     split_file(scpfile, num_tasks)
-    
+
     HERest = ["HERest"]
     HERest.extend(extra_HTK_options)
-    
-    HERest.extend(["-C", config,
-                    "-I", transcriptions,
+
+
+    if type(config).__name__=='list':
+        for c in config:
+            HERest.extend(["-C", c])
+    else:
+        HERest.extend(["-C", config])
+
+    HERest.extend(["-I", transcriptions,
                     "-H", source_hmm_dir + "/macros",
                     "-H", source_hmm_dir + "/hmmdefs",
                     "-M", target_hmm_dir])
@@ -108,15 +162,20 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
     clean_split_file(scpfile)
     
     
-def HHEd(step, source_hmm_dir, target_hmm_dir, hed, phones_list):
+def HHEd(step, source_hmm_dir, target_hmm_dir, hed, phones_list, w_flag = None):
     global extra_HTK_options
     
     HHEd = ["HHEd"]
     HHEd.extend(extra_HTK_options)
     HHEd.extend(["-H", source_hmm_dir + "/macros",
                 "-H", source_hmm_dir + "/hmmdefs",
-                "-M", target_hmm_dir,
-                hed,
+                "-M", target_hmm_dir])
+
+    if w_flag is not None:
+        HHEd.extend(['-w', w_flag])
+
+
+    HHEd.extend([hed,
                 phones_list])
     
     ostream, estream = _get_output_stream_names(step)
