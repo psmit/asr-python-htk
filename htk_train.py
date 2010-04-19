@@ -322,8 +322,8 @@ for number_sat_round in range(0,2):
              HADAPT:USEBIAS                = TRUE\n\
              HADAPT:REGTREE                = %s\n\
              HADAPT:ADAPTKIND              = TREE\n\
-             HADAPT:BLOCKSIZE              = \"IntVec 3 13 13 13\"\n\
              HMODEL:SAVEBINARY             = FALSE\n" % (source_hmm_dir +'/cmllr/regtree.tree')
+            #             HADAPT:BLOCKSIZE              = \"IntVec 3 13 13 13\"\n\
 
         logger.info("Start step: %d (%s)" % (current_step, 'Estimate transform'))
         htk.HERest_estimate_transform(current_step, scpfile, source_hmm_dir, source_hmm_dir + '/cmllr', phones_list, transcriptions, ['config/config', cmllr_config], int(config.get('corpora', 'speaker_name_width')))
