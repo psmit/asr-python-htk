@@ -338,7 +338,7 @@ def create_scp_lists(waveforms, raw_to_wav_list, wav_to_mfc_list, exclude_list=N
         with open(wav_to_mfc_list, 'w') as wtm_list:
             for dset, files in waveforms.items():
                 with open(dset + '.scp', 'w') as set_list:
-                    for file in files:
+                    for file in sorted(files):
                         dir, filename = os.path.split(file)
                         basen, ext = os.path.splitext(filename)
                         if basen in excludes:
