@@ -304,8 +304,6 @@ for number_sat_round in range(0,2):
     cmllr_config = 'files/config.cmllr.%d' % number_sat_round
 
     if current_step >= options.step:
-        logger.info("Start step: %d (%s)" % (current_step, 'Regression tree creation'))
-
         source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
 
         regtree_hed =  'files/regtree_%s.hed' % number_sat_round
@@ -315,7 +313,7 @@ for number_sat_round in range(0,2):
 
         if os.path.exists(source_hmm_dir + '/cmllr'): shutil.rmtree(source_hmm_dir + '/cmllr')
         os.mkdir(source_hmm_dir + '/cmllr')
-        logger.info("Start step: %d (%s)" % (current_step, 'Generate tree'))
+        logger.info("Start step: %d (%s)" % (current_step, 'Generate regression tree'))
         htk.HHEd(current_step, source_hmm_dir, source_hmm_dir + '/cmllr', regtree_hed, phones_list, '/dev/null')
 
 
@@ -333,7 +331,7 @@ for number_sat_round in range(0,2):
         htk.HERest_estimate_transform(current_step, scpfile, source_hmm_dir, target_hmm_dir + 'cmllr', phones_list, transcriptions, ['files/config', cmllr_config], int(config.get('corpora', 'speaker_name_width')))
 
         logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest (SAT)'))
-        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, False, ['files/config', cmllr_config])
+        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, False, ['config/config', cmllr_config])
 
 
     current_step += 1
@@ -342,7 +340,7 @@ for number_sat_round in range(0,2):
         logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest (SAT)'))
         source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
 
-        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, False, ['files/config', cmllr_config])
+        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, False, ['config/config', cmllr_config])
 
 
 
