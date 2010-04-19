@@ -296,8 +296,6 @@ for mix in [1, 2, 4, 6, 8, 12, 16]:
 #Speaker Adaptive Training
 ####################################
 for number_sat_round in range(0,2):
-            
-    #Create regtree.hed
 
     current_step += 1
 
