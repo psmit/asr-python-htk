@@ -289,9 +289,10 @@ for mix in [1, 2, 4, 6, 8, 12, 16]:
             logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest'))
             source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
 
-            htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, mix == 32 and i == 3)
+            htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, mix == 16 and i == 3)
 
 
+sys.exit()
 #Speaker Adaptive Training
             
 #Create regtree.hed
@@ -300,12 +301,13 @@ if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Regression tree creation'))
     
     source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
-    with open('files/regtree.hed', 'w') as hed_file:
+    regtree_hed =  'files/regtree_%d.hed'  % current_step
+    with open(regtree_hed, 'w') as hed_file:
         print >> hed_file, 'LS "%s/stats"' % source_hmm_dir
-        print >> hed_file, 'RC 32 "rtree"'
+        print >> hed_file, 'RC 32 "regtree"'
 
-    os.mkdir('classes')
-    htk.HHEd(current_step, source_hmm_dir, 'classes', 'files/regtree.hed', phones_list)
+    os.mkdir(source_hmm_dir + '/cmllr')
+    htk.HHEd(current_step, source_hmm_dir, source_hmm_dir + '/cmllr', regtree_hed, phones_list)
 
 
 
