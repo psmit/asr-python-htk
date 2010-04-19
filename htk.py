@@ -58,8 +58,8 @@ def HCompV(step, scpfile, target_hmm_dir, protofile, min_variance, config = None
 def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, stats = False, config = None, pruning = None):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
     
-    if config == None: config = default_config_file
-    if pruning == None: pruning = default_HERest_pruning
+    if config is None: config = default_config_file
+    if pruning is None: pruning = default_HERest_pruning
     
     # divide scp files over HERest tasks
     split_file(scpfile, num_tasks)
@@ -214,17 +214,32 @@ def _get_output_stream_names(step):
     return ('log/tasks/%03d.%%c.o%%j.%%t' % step, 'log/tasks/%03d.%%c.e%%j.%%t' % step)
     
     
-def split_file(file_name, parts):
+def split_file(file_name, parts, keep_speaker_together = False, num_speaker_chars = 3):
     target_files = [open(name, 'w') for name in [file_name + ".part." + str(i) for i in range(1,parts+1)]]
-    
+
+    real_num_parts = 0
+
     source_file = open(file_name)
-    
-    counter = 0
-    for line in source_file:
-        target_files[counter].write(line)
-        counter = (counter + 1)%parts
+    if not keep_speaker_together:
+        counter = 0
+        for line in source_file:
+            target_files[counter].write(line)
+            real_num_parts = max(counter, real_num_parts)
+            counter = (counter + 1)%parts
+    else:
+        prev_speaker = ''
+        counter = -1
+        for line in source_file:
+            cur_speaker = os.path.basename(line.rstrip())[:num_speaker_chars]
+
+            if prev_speaker is not cur_speaker:
+                counter = (counter + 1)%parts
+                real_num_parts = max(counter, real_num_parts)
+            target_files[counter].write(line)
+
     
     for file in target_files: file.close()
+    return real_num_parts
 
 def clean_split_file(file_name):
     global clean_scp_files

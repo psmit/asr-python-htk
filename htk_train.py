@@ -268,7 +268,7 @@ for i in range(0,2):
         htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions)
     
 #Mixture splitting !
-for mix in [1, 2, 4, 6, 8, 12, 16, 24, 32]:
+for mix in [1, 2, 4, 6, 8, 12, 16]:
     current_step += 1
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Mixture splitting'))
