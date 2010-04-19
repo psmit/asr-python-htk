@@ -293,7 +293,7 @@ def split_file(file_name, parts, keep_speaker_together = False, num_speaker_char
         for line in source_file:
             cur_speaker = os.path.basename(line.rstrip())[:num_speaker_chars]
 
-            if prev_speaker is not cur_speaker:
+            if prev_speaker != cur_speaker:
                 prev_speaker = cur_speaker
                 counter = (counter + 1)%parts
                 real_num_parts = max(counter, real_num_parts)
