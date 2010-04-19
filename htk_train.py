@@ -301,14 +301,14 @@ for number_sat_round in range(0,2):
 
     current_step += 1
 
-    cmllr_config = 'files/config.cmllr.%d' % current_step
+    cmllr_config = 'files/config.cmllr.%d' % number_sat_round
 
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Regression tree creation'))
 
         source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
 
-        regtree_hed =  'files/regtree.hed'  % current_step
+        regtree_hed =  'files/regtree_%s.hed' % number_sat_round
         with open(regtree_hed, 'w') as hed_file:
             print >> hed_file, 'LS "%s/stats"' % source_hmm_dir
             print >> hed_file, 'RC 32 "regtree"'
