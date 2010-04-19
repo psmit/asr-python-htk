@@ -313,6 +313,7 @@ for number_sat_round in range(0,2):
             print >> hed_file, 'LS "%s/stats"' % source_hmm_dir
             print >> hed_file, 'RC 32 "regtree"'
 
+        if os.path.exists(source_hmm_dir + '/cmllr'): shutil.rmtree(source_hmm_dir + '/cmllr')
         os.mkdir(source_hmm_dir + '/cmllr')
         logger.info("Start step: %d (%s)" % (current_step, 'Generate tree'))
         htk.HHEd(current_step, source_hmm_dir, source_hmm_dir + '/cmllr', regtree_hed, phones_list, '/dev/null')
