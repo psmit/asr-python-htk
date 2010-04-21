@@ -105,14 +105,14 @@ def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_hmm_dir, pho
     clean_split_file(scpfile)
 
 
-def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, stats = False, config = None, pruning = None):
+def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, stats = False, config = None, transform_dir = None, num_pattern_chars = 3, pruning = None):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
     
     if config is None: config = default_config_file
     if pruning is None: pruning = default_HERest_pruning
     
     # divide scp files over HERest tasks
-    split_file(scpfile, num_tasks)
+    max_tasks = split_file(scpfile, num_tasks, transform_dir is None)
 
     HERest = ["HERest"]
     HERest.extend(extra_HTK_options)
@@ -129,6 +129,12 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
                     "-H", source_hmm_dir + "/hmmdefs",
                     "-M", target_hmm_dir])
 
+    if transform_dir is not None:
+        pattern = "*/" + ('%' * num_pattern_chars) + "*.*"
+        HERest.extend(["-E", transform_dir,
+                    "-J", transform_dir, 'cmllr',
+                    "-a",
+                    "-h", pattern])
     
     HERest.extend(["-t"])
     HERest.extend(pruning)
@@ -142,7 +148,7 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
     
     ostream, estream = _get_output_stream_names(step)
     
-    job_runner.submit_job(HERest, {'numtasks': num_tasks,
+    job_runner.submit_job(HERest, {'numtasks': min(max_tasks, num_tasks),
                                     'ostream': ostream,
                                     'estream': estream} )
     
