@@ -14,6 +14,30 @@ clean_scp_files = True
 clean_old_logs = True
 log_step = -1
 
+def HDecode(step, scpfile, model_dir, language_model, result_mlf, config, transform_dir = False):
+    global num_tasks, extra_HTK_options
+
+    max_tasks = split_file(scpfile, num_tasks, True)
+
+    HDecode = ["HDecode"]
+    HDecode.extend(extra_HTK_options)
+
+    HDecode.extend(["-S", scpfile+ ".part.%t",
+                "-C", config
+                "-H", model_dir + "/macros",
+                "-H", model_dir + "/hmmdefs",
+                "-i", result_mlf + ".part.%t",
+                "-w", language_model])
+
+    ostream, estream = _get_output_stream_names(step)
+    job_runner.submit_job(HERest, {'numtasks': min(max_tasks, num_tasks),
+                                    'ostream': ostream,
+                                    'estream': estream} )
+
+    merge_mlf_files(result_mlf)
+    # remove splitted scp files
+    clean_split_file(scpfile)
+
 def HLEd(step, input_transcriptions, led_file, selector, phones_list, output_transcriptions, dict = None):
     global num_tasks, extra_HTK_options
     HLEd = ["HLEd"]
@@ -313,3 +337,12 @@ def clean_split_file(file_name):
     global clean_scp_files
     if clean_scp_files:
         for file in glob.glob(file_name+".part.*"): os.remove(file)
+
+def merge_mlf_files(file_name):
+    with open(file_name, 'w') as out_file:
+        print >> out_file, "#!MLF!#"
+        for in_file_name in glob.iglob(file_name+".part.*"):
+            for line in open(in_file_name):
+                if not line.startswith("#!MLF!#"):
+                    print >> out_file, line.rstrip()
+    clean_split_file(file_name)
