@@ -25,7 +25,7 @@ logger.info("Start htk_train")
 
 job_runner.default_options["verbosity"] = 1
 job_runner.default_options["memlimit"] = 500
-
+job_runner.default_options["timelimit"] = "04:00:00"
 
 usage = "usage: %prog [options] configfiles"
 parser = OptionParser(usage=usage)
