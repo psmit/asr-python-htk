@@ -23,7 +23,7 @@ def HDecode(step, scpfile, model_dir, language_model, result_mlf, config, transf
     HDecode.extend(extra_HTK_options)
 
     HDecode.extend(["-S", scpfile+ ".part.%t",
-                "-C", config
+                "-C", config,
                 "-H", model_dir + "/macros",
                 "-H", model_dir + "/hmmdefs",
                 "-i", result_mlf + ".part.%t",
