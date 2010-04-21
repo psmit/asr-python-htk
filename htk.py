@@ -14,7 +14,7 @@ clean_scp_files = True
 clean_old_logs = True
 log_step = -1
 
-def HDecode(step, scpfile, model_dir, language_model, result_mlf, config, transform_dir = False):
+def HDecode(step, scpfile, model_dir, language_model, result_mlf, config, transform_dir = None):
     global num_tasks, extra_HTK_options
 
     max_tasks = split_file(scpfile, num_tasks, True)
