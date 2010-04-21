@@ -47,4 +47,13 @@ config.read(configs if len(configs) > 0 else "train_config")
 if not config.has_option('model', 'model_dir') or not config.has_option('model', 'config'):
     sys.exit("Please give more configuration")
 
-htk.HDecode(1, config.get('model', 'model_dir') + '/files/eval.scp', config.get('model', 'model_dir') + '/' + options.model, config.get('model', 'lm'), 'out.mlf', config.get('model', 'config'))
+
+scp_file = config.get('model', 'model_dir') + '/files/eval.scp'
+model = config.get('model', 'model_dir') + '/' + options.model
+adapt_dir = model + "/cmllr"
+lm = config.get('model', 'lm')
+config_hdecode = config.get('model', 'config')
+label_dir = 'label_dir'
+num_tokens = 0000
+
+htk.HDecode(1, scp_file, model, lm, config_hdecode, label_dir, num_tokens, [config, config_hdecode], lm_scale, beam, end_beam, max_pruning, adapt_dir)
