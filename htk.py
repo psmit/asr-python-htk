@@ -131,8 +131,8 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
 
     if transform_dir is not None:
         pattern = "*/" + ('%' * num_pattern_chars) + "*.*"
-        HERest.extend(["-E", transform_dir,
-                    "-J", transform_dir, 'cmllr',
+        HERest.extend(["-J", transform_dir, 'cmllr',
+                    "-E", transform_dir,
                     "-a",
                     "-h", pattern])
     
