@@ -1,6 +1,10 @@
 #!/usr/bin/env python2.6
 # Usage: Run this script in the directory where it is working. Standard it searches a file train_config. Other configuration file can be given as arguments
 
+import locale
+locale.setlocale(locale.LC_ALL, ('en', 'iso-8859-1'))
+
+
 import data_manipulation
 import job_runner
 import htk
@@ -24,7 +28,7 @@ logger.info("Start htk_train")
 
 
 job_runner.default_options["verbosity"] = 1
-job_runner.default_options["memlimit"] = 500
+job_runner.default_options["memlimit"] = 1000
 
 
 usage = "usage: %prog [options] configfiles"
