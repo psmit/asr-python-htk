@@ -40,7 +40,7 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
                 phones_list])
 
     ostream, estream = _get_output_stream_names(step)
-    job_runner.submit_job(HERest, {'numtasks': min(max_tasks, num_tasks),
+    job_runner.submit_job(HDecode, {'numtasks': min(max_tasks, num_tasks),
                                     'ostream': ostream,
                                     'estream': estream} )
 
