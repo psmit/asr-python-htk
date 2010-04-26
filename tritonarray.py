@@ -22,7 +22,7 @@ def main():
     tarr = TritonArray(options, args)
     tarr.run()
     
-class TritonArray:
+class TritonArray(object):
     options = None
     command = None
     jobname = "NoJobName"
@@ -89,6 +89,8 @@ class TritonArray:
                 if self.options.printfail:
                     print "Error: task " + str(task) + " failed with code " + str(ret_code)
                 all_success = False
+            else:
+                print "Task %s succeeded" % task
         
         # Give a failure exit code when not all tasks succeeded.
         if not all_success:
@@ -113,6 +115,15 @@ def getOptParser():
     parser.add_option("-e", "--error-stream", dest="estream", help="write outputstream to FILE (%c for command, %J for job id, %t for task id). If a directory is given, the default format is used in that directory", default="%c.e%j.%t", metavar="FILE")
     parser.add_option("-f", "--print-failure", action="store_true", dest="printfail", help="Print the exit codes for failed tasks", default=False)
     return parser
-    
+
+def signal_handler(signal, frame):
+
+    print 'Signal %s received!' % signal
+    sys.exit(255)
+
+#Register signal handlers
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+
 if __name__ == "__main__":
     main()
