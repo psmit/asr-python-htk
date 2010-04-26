@@ -17,6 +17,7 @@ from ConfigParser import SafeConfigParser
 from optparse import OptionParser
 
 if not os.path.exists('log'): os.mkdir('log')
+if not os.path.exists('log/tasks'): os.mkdir('log/tasks')
 htk_logger.create_logger('recogniton', 'log/recognition.log')
 
 logger = htk_logger.logger
@@ -66,6 +67,6 @@ max_pruning = 40000
 if os.path.exists(label_dir):
     shutil.rmtree(label_dir)
 os.mkdir(label_dir)
-htk.HDecode(1, scp_file, model, dict, phones_list, lm, label_dir, num_tokens, [config, config_hdecode], lm_scale, beam, end_beam, max_pruning, adapt_dir)
+htk.HDecode(1, scp_file, model, dict, phones_list, lm, label_dir, num_tokens, [config_hdecode], lm_scale, beam, end_beam, max_pruning, adapt_dir)
 
 
