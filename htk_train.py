@@ -333,7 +333,7 @@ for number_sat_round in range(0,2):
         htk.HERest_estimate_transform(current_step, scpfile, source_hmm_dir, source_hmm_dir + '/cmllr', phones_list, transcriptions, ['config/config', cmllr_config], int(config.get('corpora', 'speaker_name_width')))
 
         logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest (SAT)'))
-        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, False, ['config/config', cmllr_config], source_hmm_dir + '/cmllr')
+        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, False, ['config/config', cmllr_config], source_hmm_dir + '/cmllr',  int(config.get('corpora', 'speaker_name_width')))
 
 
     current_step += 1
@@ -342,7 +342,7 @@ for number_sat_round in range(0,2):
         logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest (SAT)'))
         source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
 
-        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, True, ['config/config', cmllr_config], source_hmm_dir + '/cmllr')
+        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, True, ['config/config', cmllr_config], source_hmm_dir + '/cmllr',  int(config.get('corpora', 'speaker_name_width')))
 
 
 
