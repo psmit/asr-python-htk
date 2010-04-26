@@ -256,10 +256,12 @@ class TritonRunner(Runner):
         waitjob.wait()
         
         # Fetch the error codes of our tasks
-        result = Popen(['sacct', '-n', '--format=ExitCode,State', '-P', '-j', str(self.job)], stdout=PIPE).communicate()[0]
+        sacct_command = ['sacct', '-n', '--format=ExitCode,State', '-P', '-j', str(self.job)]
+        result = Popen(sacct_command, stdout=PIPE).communicate()[0]
 
         while result.count('RUNNING') > 0 or result.count('PENDING') > 0:
             time.sleep(2)
+            print ' '.join(sacct_command)
             print result
         # If there was any error take appropriate action
         if result.count('0:0|COMPLETED') < 1:
