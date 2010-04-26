@@ -14,7 +14,7 @@ clean_scp_files = True
 clean_old_logs = True
 log_step = -1
 
-def HDecode(step,  scpfile, model_dir, language_model,  label_dir, num_tokens, configs, lm_scale, beam, end_beam, max_pruning, adapt_dir):
+def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label_dir, num_tokens, configs, lm_scale, beam, end_beam, max_pruning, adapt_dir):
     global num_tasks, extra_HTK_options
 
     max_tasks = split_file(scpfile, num_tasks, True)
@@ -35,7 +35,9 @@ def HDecode(step,  scpfile, model_dir, language_model,  label_dir, num_tokens, c
                 '-s', lm_scale,
                 '-t', beam,
                 '-v', end_beam,
-                '-u', max_pruning])
+                '-u', max_pruning,
+                dict,
+                phones_list])
 
     ostream, estream = _get_output_stream_names(step)
     job_runner.submit_job(HERest, {'numtasks': min(max_tasks, num_tasks),
