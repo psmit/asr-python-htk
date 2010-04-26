@@ -40,7 +40,7 @@ htk.num_tasks = options.nodes * 48
 
 config = SafeConfigParser({'name': 'EXPERIMENT NAME_TO_BE_FILLED!',
                             'speaker_name_width': 5})
-config.read(configs if len(configs) > 0 else "train_config")
+config.read(configs if len(configs) > 0 else "recognition_config")
 
 
 
@@ -54,6 +54,13 @@ adapt_dir = model + "/cmllr"
 lm = config.get('model', 'lm')
 config_hdecode = config.get('model', 'config')
 label_dir = 'label_dir'
-num_tokens = 0000
+num_tokens = 0
+lm_scale = 12.0
+beam = 170.0
+end_beam = 113.0
+max_pruning = 40000
 
-htk.HDecode(1, scp_file, model, lm, config_hdecode, label_dir, num_tokens, [config, config_hdecode], lm_scale, beam, end_beam, max_pruning, adapt_dir)
+
+htk.HDecode(1, scp_file, model, lm, label_dir, num_tokens, [config, config_hdecode], lm_scale, beam, end_beam, max_pruning, adapt_dir)
+
+
