@@ -53,7 +53,7 @@ if not config.has_option('model', 'model_dir') or not config.has_option('model',
 scp_file = config.get('model', 'model_dir') + '/files/eval.scp'
 model = config.get('model', 'model_dir') + '/' + options.model
 phones_list = config.get('model', 'model_dir') + '/files/tiedlist'
-dict = config.get('model', 'model_dir') + '/dictionary/dict'
+dict = config.get('model', 'model_dir') + '/dictionary/dict.hdecode'
 adapt_dir = model + "/cmllr"
 lm = config.get('model', 'lm')
 config_hdecode = config.get('model', 'config')
