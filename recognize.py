@@ -11,6 +11,7 @@ import htk_logger
 
 import os
 import sys
+import shutil
 
 from ConfigParser import SafeConfigParser
 from optparse import OptionParser
@@ -62,6 +63,8 @@ beam = 170.0
 end_beam = 113.0
 max_pruning = 40000
 
+if os.path.exists(label_dir):
+    shutil.rmtree(label_dir)
 os.mkdir(label_dir)
 htk.HDecode(1, scp_file, model, dict, phones_list, lm, label_dir, num_tokens, [config, config_hdecode], lm_scale, beam, end_beam, max_pruning, adapt_dir)
 
