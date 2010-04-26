@@ -25,7 +25,7 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
     for config in configs:
         HDecode.extend(['-C', config])
 
-    HDecode.extend(["-S", scpfile+ ".part.%t",
+    HDecode.extend(["-S", scpfile+ ".part.1",
                 "-H", model_dir + "/macros",
                 "-H", model_dir + "/hmmdefs",
                 '-z', 'lat',
