@@ -258,7 +258,7 @@ class TritonRunner(Runner):
         result = Popen(['sacct', '-n', '--format=ExitCode,State', '-P', '-j', str(self.job)], stdout=PIPE).communicate()[0]
         
         # If there was any error take appropriate action
-        if result.count('0:0|COMPLETED') < 1:
+        if result.count('0:0|COMPLETED') < 1 and result.count('0:0|PENDING') < 1:
             if verbosity > 0:
                 print result
             sys.exit("Some tasks failed")
