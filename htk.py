@@ -338,7 +338,7 @@ def split_file(file_name, parts, keep_speaker_together = False, num_speaker_char
 
     
     for file in target_files: file.close()
-    return real_num_parts
+    return real_num_parts + 1
 
 def clean_split_file(file_name):
     global clean_scp_files
