@@ -14,6 +14,7 @@ from optparse import OptionParser
 import os.path
 import time
 import sys
+import signal
 
 def main():
     parser = getOptParser()
