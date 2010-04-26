@@ -259,6 +259,7 @@ class TritonRunner(Runner):
 
         while result.count('RUNNING') > 0 or result.count('PENDING') > 0:
             time.sleep(2)
+            print result
         # If there was any error take appropriate action
         if result.count('0:0|COMPLETED') < 1:
             if verbosity > 0:
