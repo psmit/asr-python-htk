@@ -260,9 +260,13 @@ class TritonRunner(Runner):
         result = Popen(sacct_command, stdout=PIPE).communicate()[0]
 
         while result.count('RUNNING') > 0 or result.count('PENDING') > 0:
-            time.sleep(2)
+
             print ' '.join(sacct_command)
             print result
+            time.sleep(2)
+
+            result = Popen(sacct_command, stdout=PIPE).communicate()[0]
+            
         # If there was any error take appropriate action
         if result.count('0:0|COMPLETED') < 1:
             if verbosity > 0:
