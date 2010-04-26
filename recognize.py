@@ -58,10 +58,10 @@ adapt_dir = model + "/cmllr"
 lm = config.get('model', 'lm')
 config_hdecode = config.get('model', 'config')
 label_dir = 'label_dir'
-num_tokens = 0
+num_tokens = 32
 lm_scale = 12.0
-beam = 170.0
-end_beam = 113.0
+beam = 250.0
+end_beam = (beam * 2.0) / 3.0
 max_pruning = 40000
 
 if os.path.exists(label_dir):
