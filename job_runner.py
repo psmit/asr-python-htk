@@ -244,19 +244,27 @@ class TritonRunner(Runner):
         
         # submit tasks to sbatch
         if self.options.numtasks > 1:
-            self.sbatch_multi_runner()
+            self.sbatch_multi_node_runner()
         else:
             self.sbatch_single_runner()
             
         if verbosity > 0:
             print 'Job (%s) has id: %s' % (self.jobname, self.job)
         
+        if type(self.job).__name__=='list':
+            job_string = ':'.join(self.job)
+        else:
+            job_string = str(self.job)
         # Start a job that waits until all our tasks are finished   
-        waitjob = Popen(['srun', '-t', '00:01:00', '-J', 'wait%s' % self.jobname, '-n', '1', '-N', '1', '-p', 'test', '--mem-per-cpu', '10', '--dependency=afterany:'+str(self.job), 'sleep', str(2)], stderr=PIPE)
+        waitjob = Popen(['srun', '-t', '00:01:00', '-J', 'wait%s' % self.jobname, '-n', '1', '-N', '1', '-p', 'test', '--mem-per-cpu', '10', '--dependency=afterany:'+job_string, 'sleep', str(2)], stderr=PIPE)
         waitjob.wait()
         
         # Fetch the error codes of our tasks
-        sacct_command = ['sacct', '-n', '--format=ExitCode,State', '-P', '-j', str(self.job)]
+        if type(self.job).__name__=='list':
+            job_string = ','.join(self.job)
+        else:
+            job_string = str(self.job)
+        sacct_command = ['sacct', '-n', '--format=ExitCode,State', '-P', '-j', job_string]
         result = Popen(sacct_command, stdout=PIPE).communicate()[0]
 
         while result.count('RUNNING') > 0 or result.count('PENDING') > 0:
@@ -326,7 +334,69 @@ class TritonRunner(Runner):
                 success = True
             else:
                 time.sleep(2)
-            
+
+        # Method for submitting one task to sbatch
+    def sbatch_multi_node_runner(self):
+        self.job = []
+        cur_start = 1
+        num_tasks_per_node = int(self.options.numtasks) / int(self.options.nodes)
+
+        for node_num in range(1, self.options.nodes +1):
+            global verbosity
+
+            # Construct the sbatch command
+            batchcommand=['sbatch']
+
+            # Give a jobname
+            batchcommand.extend(['-J', self.jobname])
+
+            # Set the timelimit
+            batchcommand.extend(['-t', self.options.timelimit])
+
+            batchcommand.extend(['-N', str(1)])
+            batchcommand.extend(['-n', str(12)])
+
+            # Set the memory limit
+            batchcommand.append('--mem-per-cpu='+ str(self.options.memlimit))
+
+            # If people want to be nice, we set a priority
+            if self.options.priority > 0:
+                batchcommand.append('--nice='+str(self.options.priority))
+
+            outfile = self.replace_flags(self.options.ostream, "parent")
+            errorfile = self.replace_flags(self.options.estream, "parent")
+
+            batchcommand.extend(['-o', outfile])
+            batchcommand.extend(['-e', errorfile])
+
+
+            batchcommand.append('tritonarray.py')
+
+            if node_num == self.options.nodes:
+                batchcommand.extend(['-T', str(cur_start)+'-'+str(self.options.numtasks)])
+            else:
+                end = cur_start + num_tasks_per_node - 1
+                batchcommand.extend(['-T', str(cur_start)+'-'+str(end)])
+                cur_start = end + 1
+                
+            batchcommand.extend(['-o', self.options.ostream])
+            batchcommand.extend(['-e', self.options.estream])
+            batchcommand.append('--')
+            batchcommand.extend(self.commandarr)
+
+            success = False
+
+            while not success:
+                #Call sbatch
+                output = Popen(batchcommand, stdout=PIPE).communicate()[0]
+
+                #Find the jobid on the end of the line
+                m = re.search('[0-9]+$', output)
+                if m is not None:
+                    self.job.append(m.group(0))
+                    success = True
+                else:
+                    time.sleep(2)
         
     
     def sbatch_single_runner(self):
