@@ -73,7 +73,7 @@ def lattice_rescore(step, lat_dir, lat_dir_out, lm, lm_scale):
                     '-debug', '1'])
 
     ostream, estream = _get_output_stream_names(step)
-    job_runner.submit_job(rescore, {'numtasks': max_tasks,
+    job_runner.submit_job([str(part) for part in rescore], {'numtasks': max_tasks,
                                     'ostream': ostream,
                                     'estream': estream})
     clean_split_file(lattice_scp)
@@ -100,7 +100,7 @@ def lattice_decode(step ,lat_dir, lat_dir_out, lm_scale):
                     '-debug', '1'])
 
     ostream, estream = _get_output_stream_names(step)
-    job_runner.submit_job(decode, {'numtasks': max_tasks,
+    job_runner.submit_job([str(part) for part in decode], {'numtasks': max_tasks,
                                     'ostream': ostream,
                                     'estream': estream})
     clean_split_file(lattice_scp)
