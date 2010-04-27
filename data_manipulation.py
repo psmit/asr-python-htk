@@ -558,5 +558,5 @@ def mlf_to_trn(mlf, trn, num_speaker_chars=3):
                 trans.append("(%s_%s)" % (utt_name[:num_speaker_chars],utt_name[num_speaker_chars:]))
                 print >> trn_file, ' '.join(trans)
                 trans = []
-            else:
+            elif not line.startswith('<'):
                 trans.append(line.rstrip())
