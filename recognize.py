@@ -56,8 +56,10 @@ phones_list = config.get('model', 'model_dir') + '/files/tiedlist'
 dict = config.get('model', 'model_dir') + '/dictionary/dict.hdecode'
 adapt_dir = model + "/cmllr"
 lm = config.get('model', 'lm')
+lm_rescore = config.get('model', 'lm_rescore')
 config_hdecode = config.get('model', 'config')
-label_dir = 'label_dir'
+lat_dir = 'lat_dir_in'
+lat_dir_rescored = 'lat_dir_rescored'
 num_tokens = 32
 lm_scale = 12.0
 beam = 250.0
@@ -67,6 +69,7 @@ max_pruning = 40000
 if os.path.exists(label_dir):
     shutil.rmtree(label_dir)
 os.mkdir(label_dir)
-htk.HDecode(1, scp_file, model, dict, phones_list, lm, label_dir, num_tokens, [config_hdecode], lm_scale, beam, end_beam, max_pruning, adapt_dir)
-
+htk.HDecode(1, scp_file, model, dict, phones_list, lm, lat_dir, num_tokens, [config_hdecode], lm_scale, beam, end_beam, max_pruning, adapt_dir)
+htk.lattice_rescore(2, lat_dir, lat_dir_rescored, lm_rescore, lm_scale)
+htk.lattice_decode(3,lat_dir_rescored, out_dir, lm_scale)
 

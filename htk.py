@@ -29,6 +29,8 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
                 "-H", model_dir + "/macros",
                 "-H", model_dir + "/hmmdefs",
                 '-z', 'lat',
+                '-o', 'T',
+                '-i', 'out.mlf.part.%t',
                 '-l', label_dir,
                 "-w", language_model,
                 '-n', num_tokens,
@@ -44,9 +46,64 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
                                     'ostream': ostream,
                                     'estream': estream} )
 
-    merge_mlf_files(result_mlf)
+    merge_mlf_files('out.mlf')
     # remove splitted scp files
     clean_split_file(scpfile)
+
+def lattice_rescore(step, lat_dir, lat_dir_out, lm, lm_scale):
+    global num_tasks
+
+    rescore = ["lattice-tool"]
+
+    lattice_scp = lat_dir+'/lattices.scp'
+
+    with open(lattice_scp, 'w') as lattice_scp_file:
+        for lattice_file in glob.iglob(lat_dir + '/*.lat.gz'):
+            print >> lattice_scp_file, lattice_file
+
+    max_tasks = split_file(lattice_scp, num_tasks)
+
+    rescore.extend(["-order", '10',
+                    '-read-htk',
+                    '-htk-lmscale', lm_scale,
+                    '-in-lattice-list', lattice_scp+'.part.%t',
+                    '-lm', lm,
+                    '-out-lattice-dir', lat_dir_out,
+                    '-write-htk',
+                    '-debug', '1'])
+
+    ostream, estream = _get_output_stream_names(step)
+    job_runner.submit_job(rescore, {'numtasks': max_tasks,
+                                    'ostream': ostream,
+                                    'estream': estream})
+    clean_split_file(lattice_scp)
+
+def lattice_decode(step ,lat_dir, lat_dir_out, lm_scale):
+    global num_tasks
+
+    decode = ["lattice-tool"]
+
+    lattice_scp = lat_dir+'/lattices.scp'
+
+    with open(lattice_scp, 'w') as lattice_scp_file:
+        for lattice_file in glob.iglob(lat_dir + '/*.lat.gz'):
+            print >> lattice_scp_file, lattice_file
+
+    max_tasks = split_file(lattice_scp, num_tasks)
+
+    decode.extend(['-read-htk',
+                    '-htk-lmscale', lm_scale,
+                    '-in-lattice-list', lattice_scp+'.part.%t',
+                    '-viterbi-decode',
+                    '-out-lattice-dir', lat_dir_out,
+                    '-write-htk',
+                    '-debug', '1'])
+
+    ostream, estream = _get_output_stream_names(step)
+    job_runner.submit_job(decode, {'numtasks': max_tasks,
+                                    'ostream': ostream,
+                                    'estream': estream})
+    clean_split_file(lattice_scp)
 
 def HLEd(step, input_transcriptions, led_file, selector, phones_list, output_transcriptions, dict = None):
     global num_tasks, extra_HTK_options
