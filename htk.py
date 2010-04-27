@@ -109,6 +109,8 @@ def lattice_decode(step ,lat_dir, out_mlf, lm_scale):
     r = re.compile('(?<=[^_>])[ ]')
     with open(out_mlf, 'w') as out_mlf_file:
         for file in glob.iglob(ostream.replace('%c', 'lattice-tool').replace('%t', '*').replace('%j', '*')):
+            if file.endswith('parent'):
+                continue
             for line in open(file):
                 if line.startswith('#!MLF!#'):
                     continue
