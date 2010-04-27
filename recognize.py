@@ -68,7 +68,7 @@ beam = 250.0
 end_beam = (beam * 2.0) / 3.0
 max_pruning = 40000
 
-out_dir = 'out_dir'
+
 
 current_step = 1
 if current_step >= options.step:
@@ -87,9 +87,5 @@ sys.exit()
 
 current_step += 1
 if current_step >= options.step:
-    if os.path.exists(out_dir):
-        shutil.rmtree(out_dir)
-    os.mkdir(out_dir)
-
-    htk.lattice_decode(current_step,lat_dir_rescored, out_dir, lm_scale)
+    htk.lattice_decode(current_step,lat_dir_rescored, 'rec.mlf', lm_scale)
 

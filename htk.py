@@ -4,6 +4,7 @@ import glob
 import os
 import job_runner
 import shutil
+import re
 
 num_tasks = 100
 extra_HTK_options = ["-A", "-D", "-V", "-T", "1"]
@@ -83,7 +84,7 @@ def lattice_rescore(step, lat_dir, lat_dir_out, lm, lm_scale):
     merge_split_dir(lat_dir_out)
     clean_split_file(lattice_scp)
 
-def lattice_decode(step ,lat_dir, lat_dir_out, lm_scale):
+def lattice_decode(step ,lat_dir, out_mlf, lm_scale):
     global num_tasks
 
     decode = ["lattice-tool"]
@@ -99,15 +100,25 @@ def lattice_decode(step ,lat_dir, lat_dir_out, lm_scale):
     decode.extend(['-read-htk',
                     '-htk-lmscale', lm_scale,
                     '-in-lattice-list', lattice_scp+'.part.%t',
-                    '-viterbi-decode',
-                    '-out-lattice-dir', lat_dir_out,
-                    '-write-htk',
-                    '-debug', '1'])
+                    '-viterbi-decode'])
 
     ostream, estream = _get_output_stream_names(step)
     job_runner.submit_job([str(part) for part in decode], {'numtasks': max_tasks,
                                     'ostream': ostream,
                                     'estream': estream})
+    r = re.compile('(?<=[^_>])[ ]')
+    with open(out_mlf, 'w') as out_mlf_file:
+        for file in glob.iglob(ostream.replace('%c', 'lattice-tool').replace('%t', '*').replace('%j', '*')):
+            for line in open(file):
+                if line.startswith('#!MLF!#'):
+                    continue
+                else:
+                    filename, transcription = line.split(None, 1)
+                    print >> out_mlf_file, '"*/%s.rec"' % os.path.splitext(os.path.basename(filename))[0]
+                    transcription = r.sub('', transcription)
+                    for word in transcription.split():
+                        print >> out_mlf_file, word
+
     clean_split_file(lattice_scp)
 
 def HLEd(step, input_transcriptions, led_file, selector, phones_list, output_transcriptions, dict = None):
