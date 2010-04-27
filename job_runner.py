@@ -451,6 +451,11 @@ class TritonRunner(Runner):
     def cancel(self):
         global verbosity
         cancelcommand=['scancel']
+        if type(self.job).__name__=='list':
+            cancelcommand.extend(self.job)
+        else:
+            cancelcommand.append(self.job)
+
         cancelcommand.append(self.job)
         call(cancelcommand)
         if verbosity > 0:
