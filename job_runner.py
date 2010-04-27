@@ -329,14 +329,19 @@ class TritonRunner(Runner):
         
         while not success:
             #Call sbatch
-            output = Popen(batchcommand, stdout=PIPE).communicate()[0]
-            
+            popen_obj = Popen(batchcommand, stdout=PIPE, stderr=PIPE)
+            output, erro = popen_obj.communicate()
+
             #Find the jobid on the end of the line
             m = re.search('[0-9]+$', output)
             if m is not None:
                 self.job = m.group(0)
                 success = True
             else:
+                print "sbatch failed"
+                print "Output: %s" % output
+                print "Error: %s" % erro
+                print "Return_code: %s" % popen_obj.returncode
                 time.sleep(2)
 
         # Method for submitting one task to sbatch
