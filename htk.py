@@ -71,7 +71,7 @@ def lattice_rescore(step, lat_dir, lat_dir_out, lm, lm_scale):
                     '-htk-lmscale', lm_scale,
                     '-in-lattice-list', lattice_scp+'.part.%t',
                     '-lm', lm,
-                    '-out-lattice-dir', lat_dir_out+'.%t',
+                    '-out-lattice-dir', lat_dir_out+'.part.%t',
                     '-write-htk',
                     '-debug', '1'])
 
