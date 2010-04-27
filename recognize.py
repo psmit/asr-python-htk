@@ -70,20 +70,24 @@ max_pruning = 40000
 
 out_dir = 'out_dir'
 
+current_step = 1
+if current_step >= options.step:
+    if os.path.exists(lat_dir):
+        shutil.rmtree(lat_dir)
+    os.mkdir(lat_dir)
 
-if os.path.exists(lat_dir):
-    shutil.rmtree(lat_dir)
-os.mkdir(lat_dir)
 
-htk.HDecode(1, scp_file, model, dict, phones_list, lm, lat_dir, num_tokens, [config_hdecode], lm_scale, beam, end_beam, max_pruning, adapt_dir)
+    htk.HDecode(current_step, scp_file, model, dict, phones_list, lm, lat_dir, num_tokens, [config_hdecode], lm_scale, beam, end_beam, max_pruning, adapt_dir)
 
-htk.lattice_rescore(2, lat_dir, lat_dir_rescored, lm_rescore + '.gz', lm_scale)
+if current_step >= options.step:
+    htk.lattice_rescore(current_step, lat_dir, lat_dir_rescored, lm_rescore + '.gz', lm_scale)
 
 sys.exit()
 
-if os.path.exists(out_dir):
-    shutil.rmtree(out_dir)
-os.mkdir(out_dir)
+if current_step >= options.step:
+    if os.path.exists(out_dir):
+        shutil.rmtree(out_dir)
+    os.mkdir(out_dir)
 
-htk.lattice_decode(3,lat_dir_rescored, out_dir, lm_scale)
+    htk.lattice_decode(current_step,lat_dir_rescored, out_dir, lm_scale)
 
