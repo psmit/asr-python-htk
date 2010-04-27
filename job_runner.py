@@ -343,7 +343,7 @@ class TritonRunner(Runner):
     def sbatch_multi_node_runner(self):
         self.job = []
         cur_start = 1
-        num_tasks_per_node = int(self.options.numtasks) / int(self.options.nodes)
+        num_tasks_per_node = int(self.options.numtasks / self.options.nodes)
         print "Num tasks per node: %s" % num_tasks_per_node
 
         for node_num in range(1, self.options.nodes +1):
