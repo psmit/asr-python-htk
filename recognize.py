@@ -81,7 +81,7 @@ if os.path.exists(lat_dir_rescored):
     shutil.rmtree(lat_dir_rescored)
 os.mkdir(lat_dir_rescored)
 
-htk.lattice_rescore(2, lat_dir, lat_dir_rescored, lm_rescore, lm_scale)
+htk.lattice_rescore(2, lat_dir, lat_dir_rescored, lm_rescore + '.gz', lm_scale)
 
 if os.path.exists(out_dir):
     shutil.rmtree(out_dir)
