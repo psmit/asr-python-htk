@@ -100,8 +100,8 @@ if current_step >= options.step:
 
 current_step +=1
 if current_step >= options.step:
-    data_manipulation.mlf_to_trn(config.get('model', 'model_dir') + '/files/words.mlf', 'reference.trn', 3)
-    data_manipulation.mlf_to_trn('rec.mlf', 'rescore_decode.trn', 3)
-    data_manipulation.mlf_to_trn('out.mlf', 'decode.trn', 3)
+    data_manipulation.mlf_to_trn(config.get('model', 'model_dir') + '/files/words.mlf', 'reference.trn', config.get('model', 'speaker_name_width'))
+    data_manipulation.mlf_to_trn('rec.mlf', 'rescore_decode.trn', config.get('model', 'speaker_name_width'))
+    data_manipulation.mlf_to_trn('out.mlf', 'decode.trn', config.get('model', 'speaker_name_width'))
 
 
