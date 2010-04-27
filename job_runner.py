@@ -343,9 +343,7 @@ class TritonRunner(Runner):
     def sbatch_multi_node_runner(self):
         self.job = []
         cur_start = 1
-        print self.options.numtasks
-        print self.options.nodes
-        num_tasks_per_node = int(self.options.numtasks / self.options.nodes)
+        num_tasks_per_node = int(self.options.numtasks) / int(self.options.nodes)
         print "Num tasks per node: %s" % num_tasks_per_node
 
         for node_num in range(1, self.options.nodes +1):
@@ -392,7 +390,7 @@ class TritonRunner(Runner):
             batchcommand.extend(self.commandarr)
 
             success = False
-            print ' '.join(batchcommand)
+
             while not success:
                 #Call sbatch
                 output = Popen(batchcommand, stdout=PIPE).communicate()[0]
@@ -459,7 +457,6 @@ class TritonRunner(Runner):
         else:
             cancelcommand.append(self.job)
 
-        cancelcommand.append(self.job)
         call([str(part) for part in cancelcommand])
         if verbosity > 0:
             print 'Jobs are cancelled!'
