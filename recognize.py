@@ -83,8 +83,6 @@ current_step += 1
 if current_step >= options.step:
     htk.lattice_rescore(current_step, lat_dir, lat_dir_rescored, lm_rescore + '.gz', lm_scale)
 
-sys.exit()
-
 current_step += 1
 if current_step >= options.step:
     htk.lattice_decode(current_step,lat_dir_rescored, 'rec.mlf', lm_scale)
