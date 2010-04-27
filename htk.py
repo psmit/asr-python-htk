@@ -121,6 +121,7 @@ def lattice_decode(step ,lat_dir, out_mlf, lm_scale):
                     transcription = r.sub('', transcription)
                     for word in transcription.split():
                         print >> out_mlf_file, word
+                    print >> out_mlf_file, "."
 
     clean_split_file(lattice_scp)
 

@@ -60,8 +60,8 @@ adapt_dir = model + "/cmllr"
 lm = config.get('model', 'lm')
 lm_rescore = config.get('model', 'lm_rescore')
 config_hdecode = config.get('model', 'config')
-lat_dir = 'lat_dir_in'
-lat_dir_rescored = 'lat_dir_rescored'
+lat_dir = 'htk_lattices'
+lat_dir_rescored = 'rescored_lattices'
 num_tokens = 32
 lm_scale = 12.0
 beam = 250.0
@@ -72,6 +72,7 @@ max_pruning = 40000
 
 current_step = 1
 if current_step >= options.step:
+    logger.info("Start step: %d (%s)" % (current_step, 'Generating lattices with HDecode'))
     if os.path.exists(lat_dir):
         shutil.rmtree(lat_dir)
     os.mkdir(lat_dir)
@@ -81,9 +82,20 @@ if current_step >= options.step:
 
 current_step += 1
 if current_step >= options.step:
+    logger.info("Start step: %d (%s)" % (current_step, 'Rescoring lattices with lattice-tool'))
     htk.lattice_rescore(current_step, lat_dir, lat_dir_rescored, lm_rescore + '.gz', lm_scale)
 
 current_step += 1
 if current_step >= options.step:
+    logger.info("Start step: %d (%s)" % (current_step, 'Decoding lattices with lattice-tool'))
     htk.lattice_decode(current_step,lat_dir_rescored, 'rec.mlf', lm_scale)
+
+current_step +=1
+if current_step >= options.step:
+    logger.info("Start step: %d (%s)" % (current_step, 'Deleting lattices'))
+    if os.path.exists(lat_dir):
+        shutil.rmtree(lat_dir)
+    if os.path.exists(lat_dir_rescored):
+        shutil.rmtree(lat_dir_rescored)
+
 
