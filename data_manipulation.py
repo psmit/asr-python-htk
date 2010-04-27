@@ -542,3 +542,21 @@ def speecon_fi_selection(speecon_dir, set):
         fi0_files.append(map['audio'].replace('/share/puhe/audio/speecon-fi', speecon_dir))
     return fi0_files
 
+def mlf_to_trn(mlf, trn, num_speaker_chars=3):
+    reg_exp = re.compile('\"\*/([A-Za-z0-9]+)\.(mfc|lab|rec)\"')
+
+    with open(trn, 'w') as trn_file:
+        utt_name = None
+        trans = []
+        for line in open(mlf):
+            if line.startswith("#!MLF!#"):
+                continue
+            m = reg_exp.match(line)
+            if m is not None:
+                utt_name = m.group(1)
+            elif line.lstrip().rstrip() == '.':
+                trans.append("(%s_%s)" % (utt_name[:num_speaker_chars],utt_name[num_speaker_chars:]))
+                print >> trn_file, ' '.join(trans)
+                trans = []
+            else:
+                trans.append(line.rstrip())

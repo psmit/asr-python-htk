@@ -98,4 +98,10 @@ if current_step >= options.step:
     if os.path.exists(lat_dir_rescored):
         shutil.rmtree(lat_dir_rescored)
 
+current_step +=1
+if current_step >= options.step:
+    data_manipulation.mlf_to_trn(config.get('model', 'model_dir') + '/files/words.mlf', 'reference.trn', 3)
+    data_manipulation.mlf_to_trn('rec.mlf', 'rescore_decode.trn', 3)
+    data_manipulation.mlf_to_trn('out.mlf', 'decode.trn', 3)
+
 
