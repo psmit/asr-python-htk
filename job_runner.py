@@ -249,7 +249,11 @@ class TritonRunner(Runner):
             self.sbatch_single_runner()
             
         if verbosity > 0:
-            print 'Job (%s) has id: %s' % (self.jobname, self.job)
+            if type(self.job).__name__=='list':
+                job_string = ','.join(self.job)
+            else:
+                job_string = str(self.job)
+            print 'Job (%s) has id: %s' % (self.jobname, job_string)
         
         if type(self.job).__name__=='list':
             job_string = ':'.join(self.job)
