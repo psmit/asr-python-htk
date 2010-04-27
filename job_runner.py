@@ -457,7 +457,7 @@ class TritonRunner(Runner):
             cancelcommand.append(self.job)
 
         cancelcommand.append(self.job)
-        call(cancelcommand)
+        call([str(part) for part in cancelcommand])
         if verbosity > 0:
             print 'Jobs are cancelled!'
         sys.exit(255)
