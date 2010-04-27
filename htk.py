@@ -3,6 +3,7 @@
 import glob
 import os
 import job_runner
+import shutil
 
 num_tasks = 100
 extra_HTK_options = ["-A", "-D", "-V", "-T", "1"]
@@ -53,6 +54,8 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
 def lattice_rescore(step, lat_dir, lat_dir_out, lm, lm_scale):
     global num_tasks
 
+    clean_split_dir(lat_dir_out)
+
     rescore = ["lattice-tool"]
 
     lattice_scp = lat_dir+'/lattices.scp'
@@ -76,6 +79,8 @@ def lattice_rescore(step, lat_dir, lat_dir_out, lm, lm_scale):
     job_runner.submit_job([str(part) for part in rescore], {'numtasks': max_tasks,
                                     'ostream': ostream,
                                     'estream': estream})
+
+    merge_split_dir(lat_dir_out)
     clean_split_file(lattice_scp)
 
 def lattice_decode(step ,lat_dir, lat_dir_out, lm_scale):
@@ -399,10 +404,22 @@ def split_file(file_name, parts, keep_speaker_together = False, num_speaker_char
     for file in target_files: file.close()
     return real_num_parts + 1
 
+def clean_split_dir(dir_prefix):
+    for dir in glob.iglob(dir_prefix+".part.*"): shutil.rmtree(dir)
+
+def merge_split_dir(dir_prefix):
+    if os.path.exists(dir_prefix): shutil.rmtree(dir_prefix)
+    os.mkdir(dir_prefix)
+    for dir in glob.iglob(dir_prefix+".part.*"):
+        for file in glob.iglob(dir+"/*"):
+            shutil.move(file, dir_prefix)
+
+    clean_split_dir(dir_prefix)
+
 def clean_split_file(file_name):
     global clean_scp_files
     if clean_scp_files:
-        for file in glob.glob(file_name+".part.*"): os.remove(file)
+        for file in glob.iglob(file_name+".part.*"): os.remove(file)
 
 def merge_mlf_files(file_name):
     with open(file_name, 'w') as out_file:
