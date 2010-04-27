@@ -543,7 +543,7 @@ def speecon_fi_selection(speecon_dir, set):
     return fi0_files
 
 def mlf_to_trn(mlf, trn, num_speaker_chars=3):
-    reg_exp = re.compile('\"\*/([A-Za-z0-9]+)\.(mfc|lab|rec)\"')
+    reg_exp = re.compile('\".*/([A-Za-z0-9]+)\.(mfc|lab|rec)\"')
 
     with open(trn, 'w') as trn_file:
         utt_name = None
