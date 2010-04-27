@@ -79,11 +79,13 @@ if current_step >= options.step:
 
     htk.HDecode(current_step, scp_file, model, dict, phones_list, lm, lat_dir, num_tokens, [config_hdecode], lm_scale, beam, end_beam, max_pruning, adapt_dir)
 
+current_step += 1
 if current_step >= options.step:
     htk.lattice_rescore(current_step, lat_dir, lat_dir_rescored, lm_rescore + '.gz', lm_scale)
 
 sys.exit()
 
+current_step += 1
 if current_step >= options.step:
     if os.path.exists(out_dir):
         shutil.rmtree(out_dir)
