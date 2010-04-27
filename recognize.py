@@ -77,11 +77,9 @@ os.mkdir(lat_dir)
 
 htk.HDecode(1, scp_file, model, dict, phones_list, lm, lat_dir, num_tokens, [config_hdecode], lm_scale, beam, end_beam, max_pruning, adapt_dir)
 
-if os.path.exists(lat_dir_rescored):
-    shutil.rmtree(lat_dir_rescored)
-os.mkdir(lat_dir_rescored)
-
 htk.lattice_rescore(2, lat_dir, lat_dir_rescored, lm_rescore + '.gz', lm_scale)
+
+sys.exit()
 
 if os.path.exists(out_dir):
     shutil.rmtree(out_dir)
