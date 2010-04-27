@@ -50,7 +50,9 @@ if not config.has_option('model', 'model_dir') or not config.has_option('model',
     sys.exit("Please give more configuration")
 
 
-scp_file = config.get('model', 'model_dir') + '/files/eval.scp'
+scp_file = 'eval.scp'
+shutil.copyfile(config.get('model', 'model_dir') + '/files/eval.scp', scp_file)
+
 model = config.get('model', 'model_dir') + '/' + options.model
 phones_list = config.get('model', 'model_dir') + '/files/tiedlist'
 dict = config.get('model', 'model_dir') + '/dictionary/dict.hdecode'
