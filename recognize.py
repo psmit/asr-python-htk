@@ -66,10 +66,24 @@ beam = 250.0
 end_beam = (beam * 2.0) / 3.0
 max_pruning = 40000
 
-if os.path.exists(label_dir):
-    shutil.rmtree(label_dir)
-os.mkdir(label_dir)
+out_dir = 'out_dir'
+
+
+if os.path.exists(lat_dir):
+    shutil.rmtree(lat_dir)
+os.mkdir(lat_dir)
+
 htk.HDecode(1, scp_file, model, dict, phones_list, lm, lat_dir, num_tokens, [config_hdecode], lm_scale, beam, end_beam, max_pruning, adapt_dir)
+
+if os.path.exists(lat_dir_rescored):
+    shutil.rmtree(lat_dir_rescored)
+os.mkdir(lat_dir_rescored)
+
 htk.lattice_rescore(2, lat_dir, lat_dir_rescored, lm_rescore, lm_scale)
+
+if os.path.exists(out_dir):
+    shutil.rmtree(out_dir)
+os.mkdir(out_dir)
+
 htk.lattice_decode(3,lat_dir_rescored, out_dir, lm_scale)
 
