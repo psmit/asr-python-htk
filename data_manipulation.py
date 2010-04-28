@@ -47,30 +47,38 @@ def import_dictionaries(dicts):
         for transcription in _unique_listelements(sorted(transcriptions, lambda x, y: len(x) - len(y))):
             new_transcriptions.append(transcription + ['sp'])
             new_transcriptions.append(transcription + ['sil'])
-        new_dict[word] = new_transcriptions
+        new_dict[word+word_suffix] = new_transcriptions
 
+    if new_dict.has_key('<s>'+word_suffix):
+        del new_dict['<s>'+word_suffix]
+    if new_dict.has_key('</s>'+word_suffix):
+        del new_dict['</s>'+word_suffix]
     new_dict['<s>'] = [['sil']]
     new_dict['</s>'] = [['sil']]
     
     with open('dictionary/dict', 'w') as dictfile:
         for key in sorted(new_dict):
             for transcription in new_dict[key]:
-                print >> dictfile, "%s%s %s" % (escape(key), word_suffix, ' '.join(transcription))
+                print >> dictfile, "%s %s" % (escape(key), ' '.join(transcription))
 
     new_dict = {}
     for word, transcriptions in dict.items():
         new_transcriptions = []
         for transcription in _unique_listelements(sorted(transcriptions, lambda x, y: len(x) - len(y))):
             new_transcriptions.append(transcription)
-        new_dict[word] = new_transcriptions
+        new_dict[word+word_suffix] = new_transcriptions
 
+    if new_dict.has_key('<s>'+word_suffix):
+        del new_dict['<s>'+word_suffix]
+    if new_dict.has_key('</s>'+word_suffix):
+        del new_dict['</s>'+word_suffix]
     new_dict['<s>'] = [['sil']]
     new_dict['</s>'] = [['sil']]
 
     with open('dictionary/dict.hdecode', 'w') as dictfile:
         for key in sorted(new_dict):
             for transcription in new_dict[key]:
-                print >> dictfile, "%s%s %s" % (escape(key), word_suffix, ' '.join(transcription))
+                print >> dictfile, "%s %s" % (escape(key), ' '.join(transcription))
     
 def unescape(word):
     if re.match("^\\\\[^a-z0-9<]", word): return word[1:]
