@@ -281,8 +281,8 @@ class TritonRunner(Runner):
             
         # If there was any error take appropriate action
         if result.count('0:0|COMPLETED') < 1:
-            #if verbosity > 0:
-             #   print result
+            if verbosity > 0:
+                print result
             sys.exit("Some tasks failed")
         elif verbosity > 0:
             print 'All tasks succeeded'
