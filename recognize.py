@@ -41,7 +41,12 @@ job_runner.default_options["nodes"] = options.nodes
 htk.num_tasks = options.nodes * 48
 
 config = SafeConfigParser({'name': 'EXPERIMENT NAME_TO_BE_FILLED!',
-                            'speaker_name_width': '5'})
+                            'speaker_name_width': '5',
+                            'max_pruning': '40000',
+                            'beam': '250.0',
+                            'end_beam': '-1.0',
+                            'lm_scale': '12',
+                            'num_tokens': '32'})
 config.read(configs if len(configs) > 0 else "recognition_config")
 
 
@@ -55,6 +60,7 @@ shutil.copyfile(config.get('model', 'model_dir') + '/files/eval.scp', scp_file)
 
 model = config.get('model', 'model_dir') + '/' + options.model
 phones_list = config.get('model', 'model_dir') + '/files/tiedlist'
+words_mlf = config.get('model', 'model_dir') + '/files/words.mlf'
 dict = config.get('model', 'model_dir') + '/dictionary/dict.hdecode'
 adapt_dir = model + "/cmllr"
 lm = config.get('model', 'lm')
@@ -62,12 +68,16 @@ lm_rescore = config.get('model', 'lm_rescore')
 config_hdecode = config.get('model', 'config')
 lat_dir = 'htk_lattices'
 lat_dir_rescored = 'rescored_lattices'
-num_tokens = 32
-lm_scale = 12.0
-beam = 250.0
-end_beam = (beam * 2.0) / 3.0
-max_pruning = 40000
+speaker_name_width = config.getint('model', 'speaker_name_width')
 
+
+num_tokens = config.getint('recognition', 'num_tokens')
+lm_scale = config.getint('recognition', 'lm_scale')
+beam = config.getfloat('recognition', 'beam')
+end_beam = config.getfloat('recognition', 'end_beam')
+if end_beam < 0:
+    end_beam = (beam * 2.0) / 3.0
+max_pruning = config.getint('recognition', 'max_pruning')
 
 
 current_step = 1
@@ -100,8 +110,8 @@ if current_step >= options.step:
 
 current_step +=1
 if current_step >= options.step:
-    data_manipulation.mlf_to_trn(config.get('model', 'model_dir') + '/files/words.mlf', 'reference.trn', config.getint('model', 'speaker_name_width'))
-    data_manipulation.mlf_to_trn('rec.mlf', 'rescore_decode.trn', config.getint('model', 'speaker_name_width'))
-    data_manipulation.mlf_to_trn('out.mlf', 'decode.trn', config.getint('model', 'speaker_name_width'))
+    data_manipulation.mlf_to_trn(words_mlf, 'reference.trn', speaker_name_width)
+    data_manipulation.mlf_to_trn('rec.mlf', 'rescore_decode.trn', speaker_name_width)
+    data_manipulation.mlf_to_trn('out.mlf', 'decode.trn', speaker_name_width)
 
 
