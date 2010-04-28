@@ -481,7 +481,7 @@ def prune_transcriptions(dict_file, orig_words_mlf, new_words_mlf):
                     utt_trans.append(line)
                 else:
                     success = False
-                    #print "%s %s" % (utt_name, line)
+                    print "%s %s" % (utt_name, line)
 
     return pruned_trans
 
