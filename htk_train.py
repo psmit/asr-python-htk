@@ -173,8 +173,8 @@ if current_step >= options.step:
     htk.HHEd(current_step, source_hmm_dir, target_hmm_dir, sil_hed, phones_list)
 
     
-# Re estimate model 2 times
-for i in range(0,2):
+# Re estimate model 3 times
+for i in range(0,3):
     current_step += 1
 
     if current_step >= options.step:
@@ -196,8 +196,8 @@ if current_step >= options.step:
     
 scpfile = 'files/train.scp'
 
-# Re estimate model 2 times
-for i in range(0,2):
+# Re estimate model 4 times
+for i in range(0,4):
     current_step += 1
     
     if current_step >= options.step:
@@ -231,8 +231,8 @@ phones_list = 'files/triphones'
 transcriptions = 'files/tri.mlf'
     
 
-# Re estimate model 2 times
-for i in range(0,2):
+# Re estimate model 3 times
+for i in range(0,3):
     current_step += 1
     
     if current_step >= options.step:
@@ -265,8 +265,8 @@ if current_step >= options.step:
     
 phones_list = 'files/tiedlist'
     
-# Re estimate model 2 times
-for i in range(0,2):
+# Re estimate model 3 times
+for i in range(0,3):
     current_step += 1
 
     if current_step >= options.step:
