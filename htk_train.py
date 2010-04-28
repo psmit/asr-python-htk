@@ -239,7 +239,7 @@ for i in range(0,3):
         logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest'))
         source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
         
-        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, True if i == 1 else False)
+        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, True if i == 2 else False)
     
 
 current_step += 1
