@@ -24,7 +24,7 @@ def import_dictionaries(dicts):
     if os.path.isdir('dictionary'): shutil.rmtree('dictionary')
     os.mkdir('dictionary')
     dict = {}
-    for location, prefix in dicts:
+    for location, prefix, word_suffix in dicts:
         if not os.path.exists(location + '/dict'):
             sys.exit("Not Found: " + location + '/dict')
             
@@ -55,7 +55,7 @@ def import_dictionaries(dicts):
     with open('dictionary/dict', 'w') as dictfile:
         for key in sorted(new_dict):
             for transcription in new_dict[key]:
-                print >> dictfile, "%s %s" % (escape(key), ' '.join(transcription))
+                print >> dictfile, "%s%s %s" % (escape(key), word_suffix, ' '.join(transcription))
 
     new_dict = {}
     for word, transcriptions in dict.items():
@@ -70,7 +70,7 @@ def import_dictionaries(dicts):
     with open('dictionary/dict.hdecode', 'w') as dictfile:
         for key in sorted(new_dict):
             for transcription in new_dict[key]:
-                print >> dictfile, "%s %s" % (escape(key), ' '.join(transcription))
+                print >> dictfile, "%s%s %s" % (escape(key), word_suffix, ' '.join(transcription))
     
 def unescape(word):
     if re.match("^\\\\[^a-z0-9<]", word): return word[1:]
@@ -87,7 +87,7 @@ def import_corpora(corpora):
     
     locationmap = {}
     count = 0
-    for location, prefix in corpora:
+    for location, prefix, word_suffix in corpora:
         if not os.path.exists(location + '/mfc'): sys.exit("Not Found: " + location + '/mfc')
         locationmap[location] = location + '/mfc'
         if os.path.islink(location + '/mfc'):
@@ -97,13 +97,13 @@ def import_corpora(corpora):
         
     for set in sets:
         with open('corpora/'+set+'.scp', 'w') as scpfile:
-            for location, prefix in corpora:
+            for location, prefix, word_suffix in corpora:
                 if not os.path.exists(location + '/'+set+'.scp'): sys.exit("Not Found: " + location + '/'+set+'.scp')
                 for line in  open(location + '/'+set+'.scp'):
                     print >> scpfile, locationmap[location] + line[line.find('/'):].rstrip()
     
     with open('corpora/words.mlf', 'w') as mlffile:
-        for location, prefix in corpora:
+        for location, prefix, word_suffix in corpora:
             if not os.path.exists(location + '/words.mlf'): sys.exit("Not Found: " + location + '/words.mlf')
             for line in open(location + '/words.mlf'):
                 if line.startswith('#') or line.startswith('"') or line.startswith('.'):
@@ -113,7 +113,7 @@ def import_corpora(corpora):
                     if line.startswith('"'):
                         print >> mlffile, '<s>'
                 elif not line.startswith('<s>') and not line.startswith('</s>'):
-                    print >> mlffile, prefix + line.rstrip()
+                    print >> mlffile, prefix + line.rstrip() + word_suffix
 
 
 def make_model_from_proto(hmm_dir, monophones):
