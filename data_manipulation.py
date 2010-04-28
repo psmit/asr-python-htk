@@ -85,7 +85,7 @@ def unescape(word):
     else: return word
 
 def escape(word):
-    if re.match("^[^a-zäö0-9<]", word): return "\\" + word
+    if re.match("^[^a-zäö0-9<]", word.decode('iso-8859-15')): return "\\" + word
     else: return word
     
 def import_corpora(corpora):
