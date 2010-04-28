@@ -47,7 +47,8 @@ config = SafeConfigParser({'name': 'EXPERIMENT NAME_TO_BE_FILLED!',
                             'HERest_pruning': '300.0 500.0 2000.0',
                             'tying_threshold': 1000.0,
                             'required_occupation': 200.0,
-                            'speaker_name_width': 5})
+                            'speaker_name_width': 5,
+                            'word_suffix': ''})
 config.read(configs if len(configs) > 0 else "train_config")
 
 
@@ -69,7 +70,8 @@ if current_step >= options.step:
     cur_dict_id = 1
     while config.has_option("dict"+str(cur_dict_id), "location"):
         dicts.append([config.get("dict"+str(cur_dict_id), "location"),
-                        config.get("dict"+str(cur_dict_id), "prefix")])
+                        config.get("dict"+str(cur_dict_id), "prefix"),
+                        config.get("dict"+str(cur_dict_id), "word_suffix")])
         cur_dict_id += 1
     
     if len(dicts) == 0: sys.exit("No Dictionaries Found!")
@@ -77,7 +79,8 @@ if current_step >= options.step:
     cur_corpus_id = 1
     while config.has_option("corpus"+str(cur_corpus_id), "location"):
         corpora.append([config.get("corpus"+str(cur_corpus_id), "location"),
-                        config.get("corpus"+str(cur_corpus_id), "prefix")])
+                        config.get("corpus"+str(cur_corpus_id), "prefix"),
+                        config.get("corpus"+str(cur_corpus_id), "word_suffix")])
         cur_corpus_id += 1
     
     if len(corpora) == 0: sys.exit("No Corpora Found!")
