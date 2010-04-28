@@ -72,7 +72,7 @@ speaker_name_width = config.getint('model', 'speaker_name_width')
 
 
 num_tokens = config.getint('recognition', 'num_tokens')
-lm_scale = config.getint('recognition', 'lm_scale')
+lm_scale = config.getfloat('recognition', 'lm_scale')
 beam = config.getfloat('recognition', 'beam')
 end_beam = config.getfloat('recognition', 'end_beam')
 if end_beam < 0:
