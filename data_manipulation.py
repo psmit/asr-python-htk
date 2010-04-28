@@ -443,7 +443,7 @@ def prune_transcriptions(dict_file, orig_words_mlf, new_words_mlf):
     dict = {}
     for trans in open(dict_file):
         key,value = trans.split(None, 1)
-        dict[key.decode('iso-8859-15')] = value
+        dict[key.decode('iso-8859-15').encode('utf-8')] = value
 
 
     reg_exp = re.compile('\"\*/([A-Za-z0-9]+)\.(mfc|lab)\"')
@@ -477,7 +477,7 @@ def prune_transcriptions(dict_file, orig_words_mlf, new_words_mlf):
                 success = True
             else:
                 line = line[0] + line[1:].replace('\\','')
-                if dict.has_key(line.decode('iso-8859-15')):
+                if dict.has_key(line.decode('iso-8859-15').encode('utf-8')):
                     utt_trans.append(line)
                 else:
                     success = False
