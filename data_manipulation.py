@@ -481,7 +481,7 @@ def prune_transcriptions(dict_file, orig_words_mlf, new_words_mlf):
                     utt_trans.append(line)
                 else:
                     success = False
-                    print "%s %s %s" % (utt_name, line, line.decode('iso-8859-15').encode('utf-8'))
+                    print "%s is excluded because '%s' is not in the dictionary" % (utt_name, line)
 
     return pruned_trans
 
