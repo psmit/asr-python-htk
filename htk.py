@@ -260,7 +260,8 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
     
     job_runner.submit_job(HERest, {'numtasks': min(max_tasks, num_tasks),
                                     'ostream': ostream,
-                                    'estream': estream} )
+                                    'estream': estream,
+                                    'priority': 1} )
     
     if stats:
         HERest_merge.extend(["-s", target_hmm_dir + "/stats"])
