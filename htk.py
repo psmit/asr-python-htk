@@ -17,7 +17,7 @@ clean_scp_files = True
 clean_old_logs = True
 log_step = -1
 
-def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label_dir, num_tokens, configs, lm_scale, beam, end_beam, max_pruning, adapt_dirs = []):
+def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label_dir, num_tokens, out_mlf, configs, lm_scale, beam, end_beam, max_pruning, adapt_dirs = []):
     global num_tasks, extra_HTK_options
 
     max_tasks = split_file(scpfile, num_tasks)
@@ -36,7 +36,7 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
                 "-H", model_dir + "/hmmdefs",
                 '-z', 'lat',
                 '-o', 'T',
-                '-i', 'out.mlf.part.%t',
+                '-i', out_mlf+'.part.%t',
                 '-l', label_dir,
                 "-w", language_model,
                 '-n', num_tokens,
@@ -52,7 +52,7 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
                                     'ostream': ostream,
                                     'estream': estream} )
 
-    merge_mlf_files('out.mlf')
+    merge_mlf_files(out_mlf)
     # remove splitted scp files
     clean_split_file(scpfile)
 
