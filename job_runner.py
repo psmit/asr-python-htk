@@ -100,6 +100,7 @@ def getOptParser():
     parser.add_option("-q", "--queue", dest="queue", help="Queue, only used for GridEngine (stimulus) at the moment", default="-soft -q helli.q")
     parser.add_option("-c", "--cores", type="int", dest="cores", help="Number of cores to use (when running local). Negative numbers indicate the number of cores to keep free", default=-1)
     parser.add_option("-N", "--nodes", type="int", dest="nodes", help="Number of nodes to use (Triton)", default=1)
+    parser.add_option("-r", "--retrys", type="int", dest="retry", help="Number of retry's for failed jobs (just Triton for now)", default=3)
     parser.add_option("-V", "--verbosity", type="int", dest="verbosity", help="verbosity", default=0)
     return parser
 
@@ -244,54 +245,65 @@ class TritonRunner(Runner):
     def run(self):
         global verbosity
         
-        
-        # submit tasks to sbatch
-        if self.options.numtasks > 1:
-            self.sbatch_multi_node_runner()
-        else:
-            self.sbatch_single_runner()
-            
-        if verbosity > 0:
+        try_no = -1
+        success = False
+        while try_no < self.options.retry and not success:
+            # submit tasks to sbatch
+            self.job = None
+
+            if self.options.numtasks > 1:
+                self.sbatch_multi_node_runner()
+            else:
+                self.sbatch_single_runner()
+
+            if verbosity > 0:
+                if type(self.job).__name__=='list':
+                    job_string = ','.join(self.job)
+                else:
+                    job_string = str(self.job)
+                print 'Job (%s) has id: %s' % (self.jobname, job_string)
+
+            if type(self.job).__name__=='list':
+                job_string = ':'.join(self.job)
+            else:
+                job_string = str(self.job)
+            # Start a job that waits until all our tasks are finished
+            waitjob = Popen(['srun', '-t', '00:01:00', '-J', 'wait%s' % self.jobname, '-n', '1', '-N', '1', '-p', 'test', '--mem-per-cpu', '10', '--dependency=afterany:'+job_string, 'sleep', str(1)])
+            waitjob.wait()
+
+            # Fetch the error codes of our tasks
             if type(self.job).__name__=='list':
                 job_string = ','.join(self.job)
             else:
                 job_string = str(self.job)
-            print 'Job (%s) has id: %s' % (self.jobname, job_string)
-        
-        if type(self.job).__name__=='list':
-            job_string = ':'.join(self.job)
-        else:
-            job_string = str(self.job)
-        # Start a job that waits until all our tasks are finished   
-        waitjob = Popen(['srun', '-t', '00:01:00', '-J', 'wait%s' % self.jobname, '-n', '1', '-N', '1', '-p', 'test', '--mem-per-cpu', '10', '--dependency=afterany:'+job_string, 'sleep', str(1)])
-        waitjob.wait()
-        
-        # Fetch the error codes of our tasks
-        if type(self.job).__name__=='list':
-            job_string = ','.join(self.job)
-        else:
-            job_string = str(self.job)
-        sacct_command = ['sacct', '-n', '--format=ExitCode,State', '-P', '-j', job_string]
-        result = Popen(sacct_command, stdout=PIPE).communicate()[0]
-
-        while result.count('RUNNING') > 0 or result.count('PENDING') > 0:
-            print '.'
-            #print ' '.join(sacct_command)
-            #print result
-            time.sleep(2)
-
+            sacct_command = ['sacct', '-n', '--format=ExitCode,State', '-P', '-j', job_string]
             result = Popen(sacct_command, stdout=PIPE).communicate()[0]
-            
-        # If there was any error take appropriate action
-        statusses = result.split()
 
-        failed = False
-        for status in statusses:
-            if not status.startswith('0:0|COMPLETED'):
-                print "Fail: " + status
-                failed = True
-        if failed:
-            sys.exit("Some tasks failed")
+            while result.count('RUNNING') > 0 or result.count('PENDING') > 0:
+                print '.'
+                #print ' '.join(sacct_command)
+                #print result
+                time.sleep(2)
+
+                result = Popen(sacct_command, stdout=PIPE).communicate()[0]
+
+            # If there was any error take appropriate action
+            statusses = result.split()
+
+            failed = False
+            for status in statusses:
+                if not status.startswith('0:0|COMPLETED'):
+                    print "Fail: " + status
+                    failed = True
+            if not failed:
+                success = True
+
+            if not success:
+                time.sleep(max(5,10 * try_no))
+                print "Retrying complete job"
+
+        if not success:
+            sys.exit("Failed to do this")
         elif verbosity > 0:
             print 'All tasks succeeded'
 
