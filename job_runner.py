@@ -283,12 +283,24 @@ class TritonRunner(Runner):
             result = Popen(sacct_command, stdout=PIPE).communicate()[0]
             
         # If there was any error take appropriate action
-        if result.count('0:0|COMPLETED') < 1:
-            if verbosity > 0:
-                print result
+        statusses = result.split()
+
+        failed = False
+        for status in statusses:
+            if not status.startswith('0:0|COMPLETED'):
+                print "Fail: " + status
+                failed = True
+        if failed:
             sys.exit("Some tasks failed")
         elif verbosity > 0:
             print 'All tasks succeeded'
+
+#        if result.count('0:0|COMPLETED') < 1:
+#            if verbosity > 0:
+#                print result
+#            sys.exit("Some tasks failed")
+#        elif verbosity > 0:
+#            print 'All tasks succeeded'
         
 #    # Method for submitting one task to sbatch
 #    def sbatch_multi_runner(self):
