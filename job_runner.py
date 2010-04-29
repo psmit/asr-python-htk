@@ -263,7 +263,7 @@ class TritonRunner(Runner):
         else:
             job_string = str(self.job)
         # Start a job that waits until all our tasks are finished   
-        waitjob = Popen(['srun', '-t', '00:01:00', '-J', 'wait%s' % self.jobname, '-n', '1', '-N', '1', '-p', 'test', '--mem-per-cpu', '10', '--dependency=afterany:'+job_string, 'sleep', str(2)], stderr=PIPE)
+        waitjob = Popen(['srun', '-t', '00:01:00', '-J', 'wait%s' % self.jobname, '-n', '1', '-N', '1', '-p', 'test', '--mem-per-cpu', '10', '--dependency=afterany:'+job_string, 'sleep', str(1)])
         waitjob.wait()
         
         # Fetch the error codes of our tasks
