@@ -141,7 +141,7 @@ for i in range(0,3):
         
         source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
         
-        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions)
+        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, binary=(i != 3))
     
 
 current_step += 1

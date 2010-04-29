@@ -218,7 +218,7 @@ def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_hmm_dir, pho
     clean_split_file(scpfile)
 
 
-def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, stats = False, config = None, transform_dir = None, num_pattern_chars = 3, pruning = None):
+def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, stats = False, config = None, transform_dir = None, num_pattern_chars = 3, pruning = None, binary = True):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
     
     if config is None: config = default_config_file
@@ -267,6 +267,9 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
     
     if stats:
         HERest_merge.extend(["-s", target_hmm_dir + "/stats"])
+
+    if binary:
+        HERest_merge.extend(["-B"])
         
     HERest_merge.extend(["-p", str(0),
                         phones_list])
