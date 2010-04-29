@@ -17,7 +17,7 @@ clean_scp_files = True
 clean_old_logs = True
 log_step = -1
 
-def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label_dir, num_tokens, configs, lm_scale, beam, end_beam, max_pruning, adapt_dir):
+def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label_dir, num_tokens, configs, lm_scale, beam, end_beam, max_pruning, adapt_dirs):
     global num_tasks, extra_HTK_options
 
     max_tasks = split_file(scpfile, num_tasks)
@@ -27,6 +27,9 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
 
     for config in configs:
         HDecode.extend(['-C', config])
+
+    for source_dir, extension in adapt_dirs:
+        HDecode.extend(['-J', source_dir, extension])
 
     HDecode.extend(["-S", scpfile+ ".part.%t",
                 "-H", model_dir + "/macros",
@@ -168,7 +171,7 @@ def HCompV(step, scpfile, target_hmm_dir, protofile, min_variance, config = None
                                     'estream': estream,
                                     'timelimit': '01:00:00'})            
 
-def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions,  config, num_chars = 3, pruning = None, min_mix_weigth = 0.1, prune_treshold = 20.0):
+def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_dir, phones_list, transcriptions,  config, num_chars = 3, target_extension = 'cmllr', extra_source_dirs = [], pruning = None, min_mix_weigth = 0.1, prune_treshold = 20.0):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
 
     if config is None: config = default_config_file
@@ -193,14 +196,17 @@ def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_hmm_dir, pho
                     "-I", transcriptions,
                     "-H", source_hmm_dir + "/macros",
                     "-H", source_hmm_dir + "/hmmdefs",
-                    "-M", target_hmm_dir,
-                    "-K", target_hmm_dir, 'cmllr',
+                    "-M", target_dir,
+                    "-K", target_dir, target_extension,
                     "-J", source_hmm_dir + '/cmllr',
                     "-S", scpfile+ ".part.%t",
                     "-w", str(min_mix_weigth),
                     "-m", '0',
                     "-u", "a",
                     "-c", str(prune_treshold)])
+
+    for source_dir, extension in extra_source_dirs:
+        HERest.extend(['-J', source_dir, extension])
 
 
     HERest.extend(["-t"])
