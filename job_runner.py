@@ -302,62 +302,7 @@ class TritonRunner(Runner):
 #        elif verbosity > 0:
 #            print 'All tasks succeeded'
         
-#    # Method for submitting one task to sbatch
-#    def sbatch_multi_runner(self):
-#        global verbosity
-#
-#        # Construct the sbatch command
-#        batchcommand=['sbatch']
-#
-#        # Give a jobname
-#        batchcommand.extend(['-J', self.jobname])
-#
-#        # Set the timelimit
-#        batchcommand.extend(['-t', self.options.timelimit])
-#
-#        batchcommand.extend(['-N', str(self.options.nodes)])
-#        batchcommand.extend(['-n', str(self.options.nodes * 12)])
-#
-#        # Set the memory limit
-#        batchcommand.append('--mem-per-cpu='+ str(self.options.memlimit))
-#
-#        # If people want to be nice, we set a priority
-#        if self.options.priority > 0:
-#            batchcommand.append('--nice='+str(self.options.priority))
-#
-#        outfile = self.replace_flags(self.options.ostream, "parent")
-#        errorfile = self.replace_flags(self.options.estream, "parent")
-#
-#        batchcommand.extend(['-o', outfile])
-#        batchcommand.extend(['-e', errorfile])
-#
-#
-#        batchcommand.append('tritonarray.py')
-#
-#        batchcommand.extend(['-T', '1-'+str(self.options.numtasks)])
-#        batchcommand.extend(['-o', self.options.ostream])
-#        batchcommand.extend(['-e', self.options.estream])
-#        batchcommand.append('--')
-#        batchcommand.extend(self.commandarr)
-#
-#        success = False
-#
-#        while not success:
-#            #Call sbatch
-#            popen_obj = Popen(batchcommand, stdout=PIPE, stderr=PIPE)
-#            output, erro = popen_obj.communicate()
-#
-#            #Find the jobid on the end of the line
-#            m = re.search('[0-9]+$', output)
-#            if m is not None:
-#                self.job = m.group(0)
-#                success = True
-#            else:
-#                print "sbatch failed"
-#                print "Output: %s" % output
-#                print "Error: %s" % erro
-#                print "Return_code: %s" % popen_obj.returncode
-#                time.sleep(2)
+
 
         # Method for submitting one task to sbatch
     def sbatch_multi_node_runner(self):
