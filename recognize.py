@@ -89,7 +89,7 @@ experiments = set([exp.lstrip().rstrip() for exp in config.get('experiments','ex
 
 current_step = 0
 
-logger.info("Start step: %d (%s)" % (current_step, 'Making reference.trn'))
+logger.info("Start step: %d (%s)" % (current_step, 'Making reference trn'))
 data_manipulation.mlf_to_trn(words_mlf, 'reference.trn', speaker_name_width)
 
 baseline_dir = 'baseline'
@@ -237,6 +237,114 @@ if 'unsupsi' in experiments:
     data_manipulation.mlf_to_trn(pass1_mlf, pass1_trn, speaker_name_width)
     data_manipulation.mlf_to_trn(pass2_mlf, pass2_trn, speaker_name_width)
 
+
+unsupsat_dir = 'unsup_sat'
+unsupsat_lat_dir = unsupsat_dir + '/lattices.htk'
+unsupsat_lat_dir_rescored = unsupsat_dir + 'lattices.rescored'
+
+if 'unsupsat' in experiments:
+
+    adapt_mlf = unsupsat_dir + '/adapt.mlf'
+    pass1_mlf = unsupsat_dir + '/pass1.mlf'
+    pass2_mlf = unsupsat_dir + '/pass2.mlf'
+    pass1_trn = unsupsat_dir + '/pass1.trn'
+    pass2_trn = unsupsat_dir + '/pass2.trn'
+
+    xforms_dir = unsupsat_dir + '/xforms'
+    classes_dir = unsupsat_dir + '/classes'
+    files_dir = unsupsat_dir + '/files'
+
+    if not os.path.exists(unsupsat_dir): os.mkdir(unsupsat_dir)
+
+    current_step += 1
+    if current_step >= options.step:
+        logger.info("Start step: %d (%s)" % (current_step, 'Aligning best transcriptions with HVite'))
+        htk.HVite(current_step, scp_file, si_model, dict, phones_list, baseline_pass2_mlf, adapt_mlf)
+
+    if not os.path.exists(xforms_dir): os.mkdir(xforms_dir)
+    if not os.path.exists(classes_dir): os.mkdir(classes_dir)
+    if not os.path.exists(files_dir): os.mkdir(files_dir)
+
+    tree_cmllr_config = files_dir+'/config.tree_cmllr'
+    base_cmllr_config = files_dir+'/config.base_cmllr'
+    regtree_hed =  files_dir+'/regtree.hed'
+    regtree_tree = xforms_dir+'/regtree.tree'
+    global_f = classes_dir + '/global'
+
+    current_step += 1
+    if current_step >= options.step:
+        with open(regtree_hed, 'w') as hed_file:
+            print >> hed_file, 'RN "global"'
+            print >> hed_file, 'LS "%s/stats"' % si_model
+            print >> hed_file, 'RC 32 "regtree"'
+
+        with open(base_cmllr_config, 'w') as cmllr_config_stream:
+            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
+             HADAPT:TRANSKIND              = CMLLR\n\
+             HADAPT:USEBIAS                = TRUE\n\
+             HADAPT:BASECLASS         = %s\n\
+             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
+             HADAPT:ADAPTKIND              = BASE\n\
+             HMODEL:SAVEBINARY             = FALSE\n" % (global_f)
+
+        with open(tree_cmllr_config, 'w') as cmllr_config_stream:
+            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
+             HADAPT:TRANSKIND              = CMLLR\n\
+             HADAPT:USEBIAS                = TRUE\n\
+             HADAPT:REGTREE                = %s\n\
+             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
+             HADAPT:ADAPTKIND              = TREE\n\
+             HMODEL:SAVEBINARY             = FALSE\n" % (regtree_tree)
+
+        with open(global_f, 'w') as global_file:
+            print >> global_file, "~b \"global\" \n\
+            <MMFIDMASK> *\n\
+            <PARAMETERS> MIXBASE\n\
+            <NUMCLASSES> 1\n\
+            <CLASS> 1 {*.state[2-4].mix[1-100]} "
+
+
+        logger.info("Start step: %d (%s)" % (current_step, 'Generate regression tree'))
+        htk.HHEd(current_step, si_model, xforms_dir, regtree_hed, phones_list, '/dev/null')
+
+
+    current_step += 1
+    if current_step >= options.step:
+
+
+        logger.info("Start step: %d (%s)" % (current_step, 'Estimate global transforms'))
+        htk.HERest_estimate_transform(current_step, scp_file, sat_model, xforms_dir, phones_list, adapt_mlf, [orig_config, base_cmllr_config], speaker_name_width, 'mllr1')
+
+
+    current_step += 1
+    if current_step >= options.step:
+        logger.info("Start step: %d (%s)" % (current_step, 'Estimate tree transforms'))
+        htk.HERest_estimate_transform(current_step, scp_file, sat_model, xforms_dir, phones_list, adapt_mlf, [orig_config, tree_cmllr_config], speaker_name_width, 'mllr2', [(xforms_dir, 'mllr1')])
+
+
+
+    if current_step >= options.step:
+        logger.info("Start step: %d (%s)" % (current_step, 'Generating lattices with HDecode'))
+        if os.path.exists(unsupsat_lat_dir): shutil.rmtree(unsupsat_lat_dir)
+        os.mkdir(unsupsat_lat_dir)
+
+        htk.HDecode(current_step, scp_file, sat_model, dict_hdecode, phones_list, lm, unsupsat_lat_dir, num_tokens, pass1_mlf, [config_hdecode, tree_cmllr_config], lm_scale, beam, end_beam, max_pruning, [(xforms_dir, 'mllr2')])
+
+    current_step += 1
+    if current_step >= options.step:
+        logger.info("Start step: %d (%s)" % (current_step, 'Rescoring lattices with lattice-tool'))
+        if os.path.exists(unsupsat_lat_dir_rescored): shutil.rmtree(unsupsat_lat_dir_rescored)
+        htk.lattice_rescore(current_step, unsupsat_lat_dir, unsupsat_lat_dir_rescored, lm_rescore + '.gz', lm_scale)
+
+    current_step += 1
+    if current_step >= options.step:
+        logger.info("Start step: %d (%s)" % (current_step, 'Decoding lattices with lattice-tool'))
+        htk.lattice_decode(current_step,unsupsat_lat_dir_rescored, pass2_mlf, lm_scale)
+        sys.exit()
+
+    data_manipulation.mlf_to_trn(pass1_mlf, pass1_trn, speaker_name_width)
+    data_manipulation.mlf_to_trn(pass2_mlf, pass2_trn, speaker_name_width)
+    
 
 #current_step +=1
 #if current_step >= options.step:
