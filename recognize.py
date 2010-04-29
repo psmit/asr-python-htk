@@ -61,8 +61,9 @@ shutil.copyfile(config.get('model', 'model_dir') + '/files/eval.scp', scp_file)
 model = config.get('model', 'model_dir') + '/' + options.model
 phones_list = config.get('model', 'model_dir') + '/files/tiedlist'
 words_mlf = config.get('model', 'model_dir') + '/files/words.mlf'
-dict = config.get('model', 'model_dir') + '/dictionary/dict.hdecode'
-adapt_dir = model + "/cmllr"
+dict =  config.get('model', 'model_dir') + '/dictionary/dict'
+dict_hdecode = config.get('model', 'model_dir') + '/dictionary/dict.hdecode'
+
 lm = config.get('model', 'lm')
 lm_rescore = config.get('model', 'lm_rescore')
 config_hdecode = config.get('model', 'config')
@@ -88,7 +89,7 @@ if current_step >= options.step:
     os.mkdir(lat_dir)
 
 
-    htk.HDecode(current_step, scp_file, model, dict, phones_list, lm, lat_dir, num_tokens, [config_hdecode], lm_scale, beam, end_beam, max_pruning, adapt_dir)
+    htk.HDecode(current_step, scp_file, model, dict_hdecode, phones_list, lm, lat_dir, num_tokens, [config_hdecode], lm_scale, beam, end_beam, max_pruning)
 
 current_step += 1
 if current_step >= options.step:
@@ -100,6 +101,92 @@ if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Decoding lattices with lattice-tool'))
     htk.lattice_decode(current_step,lat_dir_rescored, 'rec.mlf', lm_scale)
 
+current_step += 1
+if current_step >= options.step:
+    logger.info("Start step: %d (%s)" % (current_step, 'Aligning best transcriptions with HVite'))
+    htk.HVite(current_step, scp_file, model, dict, phones_list, 'rec.mlf', 'rec_aligned_phone.mlf')
+
+if not os.path.exists('xforms_files'): os.mkdir('xforms_files')
+if not os.path.exists('classes'): os.mkdir('classes')
+
+tree_cmllr_config = 'xforms_files/config.tree_cmllr'
+base_cmllr_config = 'xforms_files/config.base_cmllr'
+regtree_hed =  'xforms_files/regtree.hed'
+classes = 'classes'
+regtree_tree = 'xforms/regtree.tree'
+global_f = classes + '/global'
+
+current_step += 1
+if current_step >= options.step:
+    with open(regtree_hed, 'w') as hed_file:
+        print >> hed_file, 'RN "global"'
+        print >> hed_file, 'LS "%s/stats"' % model
+        print >> hed_file, 'RC 32 "regtree"'
+
+    if os.path.exists('xforms'): shutil.rmtree('xforms')
+    os.mkdir('xforms')
+
+    logger.info("Start step: %d (%s)" % (current_step, 'Generate regression tree'))
+    htk.HHEd(current_step, model, 'xforms', regtree_hed, phones_list, '/dev/null')
+
+    with open(base_cmllr_config, 'w') as cmllr_config_stream:
+        print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
+         HADAPT:TRANSKIND              = CMLLR\n\
+         HADAPT:USEBIAS                = TRUE\n\
+         HADAPT:BASECLASS         = %s\n\
+         HADAPT:KEEPXFORMDISTINCT = TRUE\n\
+         HADAPT:ADAPTKIND              = BASE\n\
+         HMODEL:SAVEBINARY             = FALSE\n" % (global_f)
+
+    with open(tree_cmllr_config, 'w') as cmllr_config_stream:
+        print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
+         HADAPT:TRANSKIND              = CMLLR\n\
+         HADAPT:USEBIAS                = TRUE\n\
+         HADAPT:REGTREE                = %s\n\
+         HADAPT:KEEPXFORMDISTINCT = TRUE\n\
+         HADAPT:ADAPTKIND              = TREE\n\
+         HMODEL:SAVEBINARY             = FALSE\n" % (regtree_tree)
+current_step += 1
+if current_step >= options.step:
+
+    with open(global_f, 'w') as global_file:
+        print >> global_file, "~b \"global\" \n\
+        <MMFIDMASK> *\n\
+        <PARAMETERS> MIXBASE\n\
+        <NUMCLASSES> 1\n\
+        <CLASS> 1 {*.state[2-4].mix[1-100]} "
+    logger.info("Start step: %d (%s)" % (current_step, 'Estimate global transforms'))
+    htk.HERest_estimate_transform(current_step, scp_file, model, 'xforms', phones_list, 'rec_aligned_phone.mlf', ['config/config', base_cmllr_config], speaker_name_width, 'mllr1')
+
+
+current_step += 1
+if current_step >= options.step:
+    logger.info("Start step: %d (%s)" % (current_step, 'Estimate tree transforms'))
+    htk.HERest_estimate_transform(current_step, scp_file, model, 'xforms', phones_list, 'rec_aligned_phone.mlf', ['config/config', tree_cmllr_config], speaker_name_width, 'mllr2', [('xforms', 'mllr1')])
+
+ada_lat_dir = 'htk_lattices_ada'
+ada_lat_dir_rescored = 'rescored_lattices_ada'
+
+
+if current_step >= options.step:
+    logger.info("Start step: %d (%s)" % (current_step, 'Generating lattices with HDecode'))
+    if os.path.exists(ada_lat_dir):
+        shutil.rmtree(ada_lat_dir)
+    os.mkdir(ada_lat_dir)
+
+    htk.HDecode(current_step, scp_file, model, dict_hdecode, phones_list, lm, ada_lat_dir, num_tokens, [config_hdecode, tree_cmllr_config], lm_scale, beam, end_beam, max_pruning, [('xforms', 'mllr2')])
+
+current_step += 1
+if current_step >= options.step:
+    logger.info("Start step: %d (%s)" % (current_step, 'Rescoring lattices with lattice-tool'))
+    htk.lattice_rescore(current_step, ada_lat_dir, ada_lat_dir_rescored, lm_rescore + '.gz', lm_scale)
+
+current_step += 1
+if current_step >= options.step:
+    logger.info("Start step: %d (%s)" % (current_step, 'Decoding lattices with lattice-tool'))
+    htk.lattice_decode(current_step,ada_lat_dir_rescored, 'rec.mlf', lm_scale)
+    sys.exit()
+
 current_step +=1
 if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Deleting lattices'))
@@ -107,6 +194,10 @@ if current_step >= options.step:
         shutil.rmtree(lat_dir)
     if os.path.exists(lat_dir_rescored):
         shutil.rmtree(lat_dir_rescored)
+    if os.path.exists(ada_lat_dir):
+        shutil.rmtree(ada_lat_dir)
+    if os.path.exists(ada_lat_dir_rescored):
+        shutil.rmtree(ada_lat_dir_rescored)
 
 current_step +=1
 if current_step >= options.step:
