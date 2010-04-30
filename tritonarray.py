@@ -68,36 +68,42 @@ class TritonArray(object):
         
     def run(self):
         processes = {}
-        
-        for t in range(self.t_start, self.t_end+1):
-            srun_command = ['srun']
-            srun_command.extend(['--exclusive'])
-            srun_command.extend(['-t','0'])
-            srun_command.extend(['-J', self.jobname + '.' + str(t)])
-            srun_command.extend(['-n1','-N1'])
-            srun_command.extend(['-o', self.replace_flags(self.options.ostream, t)])
-            srun_command.extend(['-e', self.replace_flags(self.options.estream, t)])
-            srun_command.extend(self.replace_flags(self.command, t))
-            processes[t] = Popen(srun_command)
-            if t-self.t_start+1 > os.getenv('SLURM_NPROCS'):
-                time.sleep(2)
-        
+
+        cur_t = self.t_start
+        num_procs = os.getenv('SLURM_NPROCS')
+
         all_success = True
         
-        #wait for all processes to finish
-        for task, process in processes.items():
-            ret_code = process.wait()
-            if ret_code != 0:
-                if self.options.printfail:
-                    print "Error: task " + str(task) + " failed with code " + str(ret_code)
-                all_success = False
-            else:
-                print "Task %s succeeded" % task
+        while cur_t <= self.t_end:
+            for i in range(0,num_procs-len(processes)):
+                if cur_t <= self.t_end:
+                    srun_command = ['srun']
+                    srun_command.extend(['--exclusive'])
+                    srun_command.extend(['-t','0'])
+                    srun_command.extend(['-J', self.jobname + '.' + str(cur_t)])
+                    srun_command.extend(['-n1','-N1'])
+                    srun_command.extend(['-o', self.replace_flags(self.options.ostream, cur_t)])
+                    srun_command.extend(['-e', self.replace_flags(self.options.estream, cur_t)])
+                    srun_command.extend(self.replace_flags(self.command, cur_t))
+                    processes[cur_t] = Popen(srun_command)
+                    cur_t += 1
+
+            for task in processes.keys():
+                if processes[task].poll() is not None:
+                    if processes[task].returncode != 0:
+                        if self.options.printfail:
+                            print "Error: task " + str(task) + " failed with code " + str(returncode)
+                        all_success = False
+                    else:
+                        print "Task %s succeeded" % task
+                    del processes[task]
+
+            time.sleep(2)
         
         # Give a failure exit code when not all tasks succeeded.
         if not all_success:
             sys.exit(20)
-                
+    
     def replace_flags(self, pattern, task):
         ret = pattern
         
