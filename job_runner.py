@@ -301,6 +301,7 @@ class TritonRunner(Runner):
             if not success:
                 time.sleep(max(5,10 * try_no))
                 print "Retrying complete job"
+                try_no +=1
 
         if not success:
             sys.exit("Failed to do this")
