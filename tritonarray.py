@@ -74,7 +74,7 @@ class TritonArray(object):
 
         all_success = True
         
-        while cur_t <= self.t_end:
+        while cur_t <= self.t_end or len(processes) > 0:
             for i in range(0,num_procs-len(processes)):
                 if cur_t <= self.t_end:
                     srun_command = ['srun']
