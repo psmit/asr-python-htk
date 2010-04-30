@@ -292,7 +292,7 @@ class TritonRunner(Runner):
 
             failed = False
             for status in statusses:
-                if not status.startswith('0:0|COMPLETED'):
+                if '|' in status and not status.startswith('0:0|COMPLETED'):
                     print "Fail: " + status
                     failed = True
             if not failed:
