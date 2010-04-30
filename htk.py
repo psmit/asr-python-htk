@@ -50,7 +50,8 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
     ostream, estream = _get_output_stream_names(step)
     job_runner.submit_job([str(part) for part in HDecode], {'numtasks': min(max_tasks, num_tasks),
                                     'ostream': ostream,
-                                    'estream': estream} )
+                                    'estream': estream,
+                                    'memlimit': '2000'} )
 
     merge_mlf_files(out_mlf)
     # remove splitted scp files
