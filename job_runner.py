@@ -279,7 +279,7 @@ class TritonRunner(Runner):
                 job_string = ','.join(self.job.keys())
             else:
                 job_string = str(self.job)
-            sacct_command = ['sacct', '-n', '--format=JobID,ExitCode,State', '-X' '-P', '-j', job_string]
+            sacct_command = ['sacct', '-n', '--format=JobID,ExitCode,State', '-X', '-P', '-j', job_string]
             result = Popen(sacct_command, stdout=PIPE).communicate()[0]
 
             while result.count('RUNNING') > 0 or result.count('PENDING') > 0:
