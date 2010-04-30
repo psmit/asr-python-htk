@@ -37,7 +37,7 @@ parser.add_option("-V", "--verbosity", type="int", dest="verbosity", help="Verbo
 options, configs = parser.parse_args()
 
 job_runner.default_options["nodes"] = options.nodes
-htk.num_tasks = options.nodes * 48
+htk.num_tasks = options.nodes * 12
 
 config = SafeConfigParser({'name': 'EXPERIMENT NAME_TO_BE_FILLED!',
                             'speaker_name_width': '5',
