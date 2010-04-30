@@ -30,7 +30,7 @@
       <file leaf-file-name="job_runner.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/job_runner.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="281" column="82" selection-start="10892" selection-end="10892" vertical-scroll-proportion="0.3956386">
+            <state line="296" column="25" selection-start="11432" selection-end="11432" vertical-scroll-proportion="1.0965732">
               <folding />
             </state>
           </provider>
@@ -182,7 +182,7 @@
     <supportedVersion>125</supportedVersion>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-3" y="25" width="1606" height="1152" extended-state="0" />
+    <frame x="-3" y="25" width="1606" height="1152" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -262,7 +262,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/job_runner.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="281" column="82" selection-start="10892" selection-end="10892" vertical-scroll-proportion="0.3956386">
+        <state line="296" column="25" selection-start="11432" selection-end="11432" vertical-scroll-proportion="1.0965732">
           <folding />
         </state>
       </provider>

@@ -294,6 +294,7 @@ class TritonRunner(Runner):
             statusses = result.split()
 
             failed = False
+            commands = []
             for status in statusses:
                 if '|' in status:
                     parts = status.split('|', 2)
