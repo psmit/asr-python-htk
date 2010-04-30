@@ -39,7 +39,7 @@
       <file leaf-file-name="tritonarray.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tritonarray.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="76" column="55" selection-start="2631" selection-end="2631" vertical-scroll-proportion="0.15576324">
+            <state line="72" column="50" selection-start="2543" selection-end="2543" vertical-scroll-proportion="0.093457945">
               <folding />
             </state>
           </provider>
@@ -185,6 +185,7 @@
     <frame x="-3" y="25" width="1606" height="1152" extended-state="0" />
     <editor active="true" />
     <layout>
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32868022" sideWeight="0.6749503" order="1" side_tool="true" content_ui="tabs" />
@@ -197,7 +198,6 @@
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -259,7 +259,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/tritonarray.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="76" column="55" selection-start="2631" selection-end="2631" vertical-scroll-proportion="0.15576324">
+        <state line="72" column="50" selection-start="2543" selection-end="2543" vertical-scroll-proportion="0.093457945">
           <folding />
         </state>
       </provider>

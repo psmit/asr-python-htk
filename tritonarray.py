@@ -70,7 +70,7 @@ class TritonArray(object):
         processes = {}
 
         cur_t = self.t_start
-        num_procs = os.getenv('SLURM_NPROCS')
+        num_procs = int(os.getenv('SLURM_NPROCS'))
 
         all_success = True
         
