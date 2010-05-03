@@ -338,7 +338,7 @@ class TritonRunner(Runner):
 
 
     def print_submitted_jobs(self):
-        jobs = sorted(self.job.keys())
+        jobs = sorted([int(k) for k in self.job.keys()])
 
         in_sequence = False
         prev_job = -1
