@@ -31,13 +31,12 @@ job_runner.default_options["timelimit"] = "04:00:00"
 
 usage = "usage: %prog [options] configfiles"
 parser = OptionParser(usage=usage)
-parser.add_option("-n", "--number-nodes", type="int", dest="nodes",help="Number of nodes for jobrunner", default=1)
+parser.add_option("-n", "--num-tasks", type="int", dest="numtasks",help="Number of different tasks", default=50)
 parser.add_option("-s", "--step",      type="int", dest="step",      help="Starting step", default=0)
 parser.add_option("-V", "--verbosity", type="int", dest="verbosity", help="Verbosity",     default=1)
 options, configs = parser.parse_args()
 
-job_runner.default_options["nodes"] = options.nodes
-htk.num_tasks = options.nodes * 12
+htk.num_tasks = options.numtasks
 
 config = SafeConfigParser({'name': 'EXPERIMENT NAME_TO_BE_FILLED!',
                             'speaker_name_width': '5',
