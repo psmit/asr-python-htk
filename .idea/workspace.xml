@@ -30,7 +30,7 @@
       <file leaf-file-name="job_runner.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/job_runner.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="296" column="25" selection-start="11432" selection-end="11432" vertical-scroll-proportion="1.0965732">
+            <state line="536" column="17" selection-start="12712" selection-end="20142" vertical-scroll-proportion="0.080996886">
               <folding />
             </state>
           </provider>
@@ -39,7 +39,7 @@
       <file leaf-file-name="tritonarray.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tritonarray.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="72" column="50" selection-start="2543" selection-end="2543" vertical-scroll-proportion="0.0">
+            <state line="74" column="62" selection-start="2571" selection-end="2571" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -255,14 +255,14 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/tritonarray.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="72" column="50" selection-start="2543" selection-end="2543" vertical-scroll-proportion="0.0">
+        <state line="74" column="62" selection-start="2571" selection-end="2571" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/job_runner.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="296" column="25" selection-start="11432" selection-end="11432" vertical-scroll-proportion="1.0965732">
+        <state line="536" column="17" selection-start="12712" selection-end="20142" vertical-scroll-proportion="0.080996886">
           <folding />
         </state>
       </provider>
