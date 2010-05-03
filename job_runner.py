@@ -291,7 +291,7 @@ class TritonRunner(Runner):
             self.job[job_id]  = (batchcommand, real_command, task_id)
             retry_s[task_id] = 0
 
-            time.sleep(1)
+            time.sleep(self.delay * 1.0)
 
         self.print_submitted_jobs()
 
@@ -561,20 +561,23 @@ class TritonRunner(Runner):
 #                else:
 #                        time.sleep(2)
 #                
-
+    delay = 1.0
     def submit_command(self, batch_command, real_command):
         script = "#!/bin/bash\n" + "\"" + "\" \"".join(real_command) + "\""
 
         while True:
-                #Call sbatch. Feed in the script through STDIN and catch the result in output
-                output = Popen(batch_command, stdin=PIPE, stdout=PIPE).communicate(script)[0]
+            #Call sbatch. Feed in the script through STDIN and catch the result in output
+            output = Popen(batch_command, stdin=PIPE, stdout=PIPE).communicate(script)[0]
 
-                #Find the jobid on the end of the line
-                m = re.search('[0-9]+$', output)
-                if m is not None:
-                        return m.group(0)
-                else:
-                        time.sleep(2)
+            #Find the jobid on the end of the line
+            m = re.search('[0-9]+$', output)
+            if m is not None:
+                self.delay = max(self.delay *0.8, 2.0)
+                return m.group(0)
+            else:
+                self.delay = self.delay * 1.5
+                time.sleep(self.delay * 2.0)
+
 
 
     # Method for cancelling the Triton jobs
