@@ -291,7 +291,7 @@ class TritonRunner(Runner):
             self.job[job_id]  = (batchcommand, real_command, task_id)
             retry_s[task_id] = 0
 
-            time.sleep(0.3)
+            time.sleep(1)
 
         all_success = True
 
