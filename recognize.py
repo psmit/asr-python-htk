@@ -86,6 +86,10 @@ max_pruning = config.getint('recognition', 'max_pruning')
 # Experiment configuration
 experiments = set([exp.lstrip().rstrip() for exp in config.get('experiments','experiments').split(',')])
 
+htk.default_config_file = orig_config
+htk.default_HERest_pruning = ['300.0', '500.0', '2000.0']
+
+
 current_step = 0
 
 logger.info("Start step: %d (%s)" % (current_step, 'Making reference trn'))
