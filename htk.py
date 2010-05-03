@@ -85,7 +85,8 @@ def lattice_rescore(step, lat_dir, lat_dir_out, lm, lm_scale):
     ostream, estream = _get_output_stream_names(step)
     job_runner.submit_job([str(part) for part in rescore], {'numtasks': max_tasks,
                                     'ostream': ostream,
-                                    'estream': estream})
+                                    'estream': estream,
+                                    'timelimit': '00:15:00'})
 
     merge_split_dir(lat_dir_out)
     clean_split_file(lattice_scp)
@@ -101,7 +102,7 @@ def lattice_decode(step ,lat_dir, out_mlf, lm_scale):
         for lattice_file in glob.iglob(lat_dir + '/*.lat.gz'):
             print >> lattice_scp_file, lattice_file
 
-    max_tasks = split_file(lattice_scp, num_tasks)
+    max_tasks = split_file(lattice_scp, max(20,num_tasks))
 
     decode.extend(['-read-htk',
                     '-htk-lmscale', lm_scale,
@@ -111,7 +112,8 @@ def lattice_decode(step ,lat_dir, out_mlf, lm_scale):
     ostream, estream = _get_output_stream_names(step)
     job_runner.submit_job([str(part) for part in decode], {'numtasks': max_tasks,
                                     'ostream': ostream,
-                                    'estream': estream})
+                                    'estream': estream,
+                                    'timelimit': '00:15:00'})
     r = re.compile('(?<=[^_>])[ ]')
     with open(out_mlf, 'w') as out_mlf_file:
         print >> out_mlf_file, "#!MLF!#"
