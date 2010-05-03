@@ -317,7 +317,7 @@ def HHEd(step, source_hmm_dir, target_hmm_dir, hed, phones_list, w_flag = None):
                                     'ostream': ostream,
                                     'estream': estream})
                                     
-def HVite(step, scpfile, hmm_dir, dict, phones_list, word_transcriptions, new_transcriptions, config = None, pruning = None):
+def HVite(step, scpfile, hmm_dir, dict, phones_list, word_transcriptions, new_transcriptions, ext = 'lab', config = None, pruning = None):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
     
     if config is None: config = default_config_file
@@ -339,6 +339,7 @@ def HVite(step, scpfile, hmm_dir, dict, phones_list, word_transcriptions, new_tr
                     "-H", hmm_dir + "/hmmdefs",
                     "-m",
                     "-y", "lab",
+                    "-X", ext,
                     "-I", word_transcriptions])
     
     HVite.extend(["-t"])

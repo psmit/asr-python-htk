@@ -154,7 +154,7 @@ if 'unsupsi' in experiments:
     current_step += 1
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Aligning best transcriptions with HVite'))
-        htk.HVite(current_step, scp_file, si_model, dict, phones_list, baseline_pass2_mlf, adapt_mlf)
+        htk.HVite(current_step, scp_file, si_model, dict, phones_list, baseline_pass2_mlf, adapt_mlf, 'rec')
 
     if not os.path.exists(xforms_dir): os.mkdir(xforms_dir)
     if not os.path.exists(classes_dir): os.mkdir(classes_dir)
@@ -262,7 +262,7 @@ if 'unsupsat' in experiments:
     current_step += 1
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Aligning best transcriptions with HVite'))
-        htk.HVite(current_step, scp_file, si_model, dict, phones_list, baseline_pass2_mlf, adapt_mlf)
+        htk.HVite(current_step, scp_file, si_model, dict, phones_list, baseline_pass2_mlf, adapt_mlf, 'rec')
 
     if not os.path.exists(xforms_dir): os.mkdir(xforms_dir)
     if not os.path.exists(classes_dir): os.mkdir(classes_dir)
