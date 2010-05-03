@@ -30,7 +30,7 @@
       <file leaf-file-name="job_runner.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/job_runner.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="293" column="24" selection-start="11030" selection-end="11030" vertical-scroll-proportion="0.062305298">
+            <state line="320" column="66" selection-start="12385" selection-end="12385" vertical-scroll-proportion="0.576324">
               <folding />
             </state>
           </provider>
@@ -185,6 +185,7 @@
     <frame x="-3" y="25" width="1606" height="1152" extended-state="6" />
     <editor active="true" />
     <layout>
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3280457" sideWeight="0.6829026" order="1" side_tool="true" content_ui="tabs" />
@@ -197,7 +198,6 @@
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -216,7 +216,7 @@
     <option name="ENABLE_BACKGROUND_PROCESSES" value="false" />
     <option name="CHANGED_ON_SERVER_INTERVAL" value="60" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="Made the delay for sbatch 0.3 seconds" />
+    <option name="LAST_COMMIT_MESSAGE" value="Made the delay for sbatch 1second" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -250,6 +250,7 @@
     <MESSAGE value="A better resubmission procedure" />
     <MESSAGE value="A complete new procedure for triton" />
     <MESSAGE value="Made the delay for sbatch 0.3 seconds" />
+    <MESSAGE value="Made the delay for sbatch 1second" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -262,7 +263,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/job_runner.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="293" column="24" selection-start="11030" selection-end="11030" vertical-scroll-proportion="0.062305298">
+        <state line="320" column="66" selection-start="12385" selection-end="12385" vertical-scroll-proportion="0.576324">
           <folding />
         </state>
       </provider>
