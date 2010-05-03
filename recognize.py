@@ -235,7 +235,7 @@ if 'unsupsi' in experiments:
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Decoding lattices with lattice-tool'))
         htk.lattice_decode(current_step,unsupsi_lat_dir_rescored, pass2_mlf, lm_scale)
-        sys.exit()
+        
 
     data_manipulation.mlf_to_trn(pass1_mlf, pass1_trn, speaker_name_width)
     data_manipulation.mlf_to_trn(pass2_mlf, pass2_trn, speaker_name_width)
@@ -343,7 +343,6 @@ if 'unsupsat' in experiments:
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Decoding lattices with lattice-tool'))
         htk.lattice_decode(current_step,unsupsat_lat_dir_rescored, pass2_mlf, lm_scale)
-        sys.exit()
 
     data_manipulation.mlf_to_trn(pass1_mlf, pass1_trn, speaker_name_width)
     data_manipulation.mlf_to_trn(pass2_mlf, pass2_trn, speaker_name_width)
