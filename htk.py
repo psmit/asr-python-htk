@@ -127,7 +127,8 @@ def lattice_decode(step ,lat_dir, out_mlf, lm_scale):
                     filename, transcription = line.split(None, 1)
                     transcription = transcription.replace(r'\344', u'ä'.encode('iso-8859-1')).replace(r'\366', u'ö'.encode('iso-8859-1'))
                     print >> out_mlf_file, '"*/%s.rec"' % os.path.splitext(os.path.basename(filename))[0]
-                    transcription = r.sub('', transcription)
+                    #transcription = r.sub('', transcription)
+                    transcription = transcription.rstrip().lstrip()
                     for word in transcription.split():
                         print >> out_mlf_file, word
                     print >> out_mlf_file, "."
