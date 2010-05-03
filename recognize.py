@@ -217,7 +217,7 @@ if 'unsupsi' in experiments:
         htk.HERest_estimate_transform(current_step, scp_file, si_model, xforms_dir, phones_list, adapt_mlf, [orig_config, tree_cmllr_config], speaker_name_width, 'mllr2', [(xforms_dir, 'mllr1')])
 
 
-
+    current_step += 1
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Generating lattices with HDecode'))
         if os.path.exists(unsupsi_lat_dir): shutil.rmtree(unsupsi_lat_dir)
@@ -325,7 +325,7 @@ if 'unsupsat' in experiments:
         htk.HERest_estimate_transform(current_step, scp_file, sat_model, xforms_dir, phones_list, adapt_mlf, [orig_config, tree_cmllr_config], speaker_name_width, 'mllr2', [(xforms_dir, 'mllr1')])
 
 
-
+    current_step += 1
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Generating lattices with HDecode'))
         if os.path.exists(unsupsat_lat_dir): shutil.rmtree(unsupsat_lat_dir)
