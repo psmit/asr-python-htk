@@ -553,6 +553,8 @@ def speecon_fi_selection(speecon_dir, set):
 def mlf_to_trn(mlf, trn, num_speaker_chars=3):
     reg_exp = re.compile('\".*/([A-Za-z0-9]+)\.(mfc|lab|rec)\"')
 
+    utts_seen = set()
+
     with open(trn, 'w') as trn_file:
         utt_name = None
         trans = []
@@ -563,8 +565,10 @@ def mlf_to_trn(mlf, trn, num_speaker_chars=3):
             if m is not None:
                 utt_name = m.group(1)
             elif line.lstrip().rstrip() == '.':
-                trans.append("(%s_%s)" % (utt_name[:num_speaker_chars],utt_name[num_speaker_chars:]))
-                print >> trn_file, ' '.join(trans)
+                if utt_name not in utts_seen:
+                    trans.append("(%s_%s)" % (utt_name[:num_speaker_chars],utt_name[num_speaker_chars:]))
+                    print >> trn_file, ' '.join(trans)
+                    utts_seen.add(utt_name)
                 trans = []
             elif not line.startswith('<'):
                 trans.append(line.rstrip())
