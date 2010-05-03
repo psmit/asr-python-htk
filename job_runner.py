@@ -293,6 +293,8 @@ class TritonRunner(Runner):
 
             time.sleep(1)
 
+        self.print_submitted_jobs()
+
         all_success = True
 
         while len(self.job) > 0:
@@ -325,7 +327,8 @@ class TritonRunner(Runner):
                             all_success = False
 
                     del self.job[parts[0]]
-
+            if len(self.job) > 0:
+                self.print_submitted_jobs()
 
         if not all_success:
             sys.exit("Failed to do this")
@@ -334,8 +337,30 @@ class TritonRunner(Runner):
 
 
 
+    def print_submitted_jobs(self):
+        jobs = sorted(self.job.keys())
 
+        in_sequence = False
+        prev_job = -1
 
+        out_string = ''
+
+        for job in jobs:
+            if job != prev_job + 1:
+                if in_sequence:
+                    out_string += str(prev_job)
+                    in_sequence = False
+                out_string += ',%s' % job
+            else:
+                if not in_sequence:
+                    in_sequence = True
+                    out_string += '-'
+            prev_job = job
+
+        if in_sequence:
+            out_string += str(prev_job)
+
+        print "%s submitted as id's: %s" % (self.jobname, out_string[1:])
 #
 #
 #
