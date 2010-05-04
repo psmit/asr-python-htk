@@ -45,6 +45,7 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
                 '-v', end_beam,
                 '-u', max_pruning,
                 '-p', '0.0',
+                '-m',
                 dict,
                 phones_list])
 
