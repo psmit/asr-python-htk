@@ -533,8 +533,12 @@ def wsj_selection(wsj_dirs, files_set):
         for file in glob.iglob(wsj_dirs[1] + '/si_dt_05/*/*.wv1'):
             wv1_files.append(file)
     if files_set == 'si_et_05':
-        for file in glob.iglob(wsj_dirs[0] + '/si_et_05/*/*.wv1'):
-            wv1_files.append(file)
+        for line in open(os.path.join(wsj_dirs[0], 'doc', 'indices', 'test', 'nvp', 'si_et_05.ndx')):
+            if not line.startswith(';'):
+                wv1_files.append(os.path.join(wsj_dirs[0], line.rstrip().split(':', 1)[1].split('/',1)[1]))
+
+#        for file in glob.iglob(wsj_dirs[0] + '/si_et_05/*/*.wv1'):
+#            wv1_files.append(file)
     return list(set(wv1_files))
 
 def speecon_fi_selection(speecon_dir, set):
