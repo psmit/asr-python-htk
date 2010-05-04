@@ -31,6 +31,9 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
     for source_dir, extension in adapt_dirs:
         HDecode.extend(['-J', source_dir, extension])
 
+    if len(adapt_dirs) > 0:
+        HDecode.extend(['-m'])
+        
     HDecode.extend(['-S', scpfile+ ".part.%t",
                 '-H', model_dir + "/macros",
                 '-H', model_dir + "/hmmdefs",
@@ -45,7 +48,6 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
                 '-v', end_beam,
                 '-u', max_pruning,
                 '-p', '0.0',
-                '-m',
                 dict,
                 phones_list])
 
