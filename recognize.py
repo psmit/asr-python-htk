@@ -135,7 +135,7 @@ if 'baseline' in experiments:
 
 unsupsi_dir = 'unsup_si'
 unsupsi_lat_dir = unsupsi_dir + '/lattices.htk'
-unsupsi_lat_dir_rescored = unsupsi_dir + 'lattices.rescored'
+unsupsi_lat_dir_rescored = unsupsi_dir + '/lattices.rescored'
 
 if 'unsupsi' in experiments:
 
@@ -243,7 +243,7 @@ if 'unsupsi' in experiments:
 
 unsupsat_dir = 'unsup_sat'
 unsupsat_lat_dir = unsupsat_dir + '/lattices.htk'
-unsupsat_lat_dir_rescored = unsupsat_dir + 'lattices.rescored'
+unsupsat_lat_dir_rescored = unsupsat_dir + '/lattices.rescored'
 
 if 'unsupsat' in experiments:
 
