@@ -31,19 +31,20 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
     for source_dir, extension in adapt_dirs:
         HDecode.extend(['-J', source_dir, extension])
 
-    HDecode.extend(["-S", scpfile+ ".part.%t",
-                "-H", model_dir + "/macros",
-                "-H", model_dir + "/hmmdefs",
+    HDecode.extend(['-S', scpfile+ ".part.%t",
+                '-H', model_dir + "/macros",
+                '-H', model_dir + "/hmmdefs",
                 '-z', 'lat',
                 '-o', 'T',
                 '-i', out_mlf+'.part.%t',
                 '-l', label_dir,
-                "-w", language_model,
+                '-w', language_model,
                 '-n', num_tokens,
                 '-s', lm_scale,
                 '-t', beam,
                 '-v', end_beam,
                 '-u', max_pruning,
+                '-p', '0.0',
                 dict,
                 phones_list])
 
