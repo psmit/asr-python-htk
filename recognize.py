@@ -189,7 +189,8 @@ if 'unsupsi' in experiments:
              HADAPT:REGTREE                = %s\n\
              HADAPT:KEEPXFORMDISTINCT = TRUE\n\
              HADAPT:ADAPTKIND              = TREE\n\
-             HMODEL:SAVEBINARY             = FALSE\n" % (regtree_tree)
+             HMODEL:SAVEBINARY             = FALSE\n\
+             HADAPT:BLOCKSIZE         = \"IntVec 3 13 13 13\"\n" % (regtree_tree)
 
         with open(global_f, 'w') as global_file:
             print >> global_file, "~b \"global\" \n\
