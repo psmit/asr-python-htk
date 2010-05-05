@@ -320,10 +320,10 @@ class TritonRunner(Runner):
                             job_id = self.submit_command(batch_command, real_command)
                             self.job[job_id] = (batch_command, real_command, task_id)
                             retry_s[task_id] += 1
-                            print >> sys.stderr, "Retrying task %d" % task_id
+                            print >> sys.stderr, "Retrying task %s" % task_id
                             time.sleep(1)
                         else:
-                            print >> sys.stderr, "Task %d really failed" % task_id
+                            print >> sys.stderr, "Task %s really failed" % task_id
                             all_success = False
 
                     del self.job[parts[0]]
