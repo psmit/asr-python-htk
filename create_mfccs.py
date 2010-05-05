@@ -34,15 +34,14 @@ job_runner.default_options["memlimit"] = 500
 
 usage = "usage: %prog [options] configfiles"
 parser = OptionParser(usage=usage)
-parser.add_option("-n", "--number-nodes", type="int", dest="nodes",help="Number of nodes for jobrunner", default=1)
+parser.add_option("-n", "--num-tasks", type="int", dest="numtasks",help="Number of different tasks", default=50)
 parser.add_option("-s", "--step", type="int", dest="step",help="Starting step", default=0)
 parser.add_option("-V", "--verbosity", type="int", dest="verbosity", help="Verbosity", default=1)
 parser.add_option("-D", "--no-wav-delete", action="store_false", dest="delete_wav", default=True, help="Do not delete intermediate wav files")
 
 options, configs = parser.parse_args()
 
-job_runner.default_options["nodes"] = options.nodes
-htk.num_tasks = options.nodes * 48
+htk.num_tasks = options.numtasks
 
 if not options.delete_wav:
     htk.clean_scp_files = False
