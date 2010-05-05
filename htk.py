@@ -241,7 +241,7 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
     
     # divide scp files over HERest tasks
     keep_together = False
-    if transform_dir is None:
+    if transform_dir is not None:
         keep_together = True
     max_tasks = split_file(scpfile, num_tasks, keep_together)
 
