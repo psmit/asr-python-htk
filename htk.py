@@ -30,9 +30,9 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
     
     for source_dir, extension in adapt_dirs:
         if extension is None:
-            HERest.extend(['-J', source_dir])
+            HDecode.extend(['-J', source_dir])
         else:
-            HERest.extend(['-J', source_dir, extension])
+            HDecode.extend(['-J', source_dir, extension])
 
     if len(adapt_dirs) > 0:
         HDecode.extend(['-m'])
