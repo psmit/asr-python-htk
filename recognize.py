@@ -209,13 +209,13 @@ if 'unsupsi' in experiments:
 
 
         logger.info("Start step: %d (%s)" % (current_step, 'Estimate global transforms'))
-        htk.HERest_estimate_transform(current_step, scp_file, si_model, xforms_dir, phones_list, adapt_mlf, [orig_config, base_cmllr_config], speaker_name_width, 'mllr1', [(classes_dir, '')])
+        htk.HERest_estimate_transform(current_step, scp_file, si_model, xforms_dir, phones_list, adapt_mlf, [orig_config, base_cmllr_config], speaker_name_width, 'mllr1', [(classes_dir, None)])
 
 
     current_step += 1
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Estimate tree transforms'))
-        htk.HERest_estimate_transform(current_step, scp_file, si_model, xforms_dir, phones_list, adapt_mlf, [orig_config, tree_cmllr_config], speaker_name_width, 'mllr2', [(xforms_dir, 'mllr1'), (classes_dir, '')], True)
+        htk.HERest_estimate_transform(current_step, scp_file, si_model, xforms_dir, phones_list, adapt_mlf, [orig_config, tree_cmllr_config], speaker_name_width, 'mllr2', [(xforms_dir, 'mllr1'), (classes_dir, None)], True)
 
 
     current_step += 1
@@ -224,7 +224,7 @@ if 'unsupsi' in experiments:
         if os.path.exists(unsupsi_lat_dir): shutil.rmtree(unsupsi_lat_dir)
         os.mkdir(unsupsi_lat_dir)
 
-        htk.HDecode(current_step, scp_file, si_model, dict_hdecode, phones_list, lm, unsupsi_lat_dir, num_tokens, pass1_mlf, [config_hdecode, tree_cmllr_config], lm_scale, beam, end_beam, max_pruning, [(xforms_dir, 'mllr2'), (classes_dir, '')])
+        htk.HDecode(current_step, scp_file, si_model, dict_hdecode, phones_list, lm, unsupsi_lat_dir, num_tokens, pass1_mlf, [config_hdecode, tree_cmllr_config], lm_scale, beam, end_beam, max_pruning, [(xforms_dir, 'mllr2'), (classes_dir, None)])
 
     current_step += 1
     if current_step >= options.step:

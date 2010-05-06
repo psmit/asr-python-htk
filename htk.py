@@ -216,7 +216,10 @@ def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_dir, phones_
                     "-c", str(prune_treshold)])
 
     for source_dir, extension in extra_source_dirs:
-        HERest.extend(['-J', source_dir, extension])
+        if extension is None:
+            HERest.extend(['-J', source_dir])
+        else:
+            HERest.extend(['-J', source_dir, extension])
 
 
     HERest.extend(["-t"])
