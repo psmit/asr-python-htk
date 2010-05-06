@@ -209,7 +209,6 @@ def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_dir, phones_
                     "-H", source_hmm_dir + "/hmmdefs",
                     "-M", target_dir,
                     "-K", target_dir, target_extension,
-                    "-J", source_hmm_dir + '/cmllr',
                     "-S", scpfile+ ".part.%t",
                     "-w", str(min_mix_weigth),
                     "-m", '0',
