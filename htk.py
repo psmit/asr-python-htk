@@ -180,7 +180,7 @@ def HCompV(step, scpfile, target_hmm_dir, protofile, min_variance, config = None
                                     'estream': estream,
                                     'timelimit': '01:00:00'})            
 
-def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_dir, phones_list, transcriptions,  config, num_chars = 3, target_extension = 'cmllr', extra_source_dirs = [], pruning = None, min_mix_weigth = 0.1, prune_treshold = 20.0):
+def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_dir, phones_list, transcriptions,  config, num_chars = 3, target_extension = 'cmllr', extra_source_dirs = [], use_parent = False, pruning = None, min_mix_weigth = 0.1, prune_treshold = 20.0):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
 
     if config is None: config = default_config_file
@@ -192,6 +192,8 @@ def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_dir, phones_
     HERest = ["HERest"]
     HERest.extend(extra_HTK_options)
 
+    if use_parent:
+        HERest.extend(["-a"])    
 
     if type(config).__name__=='list':
         for c in config:
@@ -264,7 +266,8 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
         pattern = "*/" + ('%' * num_pattern_chars) + "*.*"
         HERest.extend(["-J", transform_dir, 'cmllr',
                     "-E", transform_dir, 'cmllr',
-                    "-h", pattern])
+                    "-h", pattern,
+                    '-a'])
     
     HERest.extend(["-t"])
     HERest.extend(pruning)

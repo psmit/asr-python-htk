@@ -163,7 +163,7 @@ if 'unsupsi' in experiments:
     tree_cmllr_config = files_dir+'/config.tree_cmllr'
     base_cmllr_config = files_dir+'/config.base_cmllr'
     regtree_hed =  files_dir+'/regtree.hed'
-    regtree_tree = xforms_dir+'/regtree.tree'
+    regtree_tree = classes_dir+'/regtree.tree'
     global_f = classes_dir + '/global'
 
     current_step += 1
@@ -190,7 +190,7 @@ if 'unsupsi' in experiments:
              HADAPT:KEEPXFORMDISTINCT = TRUE\n\
              HADAPT:ADAPTKIND              = TREE\n\
              HMODEL:SAVEBINARY             = FALSE\n\
-             HADAPT:BLOCKSIZE         = \"IntVec 3 13 13 13\"\n" % (regtree_tree)
+        " % (regtree_tree)
 
         with open(global_f, 'w') as global_file:
             print >> global_file, "~b \"global\" \n\
@@ -201,7 +201,7 @@ if 'unsupsi' in experiments:
 
 
         logger.info("Start step: %d (%s)" % (current_step, 'Generate regression tree'))
-        htk.HHEd(current_step, si_model, xforms_dir, regtree_hed, phones_list, '/dev/null')
+        htk.HHEd(current_step, si_model, classes_dir, regtree_hed, phones_list, '/dev/null')
 
 
     current_step += 1
@@ -209,13 +209,13 @@ if 'unsupsi' in experiments:
 
 
         logger.info("Start step: %d (%s)" % (current_step, 'Estimate global transforms'))
-        htk.HERest_estimate_transform(current_step, scp_file, si_model, xforms_dir, phones_list, adapt_mlf, [orig_config, base_cmllr_config], speaker_name_width, 'mllr1')
+        htk.HERest_estimate_transform(current_step, scp_file, si_model, xforms_dir, phones_list, adapt_mlf, [orig_config, base_cmllr_config], speaker_name_width, 'mllr1', [(classes_dir, '')])
 
 
     current_step += 1
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Estimate tree transforms'))
-        htk.HERest_estimate_transform(current_step, scp_file, si_model, xforms_dir, phones_list, adapt_mlf, [orig_config, tree_cmllr_config], speaker_name_width, 'mllr2', [(xforms_dir, 'mllr1')])
+        htk.HERest_estimate_transform(current_step, scp_file, si_model, xforms_dir, phones_list, adapt_mlf, [orig_config, tree_cmllr_config], speaker_name_width, 'mllr2', [(xforms_dir, 'mllr1'), (classes_dir, '')], True)
 
 
     current_step += 1
@@ -224,7 +224,7 @@ if 'unsupsi' in experiments:
         if os.path.exists(unsupsi_lat_dir): shutil.rmtree(unsupsi_lat_dir)
         os.mkdir(unsupsi_lat_dir)
 
-        htk.HDecode(current_step, scp_file, si_model, dict_hdecode, phones_list, lm, unsupsi_lat_dir, num_tokens, pass1_mlf, [config_hdecode, tree_cmllr_config], lm_scale, beam, end_beam, max_pruning, [(xforms_dir, 'mllr2')])
+        htk.HDecode(current_step, scp_file, si_model, dict_hdecode, phones_list, lm, unsupsi_lat_dir, num_tokens, pass1_mlf, [config_hdecode, tree_cmllr_config], lm_scale, beam, end_beam, max_pruning, [(xforms_dir, 'mllr2'), (classes_dir, '')])
 
     current_step += 1
     if current_step >= options.step:
