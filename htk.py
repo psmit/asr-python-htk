@@ -17,7 +17,7 @@ clean_scp_files = True
 clean_old_logs = True
 log_step = -1
 
-def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label_dir, num_tokens, out_mlf, configs, lm_scale, beam, end_beam, max_pruning, adapt_dirs = []):
+def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label_dir, num_tokens, out_mlf, configs, lm_scale, beam, end_beam, max_pruning, adapt_dirs = [], num_speaker_chars = 3):
     global num_tasks, extra_HTK_options
 
     max_tasks = split_file(scpfile, num_tasks)
@@ -36,6 +36,8 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
 
     if len(adapt_dirs) > 0:
         HDecode.extend(['-m'])
+        pattern = "*/" + ('%' * num_speaker_chars) + "*.*"
+        HDecode.extend(["-h", pattern])
         
     HDecode.extend(['-S', scpfile+ ".part.%t",
                 '-H', model_dir + "/macros",

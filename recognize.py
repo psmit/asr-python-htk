@@ -224,7 +224,7 @@ if 'unsupsi' in experiments:
         if os.path.exists(unsupsi_lat_dir): shutil.rmtree(unsupsi_lat_dir)
         os.mkdir(unsupsi_lat_dir)
 
-        htk.HDecode(current_step, scp_file, si_model, dict_hdecode, phones_list, lm, unsupsi_lat_dir, num_tokens, pass1_mlf, [config_hdecode, tree_cmllr_config], lm_scale, beam, end_beam, max_pruning, [(xforms_dir, 'mllr2'), (classes_dir, None)])
+        htk.HDecode(current_step, scp_file, si_model, dict_hdecode, phones_list, lm, unsupsi_lat_dir, num_tokens, pass1_mlf, [config_hdecode, tree_cmllr_config], lm_scale, beam, end_beam, max_pruning, [(xforms_dir, 'mllr2'), (classes_dir, None)], speaker_name_width)
 
     current_step += 1
     if current_step >= options.step:
