@@ -27,9 +27,12 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
 
     for config in configs:
         HDecode.extend(['-C', config])
-
+    
     for source_dir, extension in adapt_dirs:
-        HDecode.extend(['-J', source_dir, extension])
+        if extension is None:
+            HERest.extend(['-J', source_dir])
+        else:
+            HERest.extend(['-J', source_dir, extension])
 
     if len(adapt_dirs) > 0:
         HDecode.extend(['-m'])
