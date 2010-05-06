@@ -207,13 +207,14 @@ def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_dir, phones_
                     "-I", transcriptions,
                     "-H", source_hmm_dir + "/macros",
                     "-H", source_hmm_dir + "/hmmdefs",
-                    "-M", target_dir,
                     "-K", target_dir, target_extension,
                     "-S", scpfile+ ".part.%t",
                     "-w", str(min_mix_weigth),
                     "-m", '0',
                     "-u", "a",
                     "-c", str(prune_treshold)])
+
+#                        "-M", target_dir,
 
     for source_dir, extension in extra_source_dirs:
         if extension is None:
