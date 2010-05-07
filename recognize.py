@@ -52,9 +52,12 @@ config.read(configs if len(configs) > 0 else "recognition_config")
 if not config.has_option('model', 'model_dir') or not config.has_option('model', 'config'):
     sys.exit("Please give more configuration")
 
-
-scp_file = 'eval.scp'
-shutil.copyfile(config.get('model', 'model_dir') + '/files/eval.scp', scp_file)
+scp_file = ''
+if not config.has_option('recognition', 'scp'):
+    scp_file = 'eval.scp'
+    shutil.copyfile(config.get('model', 'model_dir') + '/files/eval.scp', scp_file)
+else:
+    scp_file = config.get('recognition', 'scp')
 
 #model configuration
 si_model = config.get('model', 'model_dir') + '/' + config.get('model', 'si_model')
