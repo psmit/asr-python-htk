@@ -284,7 +284,10 @@ class TritonRunner(Runner):
             if time_limit_to_seconds(self.options.timelimit) <= time_limit_to_seconds('00:15:00'):
                 batchcommand.extend(['-p', 'test'])
 
-            real_command = self.replace_flags(self.commandarr, task_id)
+            if task_id == 'single':
+                real_command = self.replace_flags(self.commandarr, '1')
+            else:
+                real_command = self.replace_flags(self.commandarr, task_id)
 
             job_id = self.submit_command(batchcommand, real_command)
 
