@@ -57,7 +57,7 @@ if not config.has_option('recognition', 'scp'):
     scp_file = 'eval.scp'
     shutil.copyfile(config.get('model', 'model_dir') + '/files/eval.scp', scp_file)
 else:
-    scp_file = 'external.scp'
+    scp_file = 'filelist.scp'
     shutil.copyfile(config.get('recognition', 'scp').replace('|MODEL|',config.get('model', 'model_dir') + '/files'), scp_file)
 
 #model configuration
