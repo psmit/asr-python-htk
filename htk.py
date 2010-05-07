@@ -343,7 +343,7 @@ def HVite(step, scpfile, hmm_dir, dict, phones_list, word_transcriptions, new_tr
     if pruning is None: pruning = default_HERest_pruning
     
     # divide scp files over HERest tasks
-    split_file(scpfile, num_tasks)
+    max_tasks = split_file(scpfile, num_tasks)
     
     HVite = ["HVite"]
     HVite.extend(extra_HTK_options)
@@ -368,7 +368,7 @@ def HVite(step, scpfile, hmm_dir, dict, phones_list, word_transcriptions, new_tr
                 phones_list])
     
     ostream, estream = _get_output_stream_names(step)
-    job_runner.submit_job(HVite, {'numtasks': num_tasks,
+    job_runner.submit_job(HVite, {'numtasks': max_tasks,
                                     'ostream': ostream,
                                     'estream': estream})
                                     
