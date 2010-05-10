@@ -29,7 +29,7 @@ logger.info("Start htk_train")
 
 job_runner.default_options["verbosity"] = 1
 job_runner.default_options["memlimit"] = 1000
-job_runner.default_options["timelimit"] = "00:15:00"
+job_runner.default_options["timelimit"] = "00:45:00"
 
 usage = "usage: %prog [options] configfiles"
 parser = OptionParser(usage=usage)
