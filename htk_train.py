@@ -335,7 +335,7 @@ for number_sat_round in range(0,4):
         htk.HERest_estimate_transform(current_step, scpfile, source_hmm_dir, source_hmm_dir + '/cmllr', phones_list, transcriptions, ['config/config', cmllr_config], int(config.get('corpora', 'speaker_name_width')), 'cmllr', [(source_hmm_dir + '/cmllr', '')])
 
         logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest (SAT)'))
-        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, True, ['config/config', cmllr_config], source_hmm_dir + '/cmllr',  int(config.get('corpora', 'speaker_name_width')), source_hmm_dir + '/cmllr', int(config.get('corpora', 'speaker_name_width')))
+        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, True, ['config/config', cmllr_config], source_hmm_dir + '/cmllr',  int(config.get('corpora', 'speaker_name_width')))
 
 
 #    current_step += 1
