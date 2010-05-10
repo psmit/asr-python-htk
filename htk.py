@@ -447,7 +447,7 @@ def split_file(file_name, parts, keep_speaker_together = False, num_speaker_char
     else:
         prev_speaker = ''
         counter = -1
-        for line in source_file:
+        for line in sorted(source_file):
             cur_speaker = os.path.basename(line.rstrip())[:num_speaker_chars]
 
             if prev_speaker != cur_speaker:
