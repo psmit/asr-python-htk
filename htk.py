@@ -253,7 +253,7 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
     keep_together = False
     if transform_dir is not None:
         keep_together = True
-    max_tasks = split_file(scpfile, num_tasks, keep_together)
+    max_tasks = split_file(scpfile, num_tasks, keep_together, 3, 2500)
 
     HERest = ["HERest"]
     HERest.extend(extra_HTK_options)
@@ -426,11 +426,21 @@ def _get_output_stream_names(step):
     log_step = step
     return ('log/tasks/%03d.%%c.o%%j.%%t' % step, 'log/tasks/%03d.%%c.e%%j.%%t' % step)
     
-    
-def split_file(file_name, parts, keep_speaker_together = False, num_speaker_chars = 3):
+def file_len(fname):
+    with open(fname) as f:
+        for i, l in enumerate(f):
+            pass
+    return i + 1
+
+def split_file(file_name, parts, keep_speaker_together = False, num_speaker_chars = 3, target_size = None):
     target_files = [open(name, 'w') for name in [file_name + ".part." + str(i) for i in range(1,parts+1)]]
 
     real_num_parts = 0
+
+    if target_size is not None:
+        num_lines = file_len(file_name)
+        parts = int(num_lines / target_size) + 1
+    
 
     source_file = open(file_name)
     if not keep_speaker_together:
