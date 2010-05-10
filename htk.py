@@ -6,6 +6,7 @@ import os
 import job_runner
 import shutil
 import re
+import sys
 
 num_tasks = 100
 extra_HTK_options = ["-A", "-D", "-V", "-T", "1"]
@@ -287,12 +288,17 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
                     "-p", "%t",
                     phones_list])
     
+    for file in glob.glob(target_hmm_dir+"/*.acc"): os.remove(file)
+
     ostream, estream = _get_output_stream_names(step)
     
-    job_runner.submit_job(HERest, {'numtasks': min(max_tasks, num_tasks),
+    job_runner.submit_job(HERest, {'numtasks': max_tasks,
                                     'ostream': ostream,
                                     'estream': estream,
                                     'priority': 1} )
+
+    if len(glob.glob(target_hmm_dir+"/*.acc")) != max_tasks:
+        sys.exit("At least one acc file missing")
     
     if stats:
         HERest_merge.extend(["-s", target_hmm_dir + "/stats", "-w", "1.1"])
