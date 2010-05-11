@@ -2,11 +2,12 @@
 
 import re
 import sys
-from subprocess import Popen, PIPE
+import subprocess
 
 from optparse import OptionParser
-from glob import glob
+import glob
 import copy
+import subprocess
 
 usage = "usage: %prog directories"
 parser = OptionParser(usage=usage)
@@ -48,9 +49,17 @@ elif len(directories) == 1:
                 l2 = copy.copy(l)
                 l2.append(result_dir)
                 expermiments[tuple(l2)] = (md, result_dir)
+    else:
+        for result_dir in result_dirs:
+            expermiments[(directory, result_dir)] = (directory, result_dir)
+            
 
     if '%h' in directory and '%v' in directory:
         dim = 3
+
+
+
+
 
 
 result_dict = {}
@@ -63,7 +72,7 @@ for experiment in expermiments.keys():
     if options.character:
         sclite.append('-c')
 
-    results = Popen(sclite, stderr=None, stdin=None, stdout=PIPE).communicate()[0]
+    results = subprocess.Popen(sclite, stdout=subprocess.PIPE).communicate()[0]
 
     result = 0
 
@@ -85,40 +94,45 @@ for td in third_dim:
         print ""
         print "-- %s --" % td
 
-    if dim == 2:
-        dim_h = set()
-        dim_v = set()
+    dim_h = set()
+    dim_v = set()
 
-        max_h_len = 0
+    max_h_len = 0
 
-        v_lens = []
+    v_lens = []
 
-        for exps in expermiments.keys():
-            h = exps[0]
-            v = exps[1]
+    seen_h = set()
+    seen_v = set()
+    for exps in expermiments.keys():
+        h = exps[0]
+        v = exps[1]
+        if not h in seen_h:
             if len(h) > max_h_len:
-                max_h_len = h
-
-            v_lens.append(max(4, len(v)))
-
+                max_h_len = len(h)
             dim_h.add(h)
+            seen_h.add(h)
+
+        if not v in seen_v:
+            v_lens.append(max(4, len(v)))
             dim_v.add(v)
+            seen_v.add(v)
 
-        header_format_string = '%' + max_h_len + 's ' + (' '.join(['%' + l + 's' for l in v_lens]))
-        line_format_string = '%' + max_h_len + 's ' + (' '.join(['%' + l + 'f' for l in v_lens]))
+    header_format_string = '%' + str(max_h_len) + 's ' + (' '.join(['%' + str(l) + 's' for l in v_lens]))
+    line_format_string = '%' + str(max_h_len) + 's ' + (' '.join(['%' + str(l) + '.1f' for l in v_lens]))
 
-        header = [''].extend(dim_v)
-        print header_format_string % tuple(header)
+    header = ['']
+    header.extend(dim_v)
+    print header_format_string % tuple(header)
 
-        for h in sorted(dim_h):
-            line = [h]
-            for v in dim_v:
-                if td is not None:
-                    line.append(result_dict[(h,v, td)])
-                else:
-                    line.append(result_dict[(h,v)])
+    for h in sorted(dim_h):
+        line = [h]
+        for v in dim_v:
+            if td is not None:
+                line.append(result_dict[(h,v, td)])
+            else:
+                line.append(result_dict[(h,v)])
 
-            print line_format_string % tuple(line)
+        print line_format_string % tuple(line)
 
 
 
