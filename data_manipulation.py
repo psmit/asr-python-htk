@@ -552,6 +552,69 @@ def create_wordtranscriptions_dsp_eng(scp_files, dsp_eng_dir, word_transcription
                 print >> transcriptions_file, '</s>'
                 print >> transcriptions_file, '.'
 
+def create_wordtranscriptions_dsp_eng(scp_files, dsp_eng_dir, word_transcriptions):
+    transcriptions = {}
+    for file in glob.iglob(dsp_eng_dir + '/*/*.txt'):
+        id = os.path.splitext(os.path.basename(file))[0]
+        trans = []
+        for line in open(file):
+            nline = line.replace('.', '')
+            trans.extend(nline.split())
+        transcriptions[id] = trans
+
+    with open(word_transcriptions, 'w') as transcriptions_file:
+        print >> transcriptions_file, "#!MLF!#"
+        for scp_file in scp_files:
+            for line in open(scp_file):
+                name = os.path.splitext(os.path.basename(line.rstrip()))[0]
+                n_name = name.replace('_', '')
+
+                if not transcriptions.has_key(name):
+                    sys.exit("No transcription found for %s" % name)
+
+                print >> transcriptions_file, '"*/%s.mfc"' % n_name
+                print >> transcriptions_file, '<s>'
+                for word in transcriptions[name]:
+                    if not word.startswith('[') and not word.startswith('<') and not word.endswith('-'):
+                        if word.startswith('"'):
+                           print >> transcriptions_file, "\%s" %  word
+                        elif len(word) > 0:
+                            print >> transcriptions_file, word
+                print >> transcriptions_file, '</s>'
+                print >> transcriptions_file, '.'
+
+
+def create_wordtranscriptions_bl_eng(scp_files, bl_eng_dir, word_transcriptions):
+    transcriptions = {}
+    for line in open(os.path.join(bl_eng_dir, '/english_prompts.txt')):
+        if len(line.rstrip()) > 0:
+            tid, trans_str = line.split(None, 1)
+            trans_str = trans_str.replace('.', '')
+            transcriptions[int(tid)] = trans_str.split()
+
+    with open(word_transcriptions, 'w') as transcriptions_file:
+        print >> transcriptions_file, "#!MLF!#"
+        for scp_file in scp_files:
+            for line in open(scp_file):
+                name = os.path.splitext(os.path.basename(line.rstrip()))[0]
+                id = int(name[-4:])
+
+
+                if not transcriptions.has_key(name):
+                    sys.exit("No transcription found for %s" % name)
+
+                print >> transcriptions_file, '"*/%s.mfc"' % name
+                print >> transcriptions_file, '<s>'
+                for word in transcriptions[id]:
+                    if not word.startswith('[') and not word.startswith('<') and not word.endswith('-'):
+                        if word.startswith('"'):
+                           print >> transcriptions_file, "\%s" %  word
+                        elif len(word) > 0:
+                            print >> transcriptions_file, word
+                print >> transcriptions_file, '</s>'
+                print >> transcriptions_file, '.'
+                
+
 def wsj_selection(wsj_dirs, files_set):
     wv1_files = []
     if files_set == 'si-84' or set == 'si-284':
@@ -589,6 +652,13 @@ def speecon_fi_selection(speecon_dir, set):
 def dsp_eng_selection(dsp_eng_dir):
     wav_files = []
     wav_files = glob.glob(dsp_eng_dir + "/*/*.wav")
+    return wav_files
+
+def bl_eng_selection(bl_eng_dir):
+    wav_files = []
+    for file in glob.iglob(dsp_eng_dir + "/wav_16khz/*/*.wav"):
+        if int(os.path.splitext(os.path.basename(file))[0][-4:]) < 126:
+            wav_files.append(file)
     return wav_files
 
 

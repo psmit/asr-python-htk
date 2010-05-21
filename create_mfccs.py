@@ -87,6 +87,12 @@ if current_step >= options.step:
         waveforms['eval'] = []
         waveforms['devel'] = []
 
+    if config.get("audiofiles", "type") == 'bl_eng':
+        waveforms['eval'] = data_manipulation.bl_eng_selection(config.get("audiofiles", "location"))
+        waveforms['train'] = []
+        waveforms['devel'] = []
+
+
 
     exclude_list = None
     if config.has_option("audiofiles", "exclude_list"):
@@ -135,6 +141,9 @@ if current_step >= options.step:
 
     if config.get("audiofiles", "type") == 'dsp_eng':
         data_manipulation.create_wordtranscriptions_dsp_eng(['train.scp', 'devel.scp', 'eval.scp'],config.get('audiofiles', 'location'), 'words.mlf')
+
+    if config.get("audiofiles", "type") == 'bl_eng':
+        data_manipulation.create_wordtranscriptions_bl_eng(['train.scp', 'devel.scp', 'eval.scp'],config.get('audiofiles', 'location'), 'words.mlf')
 
 
 

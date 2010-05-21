@@ -30,7 +30,7 @@ for input_file, output_file in file_pairs:
     ini_command = []
     if options.set == 'wsj':
         ini_command = ['sph2pipe', '-f', 'wav', '-p', input_file]
-    elif options.set == 'dsp_eng':
+    elif options.set == 'dsp_eng' or options.set == 'bl_eng':
         ini_command = ['sox', '-t', 'wav', input_file, '-t', 'wav', '-r', '16000', '-']
 
     else: #speecon
