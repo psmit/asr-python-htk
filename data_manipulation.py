@@ -555,10 +555,10 @@ def create_wordtranscriptions_dsp_eng(scp_files, dsp_eng_dir, word_transcription
 def create_wordtranscriptions_dsp_eng(scp_files, dsp_eng_dir, word_transcriptions):
     transcriptions = {}
     for file in glob.iglob(dsp_eng_dir + '/*/*.txt'):
-        id = os.path.splitext(os.path.basename(file))[0]
+        id = os.path.splitext(os.path.basename(file))[0].replace('_','')
         trans = []
         for line in open(file):
-            nline = line.replace('.', '')
+            nline = line.replace('.', '').replace(',', '')
             trans.extend(nline.split())
         transcriptions[id] = trans
 
