@@ -656,7 +656,7 @@ def dsp_eng_selection(dsp_eng_dir):
 
 def bl_eng_selection(bl_eng_dir):
     wav_files = []
-    for file in glob.iglob(dsp_eng_dir + "/wav_16khz/*/*.wav"):
+    for file in glob.iglob(bl_eng_dir + "/wav_16khz/*/*.wav"):
         if int(os.path.splitext(os.path.basename(file))[0][-4:]) < 126:
             wav_files.append(file)
     return wav_files
