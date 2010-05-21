@@ -589,7 +589,7 @@ def create_wordtranscriptions_bl_eng(scp_files, bl_eng_dir, word_transcriptions)
     for line in open(os.path.join(bl_eng_dir, 'english_prompts.txt')):
         if len(line.rstrip()) > 0:
             tid, trans_str = line.split(None, 1)
-            trans_str = trans_str.replace('.', '')
+            trans_str = trans_str.replace('.', '').replace(',', '')
             transcriptions[int(tid)] = trans_str.split()
 
     with open(word_transcriptions, 'w') as transcriptions_file:
@@ -600,7 +600,7 @@ def create_wordtranscriptions_bl_eng(scp_files, bl_eng_dir, word_transcriptions)
                 id = int(name[-4:])
 
 
-                if not transcriptions.has_key(name):
+                if not transcriptions.has_key(id):
                     sys.exit("No transcription found for %s" % name)
 
                 print >> transcriptions_file, '"*/%s.mfc"' % name
