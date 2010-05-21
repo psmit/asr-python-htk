@@ -30,6 +30,9 @@ for input_file, output_file in file_pairs:
     ini_command = []
     if options.set == 'wsj':
         ini_command = ['sph2pipe', '-f', 'wav', '-p', input_file]
+    elif options.set == 'dsp_eng':
+        ini_command = ['sox', '-t', 'wav', input_file, '-t', 'wav', '-r', '16000', '-']
+
     else: #speecon
         ini_command = ['sox', '-b', '16', '-e', 'signed-integer', '-r', '16000', '-t', 'raw', input_file, '-t', 'wav', '-']
 

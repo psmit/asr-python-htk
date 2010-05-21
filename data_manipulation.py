@@ -364,11 +364,12 @@ def create_scp_lists(waveforms, raw_to_wav_list, wav_to_mfc_list, exclude_list=N
                     for file in sorted(files):
                         dir, filename = os.path.split(file)
                         basen, ext = os.path.splitext(filename)
+                        n_basen = basen.replace('_','')
                         if basen in excludes:
                             print basen + "excluded"
                             continue
-                        wav_file = os.path.join('wav', dset, os.path.basename(dir), basen + '.wav')
-                        mfc_file = os.path.join('mfc', dset, os.path.basename(dir), basen + '.mfc')
+                        wav_file = os.path.join('wav', dset, os.path.basename(dir), n_basen + '.wav')
+                        mfc_file = os.path.join('mfc', dset, os.path.basename(dir), n_basen + '.mfc')
                         create_dirs.add(os.path.join('wav', dset, os.path.basename(dir)))
                         create_dirs.add(os.path.join('mfc', dset, os.path.basename(dir)))
                         print >> rtw_list, "%s %s" % (file, wav_file)
@@ -520,6 +521,37 @@ def create_wordtranscriptions_wsj(scp_files, wsj_dirs, word_transcriptions):
                 print >> transcriptions_file, '</s>'
                 print >> transcriptions_file, '.'
 
+def create_wordtranscriptions_dsp_eng(scp_files, dsp_eng_dir, word_transcriptions):
+    transcriptions = {}
+    for file in glob.iglob(dsp_eng_dir + '/*/*.txt'):
+        id = os.path.splitext(os.path.basename(file))[0]
+        trans = []
+        for line in open(file):
+            nline = line.replace('.', '')
+            trans.extend(nline.split())
+        transcriptions[id] = trans
+
+    with open(word_transcriptions, 'w') as transcriptions_file:
+        print >> transcriptions_file, "#!MLF!#"
+        for scp_file in scp_files:
+            for line in open(scp_file):
+                name = os.path.splitext(os.path.basename(line.rstrip()))[0]
+                n_name = name.replace('_', '')
+
+                if not transcriptions.has_key(name):
+                    sys.exit("No transcription found for %s" % name)
+
+                print >> transcriptions_file, '"*/%s.mfc"' % n_name
+                print >> transcriptions_file, '<s>'
+                for word in transcriptions[name]:
+                    if not word.startswith('[') and not word.startswith('<') and not word.endswith('-'):
+                        if word.startswith('"'):
+                           print >> transcriptions_file, "\%s" %  word
+                        elif len(word) > 0:
+                            print >> transcriptions_file, word
+                print >> transcriptions_file, '</s>'
+                print >> transcriptions_file, '.'
+
 def wsj_selection(wsj_dirs, files_set):
     wv1_files = []
     if files_set == 'si-84' or set == 'si-284':
@@ -553,6 +585,18 @@ def speecon_fi_selection(speecon_dir, set):
             map[key] = value
         fi0_files.append(map['audio'].replace('/share/puhe/audio/speecon-fi', speecon_dir))
     return fi0_files
+
+def dsp_eng_selection(dsp_eng_dir):
+    wav_files = []
+    wav_files = glob.glob(dsp_eng_dir + "/*/*.wav")
+    return wav_files
+
+
+
+    
+
+
+    
 
 def mlf_to_trn(mlf, trn, num_speaker_chars=3):
     reg_exp = re.compile('\".*/([A-Za-z0-9]+)\.(mfc|lab|rec)\"')
