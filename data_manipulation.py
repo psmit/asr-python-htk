@@ -586,7 +586,7 @@ def create_wordtranscriptions_dsp_eng(scp_files, dsp_eng_dir, word_transcription
 
 def create_wordtranscriptions_bl_eng(scp_files, bl_eng_dir, word_transcriptions):
     transcriptions = {}
-    for line in open(os.path.join(bl_eng_dir, '/english_prompts.txt')):
+    for line in open(os.path.join(bl_eng_dir, 'english_prompts.txt')):
         if len(line.rstrip()) > 0:
             tid, trans_str = line.split(None, 1)
             trans_str = trans_str.replace('.', '')
@@ -660,11 +660,6 @@ def bl_eng_selection(bl_eng_dir):
         if int(os.path.splitext(os.path.basename(file))[0][-4:]) < 126:
             wav_files.append(file)
     return wav_files
-
-
-
-    
-
 
     
 
