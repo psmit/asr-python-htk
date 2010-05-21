@@ -44,7 +44,8 @@ config = SafeConfigParser({'name': 'EXPERIMENT NAME_TO_BE_FILLED!',
                             'beam': '250.0',
                             'end_beam': '-1.0',
                             'lm_scale': '12',
-                            'num_tokens': '32'})
+                            'num_tokens': '32',
+                            'reference_mlf': '|MODEL|/files/words.mlf'})
 config.read(configs if len(configs) > 0 else "recognition_config")
 
 
@@ -65,7 +66,9 @@ si_model = config.get('model', 'model_dir') + '/' + config.get('model', 'si_mode
 sat_model = config.get('model', 'model_dir') + '/' + config.get('model', 'sat_model')
 
 phones_list = config.get('model', 'model_dir') + '/files/tiedlist'
-words_mlf = config.get('model', 'model_dir') + '/files/words.mlf'
+
+#words_mlf = config.get('model', 'model_dir') + '/files/words.mlf'
+words_mlf = config.get('recognition', 'reference_mlf').replace('|MODEL|',config.get('model', 'model_dir') )
 
 dict =  config.get('model', 'model_dir') + '/dictionary/dict'
 dict_hdecode = config.get('model', 'model_dir') + '/dictionary/dict.hdecode'
