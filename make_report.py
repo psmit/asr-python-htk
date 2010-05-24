@@ -94,8 +94,8 @@ for td in third_dim:
         print ""
         print "-- %s --" % td
 
-    dim_h = set()
-    dim_v = set()
+    dim_h = []
+    dim_v = []
 
     max_h_len = 0
 
@@ -109,12 +109,12 @@ for td in third_dim:
         if not h in seen_h:
             if len(h) > max_h_len:
                 max_h_len = len(h)
-            dim_h.add(h)
+            dim_h.append(h)
             seen_h.add(h)
 
         if not v in seen_v:
             v_lens.append(max(4, len(v)))
-            dim_v.add(v)
+            dim_v.append(v)
             seen_v.add(v)
 
     header_format_string = '%' + str(max_h_len) + 's ' + (' '.join(['%' + str(l) + 's' for l in v_lens]))
