@@ -103,7 +103,7 @@ for td in third_dim:
 
     seen_h = set()
     seen_v = set()
-    for exps in expermiments.keys():
+    for exps in sorted(sorted(expermiments.keys(), key=lambda exp: exp[1]), key=lambda exp: exp[0]):
         h = exps[0]
         v = exps[1]
         if not h in seen_h:
