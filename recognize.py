@@ -46,7 +46,8 @@ config = SafeConfigParser({'name': 'EXPERIMENT NAME_TO_BE_FILLED!',
                             'lm_scale': '12',
                             'num_tokens': '32',
                             'reference_mlf': '|MODEL|/files/words.mlf',
-                            'ref_del_char': ''})
+                            'ref_del_char': '',
+                            'word_suffix': ''})
 config.read(configs if len(configs) > 0 else "recognition_config")
 
 
