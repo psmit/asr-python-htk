@@ -96,7 +96,7 @@ result_dict = {}
 vocab = set()
 
 if options.vocab is not "":
-    for line in open(options.vocabulary):
+    for line in open(options.vocab):
         vocab.add(line.rstrip().lower())
 
 
