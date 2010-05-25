@@ -42,12 +42,14 @@ def get_oov_sentences(reference, vocab):
                 break
                 
 def make_pruned_trn_file(trn_file, oov_sentences):
-    out_hl, file_name = tempfile.mkstemp()
-    for line in open(reference):
-        parts = line.split()
-        sentence = parts.pop()[1:-1]
-        if sentence not in oov_sentences:
-            print >> out_hl, line.rstrip()
+    file_name = trn_file + '.prunedoov'
+    with open(file_name,'w') as out_hl:
+        for line in open(trn_file):
+            parts = line.split()
+            sentence = parts.pop()[1:-1]
+            if sentence not in oov_sentences:
+                print >> out_hl, line.rstrip()
+
 
     out_hl.close()
     return file_name
@@ -122,9 +124,6 @@ for experiment in expermiments.keys():
             result = float(line[57:64])
 
     result_dict[experiment] = result
-
-    if len(vocab) > 0:
-        os.remove(hyp_file)
 
 
 if dim == 3:
