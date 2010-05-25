@@ -2,17 +2,22 @@
 
 import re
 import sys
+import os
 import subprocess
 
 from optparse import OptionParser
 import glob
 import copy
 import subprocess
+import tempfile
 
 usage = "usage: %prog directories"
 parser = OptionParser(usage=usage)
 parser.add_option("-c", "--character", action='store_true', dest="character", help="use character scoring",     default=False)
+parser.add_option("-v", "--vocabulary", dest="vocab", default="", help="Vocabulary for removing sentences with OOV words")
 options, directories = parser.parse_args()
+
+
 
 result_dirs = ['baseline', 'unsup_si', 'unsup_sat']
 
@@ -25,6 +30,28 @@ def get_match_part(haystack, match_string, needle):
         sys.exit('error in regexps')
 
     return m.group(1)
+
+def get_oov_sentences(reference, vocab):
+    oov_sentences = set()
+    for line in open(reference):
+        parts = line.split()
+        sentence = parts.pop()[1:-1]
+        for word in parts:
+            if not word in vocab:
+                oov_sentences.add(sentence)
+                break
+                
+def make_pruned_trn_file(trn_file, oov_sentences):
+    out_hl, file_name = tempfile.mkstemp()
+    for line in open(reference):
+        parts = line.split()
+        sentence = parts.pop()[1:-1]
+        if sentence not in oov_sentences:
+            print >> out_hl, line.rstrip()
+
+    out_hl.close()
+    return file_name
+
 
 dim = 2
 
@@ -64,9 +91,23 @@ elif len(directories) == 1:
 
 result_dict = {}
 
+vocab = set()
+
+if options.vocabulary is not "":
+    for line in open(options.vocabulary):
+        vocab.add(line.rstrip().lower())
+
+
+
+
 for experiment in expermiments.keys():
     ref_file = expermiments[experiment][0] + '/reference.trn'
+
     hyp_file = expermiments[experiment][0] + '/' + expermiments[experiment][1] + '/pass2.trn'
+
+    if len(vocab) > 0:
+        oov_sentences = get_oov_sentences(ref_file)
+        hyp_file = make_pruned_trn_file(hyp_file, oov_sentences)
 
     sclite = ['sclite', '-i', 'rm', '-r', ref_file, 'trn', '-h', hyp_file, 'trn', '-f', '0']
     if options.character:
@@ -81,6 +122,9 @@ for experiment in expermiments.keys():
             result = float(line[57:64])
 
     result_dict[experiment] = result
+
+    if len(vocab) > 0:
+        os.remove(hyp_file)
 
 
 if dim == 3:
