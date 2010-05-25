@@ -632,7 +632,7 @@ def bl_eng_selection(bl_eng_dir):
 
     
 
-def mlf_to_trn(mlf, trn, num_speaker_chars=3):
+def mlf_to_trn(mlf, trn, num_speaker_chars=3, del_char = ''):
     reg_exp = re.compile('\".*/([A-Za-z0-9]+)\.(mfc|lab|rec)\"')
 
     utts_seen = set()
@@ -653,4 +653,7 @@ def mlf_to_trn(mlf, trn, num_speaker_chars=3):
                     utts_seen.add(utt_name)
                 trans = []
             elif not line.startswith('<'):
-                trans.append(line.rstrip())
+                l = line
+                for c in del_char:
+                    l = l.replace(c, '')
+                trans.append(l.rstrip())

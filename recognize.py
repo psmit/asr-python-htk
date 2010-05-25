@@ -45,7 +45,8 @@ config = SafeConfigParser({'name': 'EXPERIMENT NAME_TO_BE_FILLED!',
                             'end_beam': '-1.0',
                             'lm_scale': '12',
                             'num_tokens': '32',
-                            'reference_mlf': '|MODEL|/files/words.mlf'})
+                            'reference_mlf': '|MODEL|/files/words.mlf',
+                            'ref_del_char': ''})
 config.read(configs if len(configs) > 0 else "recognition_config")
 
 
@@ -69,6 +70,7 @@ phones_list = config.get('model', 'model_dir') + '/files/tiedlist'
 
 #words_mlf = config.get('model', 'model_dir') + '/files/words.mlf'
 words_mlf = config.get('recognition', 'reference_mlf').replace('|MODEL|',config.get('model', 'model_dir') )
+ref_del_char = config.get('recognition', 'ref_del_char')
 
 dict =  config.get('model', 'model_dir') + '/dictionary/dict'
 dict_hdecode = config.get('model', 'model_dir') + '/dictionary/dict.hdecode'
@@ -99,8 +101,25 @@ htk.default_HERest_pruning = ['300.0', '500.0', '2000.0']
 
 current_step = 0
 
-logger.info("Start step: %d (%s)" % (current_step, 'Making reference trn'))
-data_manipulation.mlf_to_trn(words_mlf, 'reference.trn', speaker_name_width)
+if current_step >= options.step:
+
+
+    logger.info("Start step: %d (%s)" % (current_step, 'Making reference trn'))
+    data_manipulation.mlf_to_trn(words_mlf, 'reference.trn', speaker_name_width, ref_del_char)
+
+    dicts = []
+    cur_dict_id = 1
+    while config.has_option("dict"+str(cur_dict_id), "location"):
+        dicts.append([config.get("dict"+str(cur_dict_id), "location"),
+                        config.get("dict"+str(cur_dict_id), "prefix"),
+                        config.get("dict"+str(cur_dict_id), "word_suffix")])
+        cur_dict_id += 1
+
+    if len(dicts) > 0:
+        data_manipulation.import_dictionaries(dicts)
+        dict = 'dictionary/dict'
+        dict_hdecode = 'dictionary/dict.hdecode'
+        
 
 baseline_dir = 'baseline'
 baseline_lat_dir = baseline_dir + '/lattices.htk'
