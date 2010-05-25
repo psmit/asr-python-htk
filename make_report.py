@@ -40,6 +40,7 @@ def get_oov_sentences(reference, vocab):
             if not word in vocab:
                 oov_sentences.add(sentence)
                 break
+    return oov_sentences
                 
 def make_pruned_trn_file(trn_file, oov_sentences):
     if not os.path.exists(trn_file):
