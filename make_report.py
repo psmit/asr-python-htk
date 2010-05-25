@@ -42,6 +42,8 @@ def get_oov_sentences(reference, vocab):
                 break
                 
 def make_pruned_trn_file(trn_file, oov_sentences):
+    if not os.path.exists(trn_file):
+        return trn_file
     file_name = trn_file + '.prunedoov'
     with open(file_name,'w') as out_hl:
         for line in open(trn_file):
