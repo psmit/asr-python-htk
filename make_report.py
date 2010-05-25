@@ -108,7 +108,7 @@ for experiment in expermiments.keys():
     hyp_file = expermiments[experiment][0] + '/' + expermiments[experiment][1] + '/pass2.trn'
 
     if len(vocab) > 0:
-        oov_sentences = get_oov_sentences(ref_file)
+        oov_sentences = get_oov_sentences(ref_file, vocab)
         hyp_file = make_pruned_trn_file(hyp_file, oov_sentences)
 
     sclite = ['sclite', '-i', 'rm', '-r', ref_file, 'trn', '-h', hyp_file, 'trn', '-f', '0']
