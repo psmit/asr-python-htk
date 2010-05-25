@@ -108,18 +108,18 @@ if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Making reference trn'))
     data_manipulation.mlf_to_trn(words_mlf, 'reference.trn', speaker_name_width, ref_del_char)
 
-    dicts = []
-    cur_dict_id = 1
-    while config.has_option("dict"+str(cur_dict_id), "location"):
-        dicts.append([config.get("dict"+str(cur_dict_id), "location"),
-                        config.get("dict"+str(cur_dict_id), "prefix"),
-                        config.get("dict"+str(cur_dict_id), "word_suffix")])
-        cur_dict_id += 1
+dicts = []
+cur_dict_id = 1
+while config.has_option("dict"+str(cur_dict_id), "location"):
+    dicts.append([config.get("dict"+str(cur_dict_id), "location"),
+                    config.get("dict"+str(cur_dict_id), "prefix"),
+                    config.get("dict"+str(cur_dict_id), "word_suffix")])
+    cur_dict_id += 1
 
-    if len(dicts) > 0:
-        data_manipulation.import_dictionaries(dicts)
-        dict = 'dictionary/dict'
-        dict_hdecode = 'dictionary/dict.hdecode'
+if len(dicts) > 0:
+    data_manipulation.import_dictionaries(dicts)
+    dict = 'dictionary/dict'
+    dict_hdecode = 'dictionary/dict.hdecode'
         
 
 baseline_dir = 'baseline'
