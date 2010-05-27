@@ -417,9 +417,9 @@ if 'transform_stack' in experiments:
     base1_cmllr_config = files_dir+'/config.1.base_cmllr'
     tree2_cmllr_config = files_dir+'/config.2.tree_cmllr'
     base2_cmllr_config = files_dir+'/config.2.base_cmllr'
-    regtree1_hed =  files_dir+'/regtree1.hed'
+    regtree1_hed =  classes_dir+'/regtree1.hed'
     regtree1_tree = xforms_dir+'/regtree1.tree'
-    regtree2_hed =  files_dir+'/regtree2.hed'
+    regtree2_hed =  classes_dir+'/regtree2.hed'
     regtree2_tree = xforms_dir+'/regtree2.tree'
     global_f = classes_dir + '/global'
 
@@ -486,12 +486,12 @@ if 'transform_stack' in experiments:
 
 
         logger.info("Start step: %d (%s)" % (current_step, 'Generate regression tree 1'))
-        htk.HHEd(current_step, si_model, xforms_dir, regtree1_hed, phones_list, '/dev/null')
+        htk.HHEd(current_step, si_model, classes_dir, regtree1_hed, phones_list, '/dev/null')
 
     current_step += 1
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Generate regression tree 2'))
-        htk.HHEd(current_step, si_model, xforms_dir, regtree2_hed, phones_list, '/dev/null')
+        htk.HHEd(current_step, si_model, classes_dir, regtree2_hed, phones_list, '/dev/null')
 
 
     current_step += 1
