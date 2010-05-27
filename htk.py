@@ -232,9 +232,9 @@ def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_dir, phones_
 
     for source_dir, extension in parent_transform_dirs:
         if extension is None:
-            HERest.extend(['-P', source_dir])
+            HERest.extend(['-E', source_dir])
         else:
-            HERest.extend(['-P', source_dir, extension])       
+            HERest.extend(['-E', source_dir, extension])       
 
 
 
