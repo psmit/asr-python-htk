@@ -417,10 +417,10 @@ if 'transform_stack' in experiments:
     base1_cmllr_config = files_dir+'/config.1.base_cmllr'
     tree2_cmllr_config = files_dir+'/config.2.tree_cmllr'
     base2_cmllr_config = files_dir+'/config.2.base_cmllr'
-    regtree1_hed =  classes_dir+'/regtree1.hed'
-    regtree1_tree = xforms_dir+'/regtree1.tree'
-    regtree2_hed =  classes_dir+'/regtree2.hed'
-    regtree2_tree = xforms_dir+'/regtree2.tree'
+    regtree1_hed =  files_dir+'/regtree1.hed'
+    regtree1_tree = classes_dir+'/regtree1.tree'
+    regtree2_hed =  files_dir+'/regtree2.hed'
+    regtree2_tree = classes_dir+'/regtree2.tree'
     global_f = classes_dir + '/global'
 
     current_step += 1
