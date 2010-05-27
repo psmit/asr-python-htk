@@ -102,6 +102,7 @@ def getOptParser():
     parser.add_option("-N", "--nodes", type="int", dest="nodes", help="Number of nodes to use (Triton)", default=1)
     parser.add_option("-r", "--retrys", type="int", dest="retry", help="Number of retry's for failed jobs (just Triton for now)", default=3)
     parser.add_option("-V", "--verbosity", type="int", dest="verbosity", help="verbosity", default=0)
+    parser.add_option("-x", "--exclude", dest="exclude_nodes", help="Triton nodes to be excluded", default="" )
     return parser
 
 def setNewRunner(options, args):
@@ -267,6 +268,11 @@ class TritonRunner(Runner):
 
             batchcommand.extend(['-N', str(1)])
             batchcommand.extend(['-n', str(1)])
+
+            #exclude_nodes = self.options.exclude_nodes.split(',')
+            if len(self.options.exclude_nodes) > 0:
+                batchcommand.extend('-x', self.options.exclude_nodes)
+
 
             # Set the memory limit
             batchcommand.append('--mem-per-cpu='+ str(self.options.memlimit))
