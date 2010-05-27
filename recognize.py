@@ -386,6 +386,12 @@ if 'transform_stack' in experiments:
     global_adapt_scp = config.get('transform_stack', 'global_adapt_scp')
     global_adapt_mlf = config.get('transform_stack', 'global_adapt_mlf')
 
+    shutil.copyfile(global_adapt_scp, transform_stack_dir + '/global_adapt.scp')
+    shutil.copyfile(global_adapt_mlf, transform_stack_dir + '/global_adapt.mlf')
+
+    global_adapt_scp =  transform_stack_dir + '/global_adapt.scp'
+    global_adapt_mlf =  transform_stack_dir + '/global_adapt.mlf'
+
     adapt_mlf = transform_stack_dir + '/adapt.mlf'
     pass1_mlf = transform_stack_dir + '/pass1.mlf'
     pass2_mlf = transform_stack_dir + '/pass2.mlf'

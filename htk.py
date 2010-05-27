@@ -444,8 +444,6 @@ def _get_output_stream_names(step):
 def split_file(file_name, parts, keep_speaker_together = False, num_speaker_chars = 3, target_size = None):
     target_files = [open(name, 'w') for name in [file_name + ".part." + str(i) for i in range(1,parts+1)]]
 
-    if num_speaker_chars < 0:
-        num_speaker_chars = 0
     real_num_parts = 0
 
     source_file = open(file_name)
@@ -455,6 +453,10 @@ def split_file(file_name, parts, keep_speaker_together = False, num_speaker_char
             target_files[counter].write(line)
             real_num_parts = max(counter, real_num_parts)
             counter = (counter + 1)%parts
+    elif num_speaker_chars <= 0:
+        for line in sorted(source_file):
+            target_files[0].write(line)
+        real_num_parts = 0
     else:
         prev_speaker = ''
         counter = -1
