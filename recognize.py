@@ -387,6 +387,7 @@ transform_stack_lat_dir = transform_stack_dir + '/lattices.htk'
 transform_stack_lat_dir_rescored = transform_stack_dir + '/lattices.rescored'
 
 if 'transform_stack' in experiments:
+    if not os.path.exists(transform_stack_dir): os.mkdir(transform_stack_dir)
 
     global_adapt_scp = config.get('transform_stack', 'global_adapt_scp')
     global_adapt_mlf = config.get('transform_stack', 'global_adapt_mlf')
@@ -407,7 +408,7 @@ if 'transform_stack' in experiments:
     classes_dir = transform_stack_dir + '/classes'
     files_dir = transform_stack_dir + '/files'
 
-    if not os.path.exists(transform_stack_dir): os.mkdir(transform_stack_dir)
+
 
     current_step += 1
     if current_step >= options.step:
