@@ -453,8 +453,8 @@ if 'transform_stack' in experiments:
              HADAPT:KEEPXFORMDISTINCT = TRUE\n\
              HADAPT:ADAPTKIND              = BASE\n\
              HMODEL:SAVEBINARY             = FALSE\n\
-             HADAPT:PAXFORM = *.%s\n\
-             HADAPT:INXFORM = *.%s\n"% (global_f, '%%%', '%%%')
+             PAXFORMMASK = *.%s\n\
+             INXFORMMASK = *.%s\n"% (global_f, '%%%', '%%%')
 
         with open(tree1_cmllr_config, 'w') as cmllr_config_stream:
             print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
