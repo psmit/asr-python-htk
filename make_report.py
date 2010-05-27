@@ -15,11 +15,15 @@ usage = "usage: %prog directories"
 parser = OptionParser(usage=usage)
 parser.add_option("-c", "--character", action='store_true', dest="character", help="use character scoring",     default=False)
 parser.add_option("-v", "--vocabulary", dest="vocab", default="", help="Vocabulary for removing sentences with OOV words")
+parser.add_option("-r", "--extra-result-dirs", dest="result_dirs", default="", help="Specify extra dirs with results")
 options, directories = parser.parse_args()
 
 
 
 result_dirs = ['baseline', 'unsup_si', 'unsup_sat']
+
+if len(options.result_dirs) > 0:
+    result_dirs.extend(options.result_dirs.split(','))
 
 expermiments = {}
 
