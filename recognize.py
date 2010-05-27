@@ -509,13 +509,13 @@ if 'transform_stack' in experiments:
     current_step += 1
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Estimate global transforms 2'))
-        htk.HERest_estimate_transform(current_step, scp_file, sat_model, xforms_dir, phones_list, adapt_mlf, [orig_config, base1_cmllr_config], speaker_name_width, 'mllr3', [(classes_dir, None)], False, [(xforms_dir, 'mllr2')])
+        htk.HERest_estimate_transform(current_step, scp_file, sat_model, xforms_dir, phones_list, adapt_mlf, [orig_config, base2_cmllr_config], speaker_name_width, 'mllr3', [(classes_dir, None)], False, [(xforms_dir, 'mllr2')])
 
 
     current_step += 1
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Estimate tree transforms 2'))
-        htk.HERest_estimate_transform(current_step, scp_file, sat_model, xforms_dir, phones_list, adapt_mlf, [orig_config, tree1_cmllr_config], speaker_name_width, 'mllr4', [(xforms_dir, 'mllr3'), (classes_dir, None)], False, [(xforms_dir, 'mllr3'), (classes_dir, None)])
+        htk.HERest_estimate_transform(current_step, scp_file, sat_model, xforms_dir, phones_list, adapt_mlf, [orig_config, tree2_cmllr_config], speaker_name_width, 'mllr4', [(xforms_dir, 'mllr3'), (classes_dir, None)], False, [(xforms_dir, 'mllr3'), (classes_dir, None)])
 
 
     current_step += 1
