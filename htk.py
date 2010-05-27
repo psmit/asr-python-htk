@@ -186,7 +186,7 @@ def HCompV(step, scpfile, target_hmm_dir, protofile, min_variance, config = None
                                     'estream': estream,
                                     'timelimit': '01:00:00'})            
 
-def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_dir, phones_list, transcriptions,  config, num_chars = 3, target_extension = 'cmllr', extra_source_dirs = [], use_parent = False, pruning = None, min_mix_weigth = 0.1, prune_treshold = 20.0):
+def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_dir, phones_list, transcriptions,  config, num_chars = 3, target_extension = 'cmllr', input_transform_dirs = [], use_parent = False, parent_transform_dirs = [], pruning = None, min_mix_weigth = 0.1, prune_treshold = 20.0):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
 
     if config is None: config = default_config_file
@@ -207,7 +207,9 @@ def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_dir, phones_
     else:
         HERest.extend(["-C", config])
 
-    pattern = "*/" + ('%' * num_chars) + "*.*" 
+    pattern = '*.%%%'
+    if num_chars > 0:
+        pattern = "*/" + ('%' * num_chars) + "*.*"
 
     HERest.extend(["-h", pattern,
                     "-I", transcriptions,
@@ -222,11 +224,18 @@ def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_dir, phones_
 
 #                        "-M", target_dir,
 
-    for source_dir, extension in extra_source_dirs:
+    for source_dir, extension in input_transform_dirs:
         if extension is None:
             HERest.extend(['-J', source_dir])
         else:
             HERest.extend(['-J', source_dir, extension])
+
+    for source_dir, extension in parent_transform_dirs:
+        if extension is None:
+            HERest.extend(['-P', source_dir])
+        else:
+            HERest.extend(['-P', source_dir, extension])       
+
 
 
     HERest.extend(["-t"])
