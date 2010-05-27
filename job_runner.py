@@ -271,7 +271,7 @@ class TritonRunner(Runner):
 
             #exclude_nodes = self.options.exclude_nodes.split(',')
             if len(self.options.exclude_nodes) > 0:
-                batchcommand.extend('-x', self.options.exclude_nodes)
+                batchcommand.extend(['-x', self.options.exclude_nodes])
 
 
             # Set the memory limit
