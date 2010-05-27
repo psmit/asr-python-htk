@@ -524,13 +524,13 @@ if 'transform_stack' in experiments:
         if os.path.exists(transform_stack_lat_dir): shutil.rmtree(transform_stack_lat_dir)
         os.mkdir(transform_stack_lat_dir)
 
-        htk.HDecode(current_step, scp_file, sat_model, dict_hdecode, phones_list, lm, transform_stack_dir_lat_dir, num_tokens, pass1_mlf, [config_hdecode, tree2_cmllr_config], lm_scale, beam, end_beam, max_pruning, [(xforms_dir, 'mllr4'), (classes_dir, None)], speaker_name_width)
+        htk.HDecode(current_step, scp_file, sat_model, dict_hdecode, phones_list, lm, transform_stack_lat_dir, num_tokens, pass1_mlf, [config_hdecode, tree2_cmllr_config], lm_scale, beam, end_beam, max_pruning, [(xforms_dir, 'mllr4'), (classes_dir, None)], speaker_name_width)
 
     current_step += 1
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Rescoring lattices with lattice-tool'))
         if os.path.exists(transform_stack_lat_dir_rescored): shutil.rmtree(transform_stack_lat_dir_rescored)
-        htk.lattice_rescore(current_step, transform_stack_dir_lat_dir, transform_stack_dir_lat_dir_rescored, lm_rescore + '.gz', lm_scale)
+        htk.lattice_rescore(current_step, transform_stack_lat_dir, transform_stack_lat_dir_rescored, lm_rescore + '.gz', lm_scale)
 
     current_step += 1
     if current_step >= options.step:
