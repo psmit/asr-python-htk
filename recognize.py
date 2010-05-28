@@ -50,7 +50,7 @@ config = SafeConfigParser({'name': 'EXPERIMENT NAME_TO_BE_FILLED!',
                             'reference_mlf': '|MODEL|/files/words.mlf',
                             'ref_del_char': '',
                             'word_suffix': '',
-                            'max_adap_sentences': '0'})
+                            'max_adap_sentences': '-1'})
 config.read(configs if len(configs) > 0 else "recognition_config")
 
 
@@ -96,7 +96,7 @@ if end_beam < 0:
 max_pruning = config.getint('recognition', 'max_pruning')
 
 max_adap_sentences = config.getint('recognition', 'max_adap_sentences')
-if max_adap_sentences == 0:
+if max_adap_sentences < 0:
     max_adap_sentences = None
 
 
