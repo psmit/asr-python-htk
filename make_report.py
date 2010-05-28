@@ -126,9 +126,12 @@ for experiment in expermiments.keys():
 
     result = 0
 
+    loc = 58
     for line in results.split('\n'):
+        if '   Err' in line:
+            loc = line.find('   Err')
         if 'Sum/Avg' in line:
-            result = float(line[57:64])
+            result = float(line[loc:loc+6])
 
     result_dict[experiment] = result
 
