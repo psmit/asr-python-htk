@@ -384,6 +384,134 @@ if 'unsupsat' in experiments:
     data_manipulation.mlf_to_trn(pass2_mlf, pass2_trn, speaker_name_width)
     
 
+tstack_baseline_dir = 'transform_stack_baseline'
+tstack_baseline_lat_dir = tstack_baseline_dir + '/lattices.htk'
+tstack_baseline_lat_dir_rescored = tstack_baseline_dir + '/lattices.rescored'
+tstack_baseline_pass1_mlf = tstack_baseline_dir + '/pass1.mlf'
+tstack_baseline_pass2_mlf = tstack_baseline_dir + '/pass2.mlf'
+
+if 'transform_stack_baseline' in experiments:
+
+    pass1_trn = tstack_baseline_dir + '/pass1.trn'
+    pass2_trn = tstack_baseline_dir + '/pass2.trn'
+
+
+    if not os.path.exists(tstack_baseline_dir):
+        os.mkdir(tstack_baseline_dir)
+
+    global_adapt_scp = config.get('transform_stack', 'global_adapt_scp')
+    global_adapt_mlf = config.get('transform_stack', 'global_adapt_mlf')
+
+    shutil.copyfile(global_adapt_scp, tstack_baseline_dir + '/global_adapt.scp')
+    shutil.copyfile(global_adapt_mlf, tstack_baseline_dir + '/global_adapt.mlf')
+
+    global_adapt_scp =  tstack_baseline_dir + '/global_adapt.scp'
+    global_adapt_mlf =  tstack_baseline_dir + '/global_adapt.mlf'
+
+    adapt_mlf = tstack_baseline_dir + '/adapt.mlf'
+    pass1_mlf = tstack_baseline_dir + '/pass1.mlf'
+    pass2_mlf = tstack_baseline_dir + '/pass2.mlf'
+    pass1_trn = tstack_baseline_dir + '/pass1.trn'
+    pass2_trn = tstack_baseline_dir + '/pass2.trn'
+
+    xforms_dir = tstack_baseline_dir + '/xforms'
+    classes_dir = tstack_baseline_dir + '/classes'
+    files_dir = tstack_baseline_dir + '/files'
+
+    if not os.path.exists(xforms_dir): os.mkdir(xforms_dir)
+    if not os.path.exists(classes_dir): os.mkdir(classes_dir)
+    if not os.path.exists(files_dir): os.mkdir(files_dir)
+
+    tree1_cmllr_config = files_dir+'/config.1.tree_cmllr'
+    base1_cmllr_config = files_dir+'/config.1.base_cmllr'
+
+    regtree1_hed =  files_dir+'/regtree1.hed'
+    regtree1_tree = classes_dir+'/regtree1.tree'
+    global_f = classes_dir + '/global'
+
+    current_step += 1
+    if current_step >= options.step:
+        with open(regtree1_hed, 'w') as hed_file:
+            print >> hed_file, 'RN "global"'
+            print >> hed_file, 'LS "%s/stats"' % si_model
+            print >> hed_file, 'RC 128 "regtree1"'
+
+        with open(base1_cmllr_config, 'w') as cmllr_config_stream:
+            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
+             HADAPT:TRANSKIND              = CMLLR\n\
+             HADAPT:USEBIAS                = TRUE\n\
+             HADAPT:BASECLASS         = %s\n\
+             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
+             HADAPT:ADAPTKIND              = BASE\n\
+             HMODEL:SAVEBINARY             = FALSE\n" % (global_f)
+
+        with open(base2_cmllr_config, 'w') as cmllr_config_stream:
+            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
+             HADAPT:TRANSKIND              = CMLLR\n\
+             HADAPT:USEBIAS                = TRUE\n\
+             HADAPT:BASECLASS         = %s\n\
+             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
+             HADAPT:ADAPTKIND              = BASE\n\
+             HMODEL:SAVEBINARY             = FALSE\n\
+             PAXFORMMASK = *.%s\n\
+             INXFORMMASK = *.%s\n"% (global_f, '%%%', '%%%')
+
+        with open(global_f, 'w') as global_file:
+            print >> global_file, "~b \"global\" \n\
+            <MMFIDMASK> *\n\
+            <PARAMETERS> MIXBASE\n\
+            <NUMCLASSES> 1\n\
+            <CLASS> 1 {*.state[2-4].mix[1-100]} "
+
+
+        logger.info("Start step: %d (%s)" % (current_step, 'Generate regression tree 1'))
+        htk.HHEd(current_step, si_model, classes_dir, regtree1_hed, phones_list, '/dev/null')
+
+    current_step += 1
+    if current_step >= options.step:
+       logger.info("Start step: %d (%s)" % (current_step, 'Generate regression tree 2'))
+       htk.HHEd(current_step, si_model, classes_dir, regtree2_hed, phones_list, '/dev/null')
+
+
+    current_step += 1
+    if current_step >= options.step:
+       logger.info("Start step: %d (%s)" % (current_step, 'Estimate global transforms 1'))
+       htk.HERest_estimate_transform(current_step, global_adapt_scp, si_model, xforms_dir, phones_list, global_adapt_mlf, None, [orig_config, base1_cmllr_config], -1, 'mllr1', [(classes_dir, None)])
+
+
+    current_step += 1
+    if current_step >= options.step:
+       logger.info("Start step: %d (%s)" % (current_step, 'Estimate tree transforms 1'))
+       htk.HERest_estimate_transform(current_step, global_adapt_scp, si_model, xforms_dir, phones_list, global_adapt_mlf, None, [orig_config, tree1_cmllr_config], -1, 'mllr2', [(xforms_dir, 'mllr1'), (classes_dir, None)], False, [(xforms_dir, 'mllr1'), (classes_dir, None)])
+
+
+
+
+    current_step += 1
+    if current_step >= options.step:
+        logger.info("Start step: %d (%s)" % (current_step, 'Generating lattices with HDecode'))
+        if os.path.exists(tstack_baseline_lat_dir): shutil.rmtree(tstack_baseline_lat_dir)
+        os.mkdir(tstack_baseline_lat_dir)
+
+        htk.HDecode(current_step, scp_file, si_model, dict_hdecode, phones_list, lm, tstack_baseline_lat_dir, num_tokens, tstack_baseline_pass1_mlf, [config_hdecode], lm_scale, beam, end_beam, max_pruning,[(xforms_dir, 'mllr2'), (classes_dir, None)], -1)
+
+    current_step += 1
+    if current_step >= options.step:
+        logger.info("Start step: %d (%s)" % (current_step, 'Rescoring lattices with lattice-tool'))
+        if os.path.exists(tstack_baseline_lat_dir_rescored): shutil.rmtree(tstack_baseline_lat_dir_rescored)
+        htk.lattice_rescore(current_step, tstack_baseline_lat_dir, tstack_baseline_lat_dir_rescored, lm_rescore + '.gz', lm_scale)
+
+    current_step += 1
+    if current_step >= options.step:
+        logger.info("Start step: %d (%s)" % (current_step, 'Decoding lattices with lattice-tool'))
+        htk.lattice_decode(current_step, tstack_baseline_lat_dir_rescored, tstack_baseline_pass2_mlf, lm_scale)
+
+
+    data_manipulation.mlf_to_trn(tstack_baseline_pass1_mlf, pass1_trn, speaker_name_width)
+    data_manipulation.mlf_to_trn(tstack_baseline_pass2_mlf, pass2_trn, speaker_name_width)
+
+
+
 transform_stack_dir = 'transform_stack_si'
 transform_stack_lat_dir = transform_stack_dir + '/lattices.htk'
 transform_stack_lat_dir_rescored = transform_stack_dir + '/lattices.rescored'
@@ -415,7 +543,7 @@ if 'transform_stack_si' in experiments:
     current_step += 1
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Aligning best transcriptions with HVite'))
-        htk.HVite(current_step, scp_file, si_model, dict, phones_list, baseline_pass2_mlf, adapt_mlf, 'rec')
+        htk.HVite(current_step, scp_file, si_model, dict, phones_list, tstack_baseline_pass2_mlf, adapt_mlf, 'rec')
 
     if not os.path.exists(xforms_dir): os.mkdir(xforms_dir)
     if not os.path.exists(classes_dir): os.mkdir(classes_dir)
@@ -580,7 +708,7 @@ if 'transform_stack_sat' in experiments:
     current_step += 1
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Aligning best transcriptions with HVite'))
-        htk.HVite(current_step, scp_file, si_model, dict, phones_list, baseline_pass2_mlf, adapt_mlf, 'rec')
+        htk.HVite(current_step, scp_file, si_model, dict, phones_list, tstack_baseline_pass2_mlf, adapt_mlf, 'rec')
 
     if not os.path.exists(xforms_dir): os.mkdir(xforms_dir)
     if not os.path.exists(classes_dir): os.mkdir(classes_dir)

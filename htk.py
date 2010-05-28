@@ -37,7 +37,9 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
 
     if len(adapt_dirs) > 0:
         HDecode.extend(['-m'])
-        pattern = "*/" + ('%' * num_speaker_chars) + "*.*"
+        pattern = '*.%%%'
+        if num_speaker_chars > 0:
+            pattern = "*/" + ('%' * num_speaker_chars) + "*.*"
         HDecode.extend(["-h", pattern])
         
     HDecode.extend(['-S', scpfile+ ".part.%t",
