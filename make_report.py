@@ -16,11 +16,16 @@ parser = OptionParser(usage=usage)
 parser.add_option("-c", "--character", action='store_true', dest="character", help="use character scoring",     default=False)
 parser.add_option("-v", "--vocabulary", dest="vocab", default="", help="Vocabulary for removing sentences with OOV words")
 parser.add_option("-r", "--extra-result-dirs", dest="result_dirs", default="", help="Specify extra dirs with results")
+parser.add_option("-s", "--speakers", dest="speakers", default="", help="Specificy comma seperated speakers")
 options, directories = parser.parse_args()
 
 
 
 result_dirs = ['baseline', 'unsup_si', 'unsup_sat']
+
+speakers = []
+if len(options.speakers) > 0:
+    speakers = [s for s in options.speakers.split(',') if len(s) > 0]
 
 if len(options.result_dirs) > 0:
     result_dirs.extend(options.result_dirs.split(','))
@@ -46,16 +51,22 @@ def get_oov_sentences(reference, vocab):
                 break
     return oov_sentences
                 
-def make_pruned_trn_file(trn_file, oov_sentences):
+def make_pruned_trn_file(trn_file, oov_sentences, speakers = []):
     if not os.path.exists(trn_file):
         return trn_file
     file_name = trn_file + '.prunedoov'
+    if len(speakers) > 0:
+        file_name = file_name + '.' + '.'.join(sorted(speakers))
     with open(file_name,'w') as out_hl:
         for line in open(trn_file):
             parts = line.split()
             sentence = parts.pop()[1:-1]
             if sentence not in oov_sentences:
+                if len(speakers) > 0:
+                    if(sentence.split('_', 1)[0] not in speakers):
+                        continue
                 print >> out_hl, line.rstrip()
+
 
 
     out_hl.close()
@@ -116,7 +127,7 @@ for experiment in expermiments.keys():
 
     if len(vocab) > 0:
         oov_sentences = get_oov_sentences(ref_file, vocab)
-        hyp_file = make_pruned_trn_file(hyp_file, oov_sentences)
+        hyp_file = make_pruned_trn_file(hyp_file, oov_sentences, speakers)
 
     sclite = ['sclite', '-i', 'rm', '-r', ref_file, 'trn', '-h', hyp_file, 'trn', '-f', '0']
     if options.character:
