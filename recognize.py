@@ -445,16 +445,15 @@ if 'transform_stack_baseline' in experiments:
              HADAPT:ADAPTKIND              = BASE\n\
              HMODEL:SAVEBINARY             = FALSE\n" % (global_f)
 
-        with open(base2_cmllr_config, 'w') as cmllr_config_stream:
+        with open(tree1_cmllr_config, 'w') as cmllr_config_stream:
             print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
              HADAPT:TRANSKIND              = CMLLR\n\
              HADAPT:USEBIAS                = TRUE\n\
-             HADAPT:BASECLASS         = %s\n\
+             HADAPT:REGTREE                = %s\n\
              HADAPT:KEEPXFORMDISTINCT = TRUE\n\
-             HADAPT:ADAPTKIND              = BASE\n\
+             HADAPT:ADAPTKIND              = TREE\n\
              HMODEL:SAVEBINARY             = FALSE\n\
-             PAXFORMMASK = *.%s\n\
-             INXFORMMASK = *.%s\n"% (global_f, '%%%', '%%%')
+             HADAPT:BLOCKSIZE         = \"IntVec 3 13 13 13\"\n" % (regtree1_tree)
 
         with open(global_f, 'w') as global_file:
             print >> global_file, "~b \"global\" \n\
@@ -467,10 +466,6 @@ if 'transform_stack_baseline' in experiments:
         logger.info("Start step: %d (%s)" % (current_step, 'Generate regression tree 1'))
         htk.HHEd(current_step, si_model, classes_dir, regtree1_hed, phones_list, '/dev/null')
 
-    current_step += 1
-    if current_step >= options.step:
-       logger.info("Start step: %d (%s)" % (current_step, 'Generate regression tree 2'))
-       htk.HHEd(current_step, si_model, classes_dir, regtree2_hed, phones_list, '/dev/null')
 
 
     current_step += 1
