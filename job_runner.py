@@ -287,8 +287,8 @@ class TritonRunner(Runner):
             batchcommand.extend(['-o', outfile])
             batchcommand.extend(['-e', errorfile])
 
-            if time_limit_to_seconds(self.options.timelimit) <= time_limit_to_seconds('00:15:00'):
-                batchcommand.extend(['-p', 'test'])
+            if time_limit_to_seconds(self.options.timelimit) <= time_limit_to_seconds('04:00:00'):
+                batchcommand.extend(['-p', 'short'])
 
             if task_id == 'single':
                 real_command = self.replace_flags(self.commandarr, '1')
@@ -307,7 +307,7 @@ class TritonRunner(Runner):
         all_success = True
 
         while len(self.job) > 0:
-            Popen(['srun', '-t', '00:01:00', '-J', 'wait%s' % self.jobname, '-n', '1', '-N', '1', '-p', 'test', '--mem-per-cpu', '10', '--dependency=afterany:'+':'.join(self.job.keys()), 'sleep', str(0)], stderr=PIPE).wait()
+            Popen(['srun', '-t', '00:01:00', '-J', 'wait%s' % self.jobname, '-n', '1', '-N', '1', '-p', 'short', '--mem-per-cpu', '10', '--dependency=afterany:'+':'.join(self.job.keys()), 'sleep', str(0)], stderr=PIPE).wait()
 
             sacct_command = ['sacct', '-n', '--format=JobID,ExitCode,State', '-X', '-P', '-j', ','.join(self.job)]
             result = Popen(sacct_command, stdout=PIPE).communicate()[0]
