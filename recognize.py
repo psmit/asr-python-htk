@@ -26,8 +26,8 @@ logger.info("Start recognition")
 
 
 job_runner.default_options["verbosity"] = 1
-job_runner.default_options["memlimit"] = 4000
-job_runner.default_options["timelimit"] = "00:15:00"
+job_runner.default_options["memlimit"] = 2500
+job_runner.default_options["timelimit"] = "03:00:00"
 
 usage = "usage: %prog [options] configfiles"
 parser = OptionParser(usage=usage)
