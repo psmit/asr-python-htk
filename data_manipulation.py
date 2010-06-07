@@ -586,8 +586,14 @@ def create_wordtranscriptions_bl_eng(scp_files, bl_eng_dir, word_transcriptions)
 
 def create_wordtranscriptions_ued_bl(scp_files, ued_bl_dir, word_transcriptions):
     transcriptions = {}
-    if len(scp_files) > 0:
-        lang = os.path.basename(scp_files[0])[0]
+    scp_contents = []
+    for scp_file in scp_files:
+        for line in open(scp_file):
+            scp_contents.append(line)
+
+
+    if len(scp_contents) > 0:
+        lang = os.path.basename(scp_contents[0])[0]
         prompts = 'Prompts/English/english_prompts.txt'
         if lang == 'F':
             prompts = 'Prompts/Finnish/finnish_prompts.txt'
@@ -603,7 +609,7 @@ def create_wordtranscriptions_ued_bl(scp_files, ued_bl_dir, word_transcriptions)
         for scp_file in scp_files:
             for line in open(scp_file):
                 name = os.path.splitext(os.path.basename(line.rstrip()))[0]
-                id = int(name[-6:-2])
+                id = int(name[-5:-1])
 
 
                 if not transcriptions.has_key(id):
