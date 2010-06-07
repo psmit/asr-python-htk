@@ -593,7 +593,7 @@ def create_wordtranscriptions_ued_bl(scp_files, ued_bl_dir, word_transcriptions)
 
 
     if len(scp_contents) > 0:
-        lang = os.path.basename(scp_contents[0])[0]
+        lang = os.path.basename(scp_contents[0])[3]
         prompts = 'Prompts/English/english_prompts.txt'
         if lang == 'F':
             prompts = 'Prompts/Finnish/finnish_prompts.txt'
