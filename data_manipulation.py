@@ -582,7 +582,44 @@ def create_wordtranscriptions_bl_eng(scp_files, bl_eng_dir, word_transcriptions)
                             print >> transcriptions_file, word
                 print >> transcriptions_file, '</s>'
                 print >> transcriptions_file, '.'
-                
+
+
+def create_wordtranscriptions_ued_bl(scp_files, ued_bl_dir, word_transcriptions):
+    transcriptions = {}
+    if len(scp_files) > 0:
+        lang = os.path.basename(scp_files[0])[0]
+        prompts = 'Prompts/English/english_prompts.txt'
+        if lang == 'F':
+            prompts = 'Prompts/Finnish/finnish_prompts.txt'
+
+    for line in open(os.path.join(ued_bl_dir, prompts)):
+        if len(line.rstrip()) > 0:
+            tid, trans_str = line.split(None, 1)
+            trans_str = trans_str.replace('.', '').replace(',', '').lower()
+            transcriptions[int(tid)] = trans_str.split()
+
+    with open(word_transcriptions, 'w') as transcriptions_file:
+        print >> transcriptions_file, "#!MLF!#"
+        for scp_file in scp_files:
+            for line in open(scp_file):
+                name = os.path.splitext(os.path.basename(line.rstrip()))[0]
+                id = int(name[-6:-2])
+
+
+                if not transcriptions.has_key(id):
+                    sys.exit("No transcription found for %s" % name)
+
+                print >> transcriptions_file, '"*/%s.mfc"' % name
+                print >> transcriptions_file, '<s>'
+                for word in transcriptions[id]:
+                    if not word.startswith('[') and not word.startswith('<') and not word.endswith('-'):
+                        if word.startswith('"'):
+                           print >> transcriptions_file, "\%s" %  word
+                        elif len(word) > 0:
+                            print >> transcriptions_file, word
+                print >> transcriptions_file, '</s>'
+                print >> transcriptions_file, '.'
+
 
 def wsj_selection(wsj_dirs, files_set):
     wv1_files = []
@@ -630,6 +667,14 @@ def bl_eng_selection(bl_eng_dir):
             wav_files.append(file)
     return wav_files
 
+def ued_bl_selection(ued_bl_dir, langs, persons):
+    wav_files = []
+    for lang in langs:
+        for person in persons:
+            for file in glob.iglob(ued_bl_dir + "/downsampled_22kHz/*/*/%s*/%s/*0.wav"%(person,lang))
+                if int(os.path.splitext(os.path.basename(file))[0][-6:-2]) < 126:
+                    wav_files.append(file)
+    return wav_files
     
 
 def mlf_to_trn(mlf, trn, num_speaker_chars=3, del_char = ''):

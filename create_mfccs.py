@@ -48,7 +48,9 @@ if not options.delete_wav:
 
 config = SafeConfigParser({'train_set': 'train',
                             'eval_set': 'eval',
-                            'devel_set': 'devel'})
+                            'devel_set': 'devel',
+                            'lang': 'Eng',
+                            'selection': 'FM'})
 config.read(configs if len(configs) > 0 else "create_mfcc_config")
 
 
@@ -89,6 +91,11 @@ if current_step >= options.step:
 
     if config.get("audiofiles", "type") == 'bl_eng':
         waveforms['eval'] = data_manipulation.bl_eng_selection(config.get("audiofiles", "location"))
+        waveforms['train'] = []
+        waveforms['devel'] = []
+
+    if config.get("audiofiles", "type") == 'ued_bl':
+        waveforms['eval'] = data_manipulation.ued_bl_selection(config.get("audiofiles", "location"), [config.get("audiofiles", "lang")], [config.get("audiofiles", "selection")])
         waveforms['train'] = []
         waveforms['devel'] = []
 
@@ -144,6 +151,10 @@ if current_step >= options.step:
 
     if config.get("audiofiles", "type") == 'bl_eng':
         data_manipulation.create_wordtranscriptions_bl_eng(['train.scp', 'devel.scp', 'eval.scp'],config.get('audiofiles', 'location'), 'words.mlf')
+
+    if config.get("audiofiles", "type") == 'ued_bl':
+        data_manipulation.create_wordtranscriptions_ued_bl(['train.scp', 'devel.scp', 'eval.scp'],config.get('audiofiles', 'location'), 'words.mlf')
+
 
 
 
