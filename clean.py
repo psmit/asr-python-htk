@@ -17,8 +17,8 @@ if len(dirs) == 0:
     dirs = ['.']
 
 
-for dir in dirs:
-    for directory in glob.iglob(dir):
+for dir1 in dirs:
+    for directory in glob.iglob(dir1):
         if options.level > 0:
             print "Cleaning lattices from %s" % directory
 
