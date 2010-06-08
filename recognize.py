@@ -99,6 +99,14 @@ max_adap_sentences = config.getint('recognition', 'max_adap_sentences')
 if max_adap_sentences < 0:
     max_adap_sentences = None
 
+num_regtree_nodes_personal = 32
+num_regtree_nodes_transform_stack = 128
+
+if config.has_option('recognition', 'num_regtree_nodes'):
+    num_regtree_nodes_personal = config.getint('recognition', 'num_regtree_nodes')
+if config.has_option('transform_stack', 'num_regtree_nodes'):
+    num_regtree_nodes_transform_stack = config.getint('recognition', 'num_regtree_nodes')
+
 
 # Experiment configuration
 experiments = set([exp.lstrip().rstrip() for exp in config.get('experiments','experiments').split(',')])
@@ -205,7 +213,7 @@ if 'unsupsi' in experiments:
         with open(regtree_hed, 'w') as hed_file:
             print >> hed_file, 'RN "global"'
             print >> hed_file, 'LS "%s/stats"' % si_model
-            print >> hed_file, 'RC 32 "regtree"'
+            print >> hed_file, 'RC %s "regtree"' % num_regtree_nodes_personal
 
         with open(base_cmllr_config, 'w') as cmllr_config_stream:
             print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
@@ -314,7 +322,7 @@ if 'unsupsat' in experiments:
         with open(regtree_hed, 'w') as hed_file:
             print >> hed_file, 'RN "global"'
             print >> hed_file, 'LS "%s/stats"' % si_model
-            print >> hed_file, 'RC 32 "regtree"'
+            print >> hed_file, 'RC %s "regtree"' % num_regtree_nodes_personal
 
         with open(base_cmllr_config, 'w') as cmllr_config_stream:
             print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
@@ -434,7 +442,7 @@ if 'transform_stack_baseline' in experiments:
         with open(regtree1_hed, 'w') as hed_file:
             print >> hed_file, 'RN "global"'
             print >> hed_file, 'LS "%s/stats"' % si_model
-            print >> hed_file, 'RC 128 "regtree1"'
+            print >> hed_file, 'RC %s "regtree1"' % num_regtree_nodes_transform_stack
 
         with open(base1_cmllr_config, 'w') as cmllr_config_stream:
             print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
@@ -559,12 +567,12 @@ if 'transform_stack_si' in experiments:
         with open(regtree1_hed, 'w') as hed_file:
             print >> hed_file, 'RN "global"'
             print >> hed_file, 'LS "%s/stats"' % si_model
-            print >> hed_file, 'RC 128 "regtree1"'
+            print >> hed_file, 'RC %s "regtree1"' % num_regtree_nodes_transform_stack
 
         with open(regtree2_hed, 'w') as hed_file:
             print >> hed_file, 'RN "global"'
             print >> hed_file, 'LS "%s/stats"' % si_model
-            print >> hed_file, 'RC 32 "regtree2"'
+            print >> hed_file, 'RC %s "regtree2"' % num_regtree_nodes_personal
 
 
         with open(base1_cmllr_config, 'w') as cmllr_config_stream:
@@ -724,12 +732,12 @@ if 'transform_stack_sat' in experiments:
         with open(regtree1_hed, 'w') as hed_file:
             print >> hed_file, 'RN "global"'
             print >> hed_file, 'LS "%s/stats"' % si_model
-            print >> hed_file, 'RC 128 "regtree1"'
+            print >> hed_file, 'RC %s "regtree1"' % num_regtree_nodes_transform_stack
 
         with open(regtree2_hed, 'w') as hed_file:
             print >> hed_file, 'RN "global"'
             print >> hed_file, 'LS "%s/stats"' % si_model
-            print >> hed_file, 'RC 32 "regtree2"'
+            print >> hed_file, 'RC %s "regtree2"' % num_regtree_nodes_personal
 
 
         with open(base1_cmllr_config, 'w') as cmllr_config_stream:
