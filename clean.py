@@ -3,7 +3,7 @@
 
 
 from optparse import OptionParser, os
-from glob import glob
+import glob
 import shutil
 
 
