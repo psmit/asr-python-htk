@@ -47,7 +47,8 @@ config = SafeConfigParser({'name': 'EXPERIMENT NAME_TO_BE_FILLED!',
                             'tying_threshold': 1000.0,
                             'required_occupation': 200.0,
                             'speaker_name_width': 5,
-                            'word_suffix': ''})
+                            'word_suffix': '',
+                            'skip_dict_lookup': '0'})
 config.read(configs if len(configs) > 0 else "train_config")
 
 
@@ -95,7 +96,12 @@ if current_step >= options.step:
     if os.path.isdir('files'): shutil.rmtree('files')
     os.mkdir('files')
 
-    excluded = data_manipulation.prune_transcriptions(dict, 'corpora/words.mlf', 'files/words.mlf')
+    excluded = []
+    if config.getint('corpora', 'skip_dict_lookup') == 1:
+        shutil.copyfile('corpora/words.mlf', 'files/words.mlf')
+    else:
+        excluded = data_manipulation.prune_transcriptions(dict, 'corpora/words.mlf', 'files/words.mlf')
+        
     data_manipulation.update_exclude_list('files/exclude_list', excluded, ['corpora/train.scp','corpora/eval.scp','corpora/devel.scp'], ['files/train.scp','files/eval.scp','files/devel.scp'])
 
     htk.HLEd(current_step, 'files/words.mlf', mkmono0_led, '*', 'files/monophones0', 'files/mono0.mlf', dict)
