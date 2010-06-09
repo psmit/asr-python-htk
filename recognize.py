@@ -105,7 +105,7 @@ num_regtree_nodes_transform_stack = 128
 if config.has_option('recognition', 'num_regtree_nodes'):
     num_regtree_nodes_personal = config.getint('recognition', 'num_regtree_nodes')
 if config.has_option('transform_stack', 'num_regtree_nodes'):
-    num_regtree_nodes_transform_stack = config.getint('recognition', 'num_regtree_nodes')
+    num_regtree_nodes_transform_stack = config.getint('transform_stack', 'num_regtree_nodes')
 
 
 # Experiment configuration
