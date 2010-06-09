@@ -95,7 +95,7 @@ if current_step >= options.step:
         waveforms['devel'] = []
 
     if config.get("audiofiles", "type") == 'ued_bl':
-        waveforms['eval'] = data_manipulation.ued_bl_selection(config.get("audiofiles", "location"), [config.get("audiofiles", "lang")], [config.get("audiofiles", "selection")])
+        waveforms['eval'] = data_manipulation.ued_bl_selection(config.get("audiofiles", "location"), [config.get("audiofiles", "lang")], config.get("audiofiles", "selection").lstrip().rstrip().split(','))
         waveforms['train'] = []
         waveforms['devel'] = []
 
