@@ -678,6 +678,7 @@ def read_mlf(mlf_file, remove_sentences_boundaries = False):
         else:
             if not remove_sentences_boundaries or not line.startswith('<'):
                 transcription.append(line.rstrip())
+    return transcriptions
 
 def write_mlf(transcriptions, mlf_file, extension = 'lab', include_sentence_boundaries = False):
     with open(mlf_file, 'w') as mlf_out:
