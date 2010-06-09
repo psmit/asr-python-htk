@@ -583,49 +583,26 @@ def create_wordtranscriptions_bl_eng(scp_files, bl_eng_dir, word_transcriptions)
                 print >> transcriptions_file, '</s>'
                 print >> transcriptions_file, '.'
 
-
 def create_wordtranscriptions_ued_bl(scp_files, ued_bl_dir, word_transcriptions):
+    scp_keys = set()
+    for file in scp_files:
+        for line in open(file):
+            scp_keys.add(os.path.splitext(os.path.basename(line.rstrip()))[0])
+
     transcriptions = {}
-    scp_contents = []
-    for scp_file in scp_files:
-        for line in open(scp_file):
-            scp_contents.append(line)
+    for mlf_file in glob.iglob(ued_bl_dir + '/transcriptions/*.mlf'):
+        transcriptions.update(read_mlf(mlf_file, True))
 
+    new_transcriptions = []
+    for key in transcriptions.keys():
+        new_key = key.replace('_','')
+        if new_key in scp_keys:
+            new_transcriptions[new_key] = transcriptions[key]
+            scp_keys.remove(new_key)
 
-    if len(scp_contents) > 0:
-        lang = os.path.basename(scp_contents[0])[3]
-        prompts = 'Prompts/English/english_prompts.txt'
-        if lang == 'F':
-            prompts = 'Prompts/Finnish/finnish_prompts.txt'
-
-    for line in open(os.path.join(ued_bl_dir, prompts)):
-        if len(line.rstrip()) > 0:
-            tid, trans_str = line.split(None, 1)
-            trans_str = trans_str.replace('.', '').replace(',', '').lower()
-            transcriptions[int(tid)] = trans_str.split()
-
-    with open(word_transcriptions, 'w') as transcriptions_file:
-        print >> transcriptions_file, "#!MLF!#"
-        for scp_file in scp_files:
-            for line in open(scp_file):
-                name = os.path.splitext(os.path.basename(line.rstrip()))[0]
-                id = int(name[-5:-1])
-
-
-                if not transcriptions.has_key(id):
-                    sys.exit("No transcription found for %s" % name)
-
-                print >> transcriptions_file, '"*/%s.mfc"' % name
-                print >> transcriptions_file, '<s>'
-                for word in transcriptions[id]:
-                    if not word.startswith('[') and not word.startswith('<') and not word.endswith('-'):
-                        if word.startswith('"'):
-                           print >> transcriptions_file, "\%s" %  word
-                        elif len(word) > 0:
-                            print >> transcriptions_file, word
-                print >> transcriptions_file, '</s>'
-                print >> transcriptions_file, '.'
-
+    if len(scp_keys) > 0:
+        sys.exit("No transcriptions found for %s" % ','.join(scp_keys) )
+    write_mlf(new_transcriptions, word_transcriptions, 'lab', True)
 
 def wsj_selection(wsj_dirs, files_set):
     wv1_files = []
@@ -681,7 +658,40 @@ def ued_bl_selection(ued_bl_dir, langs, persons):
                 if int(os.path.splitext(os.path.basename(file))[0][-6:-2]) < 126:
                     wav_files.append(file)
     return wav_files
-    
+
+def read_mlf(mlf_file, remove_sentences_boundaries = False):
+    reg_exp = re.compile('\".*/([A-Za-z0-9]+)\.(mfc|lab|rec)\"')
+
+    id = None
+    transcription = []
+    transcriptions = {}
+    for line in open(mlf_file):
+        if line.startswith("#!MLF!#"):
+            continue
+        m = reg_exp.match(line)
+        if m is not None:
+            id = m.group(1)
+        elif line.lstrip().rstrip() == '.':
+            transcriptions[id] = transcription
+            transcription = []
+            id = None
+        else:
+            if not remove_sentences_boundaries or not line.startswith('<'):
+                transcription.append(line.rstrip())
+
+def write_mlf(transcriptions, mlf_file, extension = 'lab', include_sentence_boundaries = False):
+    with open(mlf_file, 'w') as mlf_out:
+        print >> mlf_out, "#!MLF!#"
+        for key, transcription in transcriptions:
+            print '"*/%s.%s"' % (key, extension)
+            if include_sentence_boundaries and (len(transcription) == 0 or transcription[0].startwith('<')):
+                print >> mlf_out, "<s>"
+
+            for part in transcription:
+                print >> mlf_out, part
+
+            if include_sentence_boundaries and (len(transcription) == 0 or transcription[-1].startwith('<')):
+                print >> mlf_out, "</s>"
 
 def mlf_to_trn(mlf, trn, num_speaker_chars=3, del_char = ''):
     reg_exp = re.compile('\".*/([A-Za-z0-9]+)\.(mfc|lab|rec)\"')
