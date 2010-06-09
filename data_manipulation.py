@@ -593,7 +593,7 @@ def create_wordtranscriptions_ued_bl(scp_files, ued_bl_dir, word_transcriptions)
     for mlf_file in glob.iglob(ued_bl_dir + '/transcriptions/*.mlf'):
         transcriptions.update(read_mlf(mlf_file, True))
 
-    new_transcriptions = []
+    new_transcriptions = {}
     for key in transcriptions.keys():
         new_key = key.replace('_','')
         if new_key in scp_keys:
@@ -660,7 +660,7 @@ def ued_bl_selection(ued_bl_dir, langs, persons):
     return wav_files
 
 def read_mlf(mlf_file, remove_sentences_boundaries = False):
-    reg_exp = re.compile('\".*/([A-Za-z0-9]+)\.(mfc|lab|rec)\"')
+    reg_exp = re.compile('\".*/([A-Za-z0-9_]+)\.(mfc|lab|rec)\"')
 
     id = None
     transcription = []
@@ -683,16 +683,17 @@ def read_mlf(mlf_file, remove_sentences_boundaries = False):
 def write_mlf(transcriptions, mlf_file, extension = 'lab', include_sentence_boundaries = False):
     with open(mlf_file, 'w') as mlf_out:
         print >> mlf_out, "#!MLF!#"
-        for key, transcription in transcriptions:
-            print '"*/%s.%s"' % (key, extension)
-            if include_sentence_boundaries and (len(transcription) == 0 or transcription[0].startwith('<')):
+        for key, transcription in transcriptions.items():
+            print >> mlf_out, '"*/%s.%s"' % (key, extension)
+            if include_sentence_boundaries and (len(transcription) == 0 or not transcription[0].startswith('<')):
                 print >> mlf_out, "<s>"
 
             for part in transcription:
                 print >> mlf_out, part
 
-            if include_sentence_boundaries and (len(transcription) == 0 or transcription[-1].startwith('<')):
+            if include_sentence_boundaries and (len(transcription) == 0 or not transcription[-1].startswith('<')):
                 print >> mlf_out, "</s>"
+            print >> mlf_out, "."
 
 def mlf_to_trn(mlf, trn, num_speaker_chars=3, del_char = ''):
     reg_exp = re.compile('\".*/([A-Za-z0-9]+)\.(mfc|lab|rec)\"')
