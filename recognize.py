@@ -34,11 +34,13 @@ parser = OptionParser(usage=usage)
 parser.add_option("-n", "--num-tasks", type="int", dest="numtasks",help="Number of different tasks", default=50)
 parser.add_option("-s", "--step",      type="int", dest="step",      help="Starting step", default=0)
 parser.add_option("-V", "--verbosity", type="int", dest="verbosity", help="Verbosity",     default=1)
+parser.add_option("-p", "--priority", type="int", dest="priority", help="priority (more is worse)",     default=0)
 parser.add_option('-x', '--exclude-nodes', dest="exclude_nodes", help="Triton nodes to exclude", default="")
 options, configs = parser.parse_args()
 
 htk.num_tasks = options.numtasks
 job_runner.default_options["exclude_nodes"] = options.exclude_nodes
+job_runner.default_options["priority"] = options.priority
 
 config = SafeConfigParser({'name': 'EXPERIMENT NAME_TO_BE_FILLED!',
                             'speaker_name_width': '5',
