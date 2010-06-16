@@ -561,12 +561,15 @@ def speecon_fi_selection(speecon_dir, set, ext='FI0'):
     if not os.path.exists(speecon_dir + '/' + 'speecon_adult_' + set + '.recipe'):
         sys.exit("Not Found: " + speecon_dir + '/' + 'speecon_adult_' + set + '.recipe')
 
-    for line in open(speecon_dir + '/' + 'speecon_adult_' + set + '.recipe'):
-        map = {}
-        for part in line.split():
-            (key, value) = part.split('=', 1)
-            map[key] = value
-        fi0_files.append(map['audio'].replace('/share/puhe/audio/speecon-fi', speecon_dir).replace('FI0', ext))
+    if set == 'all':
+        fi0_files = glob.iglob(os.path.join(speecon_dir,'adult','ADULT1FI') + '/*/*/*.'+ext)
+    else:
+        for line in open(speecon_dir + '/' + 'speecon_adult_' + set + '.recipe'):
+            map = {}
+            for part in line.split():
+                (key, value) = part.split('=', 1)
+                map[key] = value
+            fi0_files.append(map['audio'].replace('/share/puhe/audio/speecon-fi', speecon_dir).replace('FI0', ext))
     return fi0_files
 
 def dsp_eng_selection(dsp_eng_dir):
