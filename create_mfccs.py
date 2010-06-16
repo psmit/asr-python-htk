@@ -55,7 +55,8 @@ config = SafeConfigParser({'train_set': 'train',
                             'devel_set': 'devel',
                             'lang': 'Eng',
                             'selection': 'FM',
-                            'extension': 'FI0',})
+                            'extension': 'FI0',
+                            })
 config.read(configs if len(configs) > 0 else "create_mfcc_config")
 
 

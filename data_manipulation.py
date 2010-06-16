@@ -563,7 +563,7 @@ def speecon_fi_selection(speecon_dir, set, ext='FI0'):
 
     if set == 'all':
         fi0_files = glob.iglob(os.path.join(speecon_dir,'adult','ADULT1FI') + '/*/*/*.'+ext)
-    else:
+    elif set != 'none':
         for line in open(speecon_dir + '/' + 'speecon_adult_' + set + '.recipe'):
             map = {}
             for part in line.split():
