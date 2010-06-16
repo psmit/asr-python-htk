@@ -38,10 +38,12 @@ parser.add_option("-n", "--num-tasks", type="int", dest="numtasks",help="Number 
 parser.add_option("-s", "--step", type="int", dest="step",help="Starting step", default=0)
 parser.add_option("-V", "--verbosity", type="int", dest="verbosity", help="Verbosity", default=1)
 parser.add_option("-D", "--no-wav-delete", action="store_false", dest="delete_wav", default=True, help="Do not delete intermediate wav files")
+parser.add_option('-x', '--exclude-nodes', dest="exclude_nodes", help="Triton nodes to exclude", default="")
 
 options, configs = parser.parse_args()
 
 htk.num_tasks = options.numtasks
+job_runner.default_options["exclude_nodes"] = options.exclude_nodes
 
 if not options.delete_wav:
     htk.clean_scp_files = False
