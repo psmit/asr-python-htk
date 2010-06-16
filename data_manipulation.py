@@ -556,7 +556,7 @@ def wsj_selection(wsj_dirs, files_set):
 #            wv1_files.append(file)
     return list(set(wv1_files))
 
-def speecon_fi_selection(speecon_dir, set):
+def speecon_fi_selection(speecon_dir, set, ext='FI0'):
     fi0_files = []
     if not os.path.exists(speecon_dir + '/' + 'speecon_adult_' + set + '.recipe'):
         sys.exit("Not Found: " + speecon_dir + '/' + 'speecon_adult_' + set + '.recipe')
@@ -566,7 +566,7 @@ def speecon_fi_selection(speecon_dir, set):
         for part in line.split():
             (key, value) = part.split('=', 1)
             map[key] = value
-        fi0_files.append(map['audio'].replace('/share/puhe/audio/speecon-fi', speecon_dir))
+        fi0_files.append(map['audio'].replace('/share/puhe/audio/speecon-fi', speecon_dir).replace('FI0', ext))
     return fi0_files
 
 def dsp_eng_selection(dsp_eng_dir):

@@ -52,7 +52,8 @@ config = SafeConfigParser({'train_set': 'train',
                             'eval_set': 'eval',
                             'devel_set': 'devel',
                             'lang': 'Eng',
-                            'selection': 'FM'})
+                            'selection': 'FM',
+                            'extension': 'FI0',})
 config.read(configs if len(configs) > 0 else "create_mfcc_config")
 
 
@@ -76,7 +77,7 @@ if current_step >= options.step:
         os.remove('hcopy.scp')
     if config.get("audiofiles", "type") == 'speecon':
         for dset in ['train', 'eval', 'devel']:
-            waveforms[dset] = data_manipulation.speecon_fi_selection(config.get("audiofiles", "location"), config.get("audiofiles", dset+"_set"))
+            waveforms[dset] = data_manipulation.speecon_fi_selection(config.get("audiofiles", "location"), config.get("audiofiles", dset+"_set"), config.get("audiofiles", "extension"))
 
     if config.get("audiofiles", "type") == 'wsj':
         locations = [os.path.join(config.get("audiofiles", "location"), 'wsj0'),
