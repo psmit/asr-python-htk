@@ -55,7 +55,8 @@ config = SafeConfigParser({'train_set': 'train',
                             'devel_set': 'devel',
                             'lang': 'Eng',
                             'selection': 'FM',
-                            'extension': 'FI0',})
+                            'extension': 'FI0',
+                            })
 config.read(configs if len(configs) > 0 else "create_mfcc_config")
 
 
@@ -73,7 +74,7 @@ if current_step >= options.step:
     if not config.has_option("audiofiles", "location") or not config.has_option("audiofiles", "type"):
         sys.exit("Configuration is not valid")
 
-    waveforms = {}
+    waveforms = {'train': [], 'eval': [], 'devel': []}
 
     if os.path.exists('hcopy.scp'):
         os.remove('hcopy.scp')
@@ -91,20 +92,12 @@ if current_step >= options.step:
 
     if config.get("audiofiles", "type") == 'dsp_eng':
         waveforms['train'] = data_manipulation.dsp_eng_selection(config.get("audiofiles", "location"))
-        waveforms['eval'] = []
-        waveforms['devel'] = []
 
     if config.get("audiofiles", "type") == 'bl_eng':
         waveforms['eval'] = data_manipulation.bl_eng_selection(config.get("audiofiles", "location"))
-        waveforms['train'] = []
-        waveforms['devel'] = []
 
     if config.get("audiofiles", "type") == 'ued_bl':
         waveforms['eval'] = data_manipulation.ued_bl_selection(config.get("audiofiles", "location"), [config.get("audiofiles", "lang")], config.get("audiofiles", "selection").lstrip().rstrip().split(','))
-        waveforms['train'] = []
-        waveforms['devel'] = []
-
-
 
     exclude_list = None
     if config.has_option("audiofiles", "exclude_list"):

@@ -5,7 +5,6 @@ import glob
 import os
 import job_runner
 import shutil
-import re
 import sys
 
 num_tasks = 100
@@ -18,31 +17,32 @@ clean_scp_files = True
 clean_old_logs = True
 log_step = -1
 
-def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label_dir, num_tokens, out_mlf, configs, lm_scale, beam, end_beam, max_pruning, adapt_dirs = [], num_speaker_chars = 3):
+def HDecode(step,  scp_file, model_dir, dict, phones_list, language_model,  label_dir, num_tokens, out_mlf, configs, lm_scale, beam, end_beam, max_pruning, adapt_dirs = None, num_speaker_chars = 3):
     global num_tasks, extra_HTK_options
 
-    max_tasks = split_file(scpfile, num_tasks)
+    max_tasks = split_file(scp_file, num_tasks)
 
     HDecode = ["HDecode"]
     HDecode.extend(extra_HTK_options)
 
     for config in configs:
         HDecode.extend(['-C', config])
-    
-    for source_dir, extension in adapt_dirs:
-        if extension is None:
-            HDecode.extend(['-J', source_dir])
-        else:
-            HDecode.extend(['-J', source_dir, extension])
 
-    if len(adapt_dirs) > 0:
+    if adapt_dirs is not None:
+        for source_dir, extension in adapt_dirs:
+            if extension is None:
+                HDecode.extend(['-J', source_dir])
+            else:
+                HDecode.extend(['-J', source_dir, extension])
+
+    if adapt_dirs is not None and len(adapt_dirs) > 0:
         HDecode.extend(['-m'])
         pattern = '*.%%%'
         if num_speaker_chars > 0:
             pattern = "*/" + ('%' * num_speaker_chars) + "*.*"
         HDecode.extend(["-h", pattern])
         
-    HDecode.extend(['-S', scpfile+ ".part.%t",
+    HDecode.extend(['-S', scp_file+ ".part.%t",
                 '-H', model_dir + "/macros",
                 '-H', model_dir + "/hmmdefs",
                 '-z', 'lat',
@@ -68,7 +68,7 @@ def HDecode(step,  scpfile, model_dir, dict, phones_list, language_model,  label
 
     merge_mlf_files(out_mlf)
     # remove splitted scp files
-    clean_split_file(scpfile)
+    clean_split_file(scp_file)
 
 def lattice_rescore(step, lat_dir, lat_dir_out, lm, lm_scale):
     global num_tasks
@@ -126,7 +126,7 @@ def lattice_decode(step ,lat_dir, out_mlf, lm_scale):
                                     'ostream': ostream,
                                     'estream': estream,
                                     'timelimit': '00:15:00'})
-    r = re.compile('(?<=[^_>])[ ]')
+
     with open(out_mlf, 'w') as out_mlf_file:
         print >> out_mlf_file, "#!MLF!#"
         for file in glob.iglob(ostream.replace('%c', 'lattice-tool').replace('%t', '*').replace('%j', '*')):
@@ -139,7 +139,6 @@ def lattice_decode(step ,lat_dir, out_mlf, lm_scale):
                     filename, transcription = line.split(None, 1)
                     transcription = transcription.replace(r'\344', u'ä'.encode('iso-8859-1')).replace(r'\366', u'ö'.encode('iso-8859-1'))
                     print >> out_mlf_file, '"*/%s.rec"' % os.path.splitext(os.path.basename(filename))[0]
-                    #transcription = r.sub('', transcription)
                     transcription = transcription.rstrip().lstrip()
                     for word in transcription.split():
                         print >> out_mlf_file, word
@@ -188,14 +187,14 @@ def HCompV(step, scpfile, target_hmm_dir, protofile, min_variance, config = None
                                     'estream': estream,
                                     'timelimit': '01:00:00'})            
 
-def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_dir, phones_list, transcriptions,  max_adap_sentences = None, config = [], num_chars = 3, target_extension = 'cmllr', input_transform_dirs = [], use_parent = False, parent_transform_dirs = [], pruning = None, min_mix_weigth = 0.1, prune_treshold = 20.0):
+def HERest_estimate_transform(step, scp_file, source_hmm_dir, target_dir, phones_list, transcriptions,  max_adap_sentences = None, config = [], num_chars = 3, target_extension = 'cmllr', input_transform_dirs = [], use_parent = False, parent_transform_dirs = [], pruning = None, min_mix_weigth = 0.1, prune_treshold = 20.0):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
 
     if config is None: config = default_config_file
     if pruning is None: pruning = default_HERest_pruning
 
     # divide scp files over HERest tasks
-    max_tasks = split_file(scpfile, num_tasks, True, num_chars)
+    max_tasks = split_file(scp_file, num_tasks, True, num_chars)
 
     HERest = ["HERest"]
     HERest.extend(extra_HTK_options)
@@ -218,7 +217,7 @@ def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_dir, phones_
                     "-H", source_hmm_dir + "/macros",
                     "-H", source_hmm_dir + "/hmmdefs",
                     "-K", target_dir, target_extension,
-                    "-S", scpfile+ ".part.%t",
+                    "-S", scp_file+ ".part.%t",
                     "-w", str(min_mix_weigth),
                     "-m", '0',
                     "-u", "a",
@@ -253,10 +252,10 @@ def HERest_estimate_transform(step, scpfile, source_hmm_dir, target_dir, phones_
                                     'estream': estream} )
 
     # remove splitted scp files
-    clean_split_file(scpfile)
+    clean_split_file(scp_file)
 
 
-def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, stats = False, config = None, transform_dir = None, num_pattern_chars = 3, pruning = None, binary = True):
+def HERest(step, scp_file, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, stats = False, config = None, transform_dir = None, num_pattern_chars = 3, pruning = None, binary = True):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
     
     if config is None: config = default_config_file
@@ -266,7 +265,7 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
     keep_together = False
     if transform_dir is not None:
         keep_together = True
-    max_tasks = split_file(scpfile, num_tasks, keep_together, num_pattern_chars)
+    max_tasks = split_file(scp_file, num_tasks, keep_together, num_pattern_chars)
 
     HERest = ["HERest"]
     HERest.extend(extra_HTK_options)
@@ -296,7 +295,7 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
     # copy merge_command now because the last options are different
     HERest_merge = list(HERest)
     
-    HERest.extend(["-S", scpfile+ ".part.%t",
+    HERest.extend(["-S", scp_file+ ".part.%t",
                     "-p", "%t",
                     phones_list])
     
@@ -330,7 +329,7 @@ def HERest(step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcrip
     for file in glob.glob(target_hmm_dir+"/*.acc"): os.remove(file)
     
     # remove splitted scp files
-    clean_split_file(scpfile)
+    clean_split_file(scp_file)
     
     
 def HHEd(step, source_hmm_dir, target_hmm_dir, hed, phones_list, w_flag = None):
@@ -354,19 +353,19 @@ def HHEd(step, source_hmm_dir, target_hmm_dir, hed, phones_list, w_flag = None):
                                     'ostream': ostream,
                                     'estream': estream})
                                     
-def HVite(step, scpfile, hmm_dir, dict, phones_list, word_transcriptions, new_transcriptions, ext = 'lab', config = None, pruning = None):
+def HVite(step, scp_file, hmm_dir, dict, phones_list, word_transcriptions, new_transcriptions, ext = 'lab', config = None, pruning = None):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
     
     if config is None: config = default_config_file
     if pruning is None: pruning = default_HERest_pruning
     
     # divide scp files over HERest tasks
-    max_tasks = split_file(scpfile, num_tasks)
+    max_tasks = split_file(scp_file, num_tasks)
     
     HVite = ["HVite"]
     HVite.extend(extra_HTK_options)
 
-    HVite.extend(["-S", scpfile+ ".part.%t",
+    HVite.extend(["-S", scp_file+ ".part.%t",
                     "-i", new_transcriptions + ".part.%t", 
                     "-l", '*',
                     "-C", config,
@@ -398,7 +397,7 @@ def HVite(step, scpfile, hmm_dir, dict, phones_list, word_transcriptions, new_tr
                     print >> mlffile, line.rstrip()
             os.remove(file)
     
-    clean_split_file(scpfile)
+    clean_split_file(scp_file)
     
                                                 
 def HCopy(step, scp_file, config):

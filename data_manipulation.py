@@ -56,10 +56,10 @@ def import_dictionaries(dicts):
     new_dict['<s>'] = [['sil']]
     new_dict['</s>'] = [['sil']]
     
-    with open('dictionary/dict', 'w') as dictfile:
+    with open('dictionary/dict', 'w') as dict_file:
         for key in sorted(new_dict):
             for transcription in new_dict[key]:
-                print >> dictfile, "%s %s" % (escape(key), ' '.join(transcription))
+                print >> dict_file, "%s %s" % (escape(key), ' '.join(transcription))
 
     new_dict = {}
     for word, transcriptions in dict.items():
@@ -75,10 +75,10 @@ def import_dictionaries(dicts):
     new_dict['<s>'] = [['sil']]
     new_dict['</s>'] = [['sil']]
 
-    with open('dictionary/dict.hdecode', 'w') as dictfile:
+    with open('dictionary/dict.hdecode', 'w') as dict_file:
         for key in sorted(new_dict):
             for transcription in new_dict[key]:
-                print >> dictfile, "%s %s" % (escape(key), ' '.join(transcription))
+                print >> dict_file, "%s %s" % (escape(key), ' '.join(transcription))
     
 def unescape(word):
     if re.match("^\\\\[^a-z0-9<]", word): return word[1:]
@@ -104,11 +104,11 @@ def import_corpora(corpora):
             locationmap[location] = 'corpora/mfc' + str(count)
         
     for set in sets:
-        with open('corpora/'+set+'.scp', 'w') as scpfile:
+        with open('corpora/'+set+'.scp', 'w') as scp_file:
             for location, prefix, word_suffix in corpora:
                 if not os.path.exists(location + '/'+set+'.scp'): sys.exit("Not Found: " + location + '/'+set+'.scp')
                 for line in  open(location + '/'+set+'.scp'):
-                    print >> scpfile, locationmap[location] + line[line.find('/'):].rstrip()
+                    print >> scp_file, locationmap[location] + line[line.find('/'):].rstrip()
     
 
     if os.path.exists('corpora/words.mlf'):
@@ -294,7 +294,7 @@ def create_scp_lists(waveforms, raw_to_wav_list, wav_to_mfc_list, exclude_list=N
                 with open(dset + '.scp', 'w') as set_list:
                     for file in sorted(files):
                         dir, filename = os.path.split(file)
-                        basen, ext = os.path.splitext(filename)
+                        basen = os.path.splitext(filename)[0]
                         n_basen = basen.replace('_','')
                         if basen in excludes:
                             print basen + "excluded"
@@ -561,12 +561,15 @@ def speecon_fi_selection(speecon_dir, set, ext='FI0'):
     if not os.path.exists(speecon_dir + '/' + 'speecon_adult_' + set + '.recipe'):
         sys.exit("Not Found: " + speecon_dir + '/' + 'speecon_adult_' + set + '.recipe')
 
-    for line in open(speecon_dir + '/' + 'speecon_adult_' + set + '.recipe'):
-        map = {}
-        for part in line.split():
-            (key, value) = part.split('=', 1)
-            map[key] = value
-        fi0_files.append(map['audio'].replace('/share/puhe/audio/speecon-fi', speecon_dir).replace('FI0', ext))
+    if set == 'all':
+        fi0_files = glob.iglob(os.path.join(speecon_dir,'adult','ADULT1FI') + '/*/*/*.'+ext)
+    elif set != 'none':
+        for line in open(speecon_dir + '/' + 'speecon_adult_' + set + '.recipe'):
+            map = {}
+            for part in line.split():
+                (key, value) = part.split('=', 1)
+                map[key] = value
+            fi0_files.append(map['audio'].replace('/share/puhe/audio/speecon-fi', speecon_dir).replace('FI0', ext))
     return fi0_files
 
 def dsp_eng_selection(dsp_eng_dir):
