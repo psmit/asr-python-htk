@@ -278,8 +278,7 @@ class TritonRunner(Runner):
             batchcommand.append('--mem-per-cpu='+ str(self.options.memlimit))
 
             # If people want to be nice, we set a priority
-            if self.options.priority > 0:
-                batchcommand.append('--nice='+str(self.options.priority))
+            priority = self.options.priority
 
             outfile = self.replace_flags(self.options.ostream, task_id)
             errorfile = self.replace_flags(self.options.estream, task_id)
@@ -289,11 +288,20 @@ class TritonRunner(Runner):
 
             if time_limit_to_seconds(self.options.timelimit) <= time_limit_to_seconds('04:00:00'):
                 batchcommand.extend(['-p', 'short'])
+                priority = priority + 1
+
+            # If people want to be nice, we set a priority
+            if self.options.priority > 0:
+                batchcommand.append('--nice='+str(self.options.priority))
 
             if task_id == 'single':
                 real_command = self.replace_flags(self.commandarr, '1')
             else:
+                priority = priority + 1
                 real_command = self.replace_flags(self.commandarr, task_id)
+
+            if priority > 0:
+                batchcommand.append('--nice='+str(priority))
 
             job_id = self.submit_command(batchcommand, real_command)
 
