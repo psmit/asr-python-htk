@@ -64,7 +64,7 @@ def HDecode(step,  scp_file, model_dir, dict, phones_list, language_model,  labe
                                     'ostream': ostream,
                                     'estream': estream,
                                     'memlimit': '2500',
-                                    'timelimit': '16:00:00'} )
+                                    'timelimit': '04:00:00'} )
 
     merge_mlf_files(out_mlf)
     # remove splitted scp files
