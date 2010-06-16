@@ -558,12 +558,12 @@ def wsj_selection(wsj_dirs, files_set):
 
 def speecon_fi_selection(speecon_dir, set, ext='FI0'):
     fi0_files = []
-    if not os.path.exists(speecon_dir + '/' + 'speecon_adult_' + set + '.recipe'):
-        sys.exit("Not Found: " + speecon_dir + '/' + 'speecon_adult_' + set + '.recipe')
 
     if set == 'all':
         fi0_files = glob.iglob(os.path.join(speecon_dir,'adult','ADULT1FI') + '/*/*/*.'+ext)
     elif set != 'none':
+        if not os.path.exists(speecon_dir + '/' + 'speecon_adult_' + set + '.recipe'):
+            sys.exit("Not Found: " + speecon_dir + '/' + 'speecon_adult_' + set + '.recipe')
         for line in open(speecon_dir + '/' + 'speecon_adult_' + set + '.recipe'):
             map = {}
             for part in line.split():
