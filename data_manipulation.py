@@ -118,7 +118,7 @@ def import_corpora(corpora):
         transcriptions = read_mlf(location+'/words.mlf', True)
         new_transcriptions = {}
         for key in transcriptions.keys():
-            new_transcriptions[key] = prefix + transcriptions[key] + word_suffix
+            new_transcriptions[key] = [prefix + s + word_suffix for s in transcriptions[key]]
         write_mlf(new_transcriptions, 'corpora/words.mlf', 'lab', True, True)
 
 def make_model_from_proto(hmm_dir, monophones):
