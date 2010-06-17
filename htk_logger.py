@@ -1,5 +1,5 @@
 
-import logging;
+import logging
 
 logger = None
 

@@ -3,13 +3,11 @@
 import re
 import sys
 import os
-import subprocess
 
 from optparse import OptionParser
 import glob
 import copy
 import subprocess
-import tempfile
 
 usage = "usage: %prog directories"
 parser = OptionParser(usage=usage)
@@ -51,18 +49,18 @@ def get_oov_sentences(reference, vocab):
                 break
     return oov_sentences
                 
-def make_pruned_trn_file(trn_file, oov_sentences, speakers = []):
+def make_pruned_trn_file(trn_file, oov_sentences, speakers = None):
     if not os.path.exists(trn_file):
         return trn_file
     file_name = trn_file + '.prunedoov'
-    if len(speakers) > 0:
+    if speakers is not None and len(speakers) > 0:
         file_name = file_name + '.' + '.'.join(sorted(speakers))
     with open(file_name,'w') as out_hl:
         for line in open(trn_file):
             parts = line.split()
             sentence = parts.pop()[1:-1]
             if sentence not in oov_sentences:
-                if len(speakers) > 0:
+                if speakers is not None and len(speakers) > 0:
                     if(sentence.split('_', 1)[0] not in speakers):
                         continue
                 print >> out_hl, line.rstrip()
