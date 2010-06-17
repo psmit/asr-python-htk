@@ -185,7 +185,7 @@ def HCompV(step, scpfile, target_hmm_dir, protofile, min_variance, config = None
     job_runner.submit_job(HCompV, {'numtasks': 1,
                                     'ostream': ostream,
                                     'estream': estream,
-                                    'timelimit': '01:00:00'})            
+                                    'timelimit': '04:00:00'})            
 
 def HERest_estimate_transform(step, scp_file, source_hmm_dir, target_dir, phones_list, transcriptions,  max_adap_sentences = None, config = [], num_chars = 3, target_extension = 'cmllr', input_transform_dirs = [], use_parent = False, parent_transform_dirs = [], pruning = None, min_mix_weigth = 0.1, prune_treshold = 20.0):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning

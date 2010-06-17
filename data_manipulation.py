@@ -330,7 +330,8 @@ def create_wordtranscriptions_speecon(scp_files, speecon_dir, word_transcription
             for line in open(scp_file):
                 name = os.path.splitext(os.path.basename(line.rstrip()))[0]
                 if not transcriptions.has_key(name):
-                    sys.exit("No transcription found for %s" % name)
+                    transcriptions[name] = []
+                    #sys.exit("No transcription found for %s" % name)
 
                 print >> transcriptions_file, '"*/%s.mfc"' % name
                 print >> transcriptions_file, '<s>'
