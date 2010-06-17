@@ -10,7 +10,6 @@ import job_runner
 import htk
 import htk_logger
 
-import logging
 import os
 import os.path
 import shutil
@@ -29,7 +28,7 @@ logger.info("Start htk_train")
 
 job_runner.default_options["verbosity"] = 1
 job_runner.default_options["memlimit"] = 1000
-job_runner.default_options["timelimit"] = "00:45:00"
+job_runner.default_options["timelimit"] = "04:00:00"
 
 usage = "usage: %prog [options] configfiles"
 parser = OptionParser(usage=usage)
