@@ -658,3 +658,43 @@ def mlf_to_trn(mlf, trn, num_speaker_chars=3, del_char = ''):
                 for c in del_char:
                     l = l.replace(c, '')
                 trans.append(l.rstrip())
+
+def write_regtree_hed_file(file_name, model_name,num_nodes,regtree_name):
+    with open(file_name, 'w') as hed_file:
+        print >> hed_file, 'RN "global"'
+        print >> hed_file, 'LS "%s/stats"' % model_name
+        print >> hed_file, 'RC %s "%s"' % (num_nodes,regtree_name)
+
+def write_base_cmllr_config(file_name, base_class, mask=None):
+    with open(file_name, 'w') as cmllr_config_stream:
+        print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
+        HADAPT:TRANSKIND              = CMLLR\n\
+        HADAPT:USEBIAS                = TRUE\n\
+        HADAPT:BASECLASS         = %s\n\
+        HADAPT:KEEPXFORMDISTINCT = TRUE\n\
+        HADAPT:ADAPTKIND              = BASE\n\
+        HMODEL:SAVEBINARY             = FALSE\n" % (base_class)
+        if mask is not None:
+            print >> cmllr_config_stream, "PAXFORMMASK = *.%s\n\
+            INXFORMMASK = *.%s\n" % mask
+
+
+def write_tree_cmlllr_config(file_name, tree, block_size=None):
+    with open(file_name, 'w') as cmllr_config_stream:
+        print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
+        HADAPT:TRANSKIND              = CMLLR\n\
+        HADAPT:USEBIAS                = TRUE\n\
+        HADAPT:REGTREE                = %s\n\
+        HADAPT:KEEPXFORMDISTINCT = TRUE\n\
+        HADAPT:ADAPTKIND              = TREE\n\
+        HMODEL:SAVEBINARY             = FALSE\n" % (tree)
+        if block_size is not None:
+            print >> cmllr_config_stream, "HADAPT:BLOCKSIZE = %s\n" % block_size
+
+def write_global(file_name):
+    with open(file_name, 'w') as global_file:
+        print >> global_file, "~b \"global\" \n\
+        <MMFIDMASK> *\n\
+        <PARAMETERS> MIXBASE\n\
+        <NUMCLASSES> 1\n\
+        <CLASS> 1 {*.state[2-4].mix[1-100]} "

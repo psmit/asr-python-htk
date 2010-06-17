@@ -212,37 +212,12 @@ if 'unsupsi' in experiments:
 
     current_step += 1
     if current_step >= options.step:
-        with open(regtree_hed, 'w') as hed_file:
-            print >> hed_file, 'RN "global"'
-            print >> hed_file, 'LS "%s/stats"' % si_model
-            print >> hed_file, 'RC %s "regtree"' % num_regtree_nodes_personal
+        data_manipulation.write_regtree_hed_file(regtree_hed,si_model,num_regtree_nodes_personal,'regtree')
 
-        with open(base_cmllr_config, 'w') as cmllr_config_stream:
-            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
-             HADAPT:TRANSKIND              = CMLLR\n\
-             HADAPT:USEBIAS                = TRUE\n\
-             HADAPT:BASECLASS         = %s\n\
-             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
-             HADAPT:ADAPTKIND              = BASE\n\
-             HMODEL:SAVEBINARY             = FALSE\n" % (global_f)
+        data_manipulation.write_base_cmllr_config(base_cmllr_config, global_f)
+        data_manipulation.write_tree_cmlllr_config(tree_cmllr_config, regtree_tree)
 
-        with open(tree_cmllr_config, 'w') as cmllr_config_stream:
-            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
-             HADAPT:TRANSKIND              = CMLLR\n\
-             HADAPT:USEBIAS                = TRUE\n\
-             HADAPT:REGTREE                = %s\n\
-             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
-             HADAPT:ADAPTKIND              = TREE\n\
-             HMODEL:SAVEBINARY             = FALSE\n\
-        " % (regtree_tree)
-
-        with open(global_f, 'w') as global_file:
-            print >> global_file, "~b \"global\" \n\
-            <MMFIDMASK> *\n\
-            <PARAMETERS> MIXBASE\n\
-            <NUMCLASSES> 1\n\
-            <CLASS> 1 {*.state[2-4].mix[1-100]} "
-
+        data_manipulation.write_global(global_f)
 
         logger.info("Start step: %d (%s)" % (current_step, 'Generate regression tree'))
         htk.HHEd(current_step, si_model, classes_dir, regtree_hed, phones_list, '/dev/null')
@@ -321,37 +296,12 @@ if 'unsupsat' in experiments:
 
     current_step += 1
     if current_step >= options.step:
-        with open(regtree_hed, 'w') as hed_file:
-            print >> hed_file, 'RN "global"'
-            print >> hed_file, 'LS "%s/stats"' % si_model
-            print >> hed_file, 'RC %s "regtree"' % num_regtree_nodes_personal
+        data_manipulation.write_regtree_hed_file(regtree_hed,si_model,num_regtree_nodes_personal,'regtree')
 
-        with open(base_cmllr_config, 'w') as cmllr_config_stream:
-            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
-             HADAPT:TRANSKIND              = CMLLR\n\
-             HADAPT:USEBIAS                = TRUE\n\
-             HADAPT:BASECLASS         = %s\n\
-             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
-             HADAPT:ADAPTKIND              = BASE\n\
-             HMODEL:SAVEBINARY             = FALSE\n" % (global_f)
+        data_manipulation.write_base_cmllr_config(base_cmllr_config, global_f)
+        data_manipulation.write_tree_cmlllr_config(tree_cmllr_config, regtree_tree)
 
-        with open(tree_cmllr_config, 'w') as cmllr_config_stream:
-            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
-             HADAPT:TRANSKIND              = CMLLR\n\
-             HADAPT:USEBIAS                = TRUE\n\
-             HADAPT:REGTREE                = %s\n\
-             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
-             HADAPT:ADAPTKIND              = TREE\n\
-             HMODEL:SAVEBINARY             = FALSE\n\
-             HADAPT:BLOCKSIZE         = \"IntVec 3 13 13 13\"\n" % (regtree_tree)
-
-        with open(global_f, 'w') as global_file:
-            print >> global_file, "~b \"global\" \n\
-            <MMFIDMASK> *\n\
-            <PARAMETERS> MIXBASE\n\
-            <NUMCLASSES> 1\n\
-            <CLASS> 1 {*.state[2-4].mix[1-100]} "
-
+        data_manipulation.write_global(global_f)
 
         logger.info("Start step: %d (%s)" % (current_step, 'Generate regression tree'))
         htk.HHEd(current_step, si_model, xforms_dir, regtree_hed, phones_list, '/dev/null')
@@ -441,37 +391,12 @@ if 'transform_stack_baseline' in experiments:
 
     current_step += 1
     if current_step >= options.step:
-        with open(regtree1_hed, 'w') as hed_file:
-            print >> hed_file, 'RN "global"'
-            print >> hed_file, 'LS "%s/stats"' % si_model
-            print >> hed_file, 'RC %s "regtree1"' % num_regtree_nodes_transform_stack
+        data_manipulation.write_regtree_hed_file(regtree1_hed, si_model,num_regtree_nodes_transform_stack, 'regtree1')
 
-        with open(base1_cmllr_config, 'w') as cmllr_config_stream:
-            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
-             HADAPT:TRANSKIND              = CMLLR\n\
-             HADAPT:USEBIAS                = TRUE\n\
-             HADAPT:BASECLASS         = %s\n\
-             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
-             HADAPT:ADAPTKIND              = BASE\n\
-             HMODEL:SAVEBINARY             = FALSE\n" % (global_f)
+        data_manipulation.write_base_cmllr_config(base1_cmllr_config, global_f)
+        data_manipulation.write_tree_cmlllr_config(tree1_cmllr_config, regtree1_tree)
 
-        with open(tree1_cmllr_config, 'w') as cmllr_config_stream:
-            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
-             HADAPT:TRANSKIND              = CMLLR\n\
-             HADAPT:USEBIAS                = TRUE\n\
-             HADAPT:REGTREE                = %s\n\
-             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
-             HADAPT:ADAPTKIND              = TREE\n\
-             HMODEL:SAVEBINARY             = FALSE\n\
-             HADAPT:BLOCKSIZE         = \"IntVec 3 13 13 13\"\n" % (regtree1_tree)
-
-        with open(global_f, 'w') as global_file:
-            print >> global_file, "~b \"global\" \n\
-            <MMFIDMASK> *\n\
-            <PARAMETERS> MIXBASE\n\
-            <NUMCLASSES> 1\n\
-            <CLASS> 1 {*.state[2-4].mix[1-100]} "
-
+        data_manipulation.write_global(global_f)
 
         logger.info("Start step: %d (%s)" % (current_step, 'Generate regression tree 1'))
         htk.HHEd(current_step, si_model, classes_dir, regtree1_hed, phones_list, '/dev/null')
@@ -566,65 +491,16 @@ if 'transform_stack_si' in experiments:
 
     current_step += 1
     if current_step >= options.step:
-        with open(regtree1_hed, 'w') as hed_file:
-            print >> hed_file, 'RN "global"'
-            print >> hed_file, 'LS "%s/stats"' % si_model
-            print >> hed_file, 'RC %s "regtree1"' % num_regtree_nodes_transform_stack
+        data_manipulation.write_regtree_hed_file(regtree1_hed,si_model,num_regtree_nodes_transform_stack, 'regtree1')
+        data_manipulation.write_regtree_hed_file(regtree2_hed,si_model,num_regtree_nodes_personal, 'regtree2')
 
-        with open(regtree2_hed, 'w') as hed_file:
-            print >> hed_file, 'RN "global"'
-            print >> hed_file, 'LS "%s/stats"' % si_model
-            print >> hed_file, 'RC %s "regtree2"' % num_regtree_nodes_personal
+        data_manipulation.write_base_cmllr_config(base1_cmllr_config, global_f)
+        data_manipulation.write_base_cmllr_config(base2_cmllr_config, global_f, '%%%')
 
+        data_manipulation.write_tree_cmlllr_config(tree1_cmllr_config, regtree1_tree, '"IntVec 3 13 13 13"')
+        data_manipulation.write_tree_cmlllr_config(tree2_cmllr_config, regtree2_tree, '"IntVec 3 13 13 13"')
 
-        with open(base1_cmllr_config, 'w') as cmllr_config_stream:
-            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
-             HADAPT:TRANSKIND              = CMLLR\n\
-             HADAPT:USEBIAS                = TRUE\n\
-             HADAPT:BASECLASS         = %s\n\
-             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
-             HADAPT:ADAPTKIND              = BASE\n\
-             HMODEL:SAVEBINARY             = FALSE\n" % (global_f)
-
-        with open(base2_cmllr_config, 'w') as cmllr_config_stream:
-            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
-             HADAPT:TRANSKIND              = CMLLR\n\
-             HADAPT:USEBIAS                = TRUE\n\
-             HADAPT:BASECLASS         = %s\n\
-             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
-             HADAPT:ADAPTKIND              = BASE\n\
-             HMODEL:SAVEBINARY             = FALSE\n\
-             PAXFORMMASK = *.%s\n\
-             INXFORMMASK = *.%s\n"% (global_f, '%%%', '%%%')
-
-        with open(tree1_cmllr_config, 'w') as cmllr_config_stream:
-            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
-             HADAPT:TRANSKIND              = CMLLR\n\
-             HADAPT:USEBIAS                = TRUE\n\
-             HADAPT:REGTREE                = %s\n\
-             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
-             HADAPT:ADAPTKIND              = TREE\n\
-             HMODEL:SAVEBINARY             = FALSE\n\
-             HADAPT:BLOCKSIZE         = \"IntVec 3 13 13 13\"\n" % (regtree1_tree)
-
-        with open(tree2_cmllr_config, 'w') as cmllr_config_stream:
-            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
-             HADAPT:TRANSKIND              = CMLLR\n\
-             HADAPT:USEBIAS                = TRUE\n\
-             HADAPT:REGTREE                = %s\n\
-             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
-             HADAPT:ADAPTKIND              = TREE\n\
-             HMODEL:SAVEBINARY             = FALSE\n\
-             HADAPT:BLOCKSIZE         = \"IntVec 3 13 13 13\"\n" % (regtree2_tree)
-
-
-        with open(global_f, 'w') as global_file:
-            print >> global_file, "~b \"global\" \n\
-            <MMFIDMASK> *\n\
-            <PARAMETERS> MIXBASE\n\
-            <NUMCLASSES> 1\n\
-            <CLASS> 1 {*.state[2-4].mix[1-100]} "
-
+        data_manipulation.write_global(global_f)
 
         logger.info("Start step: %d (%s)" % (current_step, 'Generate regression tree 1'))
         htk.HHEd(current_step, si_model, classes_dir, regtree1_hed, phones_list, '/dev/null')
@@ -731,65 +607,16 @@ if 'transform_stack_sat' in experiments:
 
     current_step += 1
     if current_step >= options.step:
-        with open(regtree1_hed, 'w') as hed_file:
-            print >> hed_file, 'RN "global"'
-            print >> hed_file, 'LS "%s/stats"' % si_model
-            print >> hed_file, 'RC %s "regtree1"' % num_regtree_nodes_transform_stack
+        data_manipulation.write_regtree_hed_file(regtree1_hed, si_model, num_regtree_nodes_transform_stack, 'regtree1')
+        data_manipulation.write_regtree_hed_file(regtree2_hed, si_model, num_regtree_nodes_personal, 'regtree2')
 
-        with open(regtree2_hed, 'w') as hed_file:
-            print >> hed_file, 'RN "global"'
-            print >> hed_file, 'LS "%s/stats"' % si_model
-            print >> hed_file, 'RC %s "regtree2"' % num_regtree_nodes_personal
+        data_manipulation.write_base_cmllr_config(base1_cmllr_config, global_f)
+        data_manipulation.write_base_cmllr_config(base2_cmllr_config, global_f, '%%%')
 
+        data_manipulation.write_tree_cmlllr_config(tree1_cmllr_config, regtree1_tree, '"IntVec 3 13 13 13"')
+        data_manipulation.write_tree_cmlllr_config(tree2_cmllr_config, regtree2_tree, '"IntVec 3 13 13 13"')
 
-        with open(base1_cmllr_config, 'w') as cmllr_config_stream:
-            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
-             HADAPT:TRANSKIND              = CMLLR\n\
-             HADAPT:USEBIAS                = TRUE\n\
-             HADAPT:BASECLASS         = %s\n\
-             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
-             HADAPT:ADAPTKIND              = BASE\n\
-             HMODEL:SAVEBINARY             = FALSE\n" % (global_f)
-
-        with open(base2_cmllr_config, 'w') as cmllr_config_stream:
-            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
-             HADAPT:TRANSKIND              = CMLLR\n\
-             HADAPT:USEBIAS                = TRUE\n\
-             HADAPT:BASECLASS         = %s\n\
-             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
-             HADAPT:ADAPTKIND              = BASE\n\
-             HMODEL:SAVEBINARY             = FALSE\n\
-             PAXFORMMASK = *.%s\n\
-             INXFORMMASK = *.%s\n"% (global_f, '%%%', '%%%')
-
-        with open(tree1_cmllr_config, 'w') as cmllr_config_stream:
-            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
-             HADAPT:TRANSKIND              = CMLLR\n\
-             HADAPT:USEBIAS                = TRUE\n\
-             HADAPT:REGTREE                = %s\n\
-             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
-             HADAPT:ADAPTKIND              = TREE\n\
-             HMODEL:SAVEBINARY             = FALSE\n\
-             HADAPT:BLOCKSIZE         = \"IntVec 3 13 13 13\"\n" % (regtree1_tree)
-
-        with open(tree2_cmllr_config, 'w') as cmllr_config_stream:
-            print >> cmllr_config_stream, "HADAPT:TRACE                  = 61\n\
-             HADAPT:TRANSKIND              = CMLLR\n\
-             HADAPT:USEBIAS                = TRUE\n\
-             HADAPT:REGTREE                = %s\n\
-             HADAPT:KEEPXFORMDISTINCT = TRUE\n\
-             HADAPT:ADAPTKIND              = TREE\n\
-             HMODEL:SAVEBINARY             = FALSE\n\
-             HADAPT:BLOCKSIZE         = \"IntVec 3 13 13 13\"\n" % (regtree2_tree)
-
-
-        with open(global_f, 'w') as global_file:
-            print >> global_file, "~b \"global\" \n\
-            <MMFIDMASK> *\n\
-            <PARAMETERS> MIXBASE\n\
-            <NUMCLASSES> 1\n\
-            <CLASS> 1 {*.state[2-4].mix[1-100]} "
-
+        data_manipulation.write_global(global_f)
 
         logger.info("Start step: %d (%s)" % (current_step, 'Generate regression tree 1'))
         htk.HHEd(current_step, si_model, classes_dir, regtree1_hed, phones_list, '/dev/null')
@@ -845,16 +672,5 @@ if 'transform_stack_sat' in experiments:
 
     data_manipulation.mlf_to_trn(pass1_mlf, pass1_trn, speaker_name_width)
     data_manipulation.mlf_to_trn(pass2_mlf, pass2_trn, speaker_name_width)
-#current_step +=1
-#if current_step >= options.step:
-#    logger.info("Start step: %d (%s)" % (current_step, 'Deleting lattices'))
-#    if os.path.exists(lat_dir):
-#        shutil.rmtree(lat_dir)
-#    if os.path.exists(lat_dir_rescored):
-#        shutil.rmtree(lat_dir_rescored)
-#    if os.path.exists(ada_lat_dir):
-#        shutil.rmtree(ada_lat_dir)
-#    if os.path.exists(ada_lat_dir_rescored):
-#        shutil.rmtree(ada_lat_dir_rescored)
-#
+
 
