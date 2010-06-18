@@ -443,7 +443,7 @@ def _get_output_stream_names(step):
     log_step = step
     return ('log/tasks/%03d.%%c.o%%j.%%t' % step, 'log/tasks/%03d.%%c.e%%j.%%t' % step)
 
-def split_file(file_name, parts, keep_speaker_together = False, num_speaker_chars = 3, target_size = None):
+def split_file(file_name, parts, keep_speaker_together = False, num_speaker_chars = 3):
     target_files = [open(name, 'w') for name in [file_name + ".part." + str(i) for i in range(1,parts+1)]]
 
     real_num_parts = 0

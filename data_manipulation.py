@@ -8,7 +8,7 @@ import re
 import shutil
 import sys
 
-def createHmmDir(step):
+def create_hmm_dir(step):
     source_hmm_dir = 'hmm%02d' % (step - 1)
     target_hmm_dir = 'hmm%02d' % step
     if os.path.isdir(target_hmm_dir): shutil.rmtree(target_hmm_dir)
@@ -16,13 +16,16 @@ def createHmmDir(step):
     
     return (source_hmm_dir, target_hmm_dir)
     
-def createLogDirs():
+def create_log_dirs():
     if not os.path.exists('log'): os.mkdir('log')
     if not os.path.exists('log/tasks'): os.mkdir('log/tasks')
-    
+
+def make_clean_dir(directory):
+    if os.path.isdir(directory): shutil.rmtree(directory)
+    os.mkdir(directory)
+
 def import_dictionaries(dicts):
-    if os.path.isdir('dictionary'): shutil.rmtree('dictionary')
-    os.mkdir('dictionary')
+    make_clean_dir('dictionary')
     dict = {}
     for location, prefix, word_suffix in dicts:
         if not os.path.exists(location + '/dict'):
@@ -40,44 +43,43 @@ def import_dictionaries(dicts):
                 [prefix + phone.lower() for phone in 
                      itertools.ifilterfalse(lambda x: (x == 'sil' or x == 'sp'),
                                   transcription.split())])
-            
-    new_dict = {}
-    for word, transcriptions in dict.items():
-        new_transcriptions = []
-        for transcription in _unique_listelements(sorted(transcriptions, lambda x, y: len(x) - len(y))):
-            new_transcriptions.append(transcription + ['sp'])
-            new_transcriptions.append(transcription + ['sil'])
-        new_dict[word+word_suffix] = new_transcriptions
 
-    if new_dict.has_key('<s>'+word_suffix):
-        del new_dict['<s>'+word_suffix]
-    if new_dict.has_key('</s>'+word_suffix):
-        del new_dict['</s>'+word_suffix]
-    new_dict['<s>'] = [['sil']]
-    new_dict['</s>'] = [['sil']]
-    
+    new_dict_normal = {}
+    new_dict_hdecode = {}
+
+    for word, transcriptions in dict.iteritems():
+        normal_transcriptions = []
+        hdecode_transcriptions = []
+        for transcription in _unique_listelements(sorted(transcriptions, lambda x, y: len(x) - len(y))):
+            normal_transcriptions.append(transcription + ['sp'])
+            normal_transcriptions.append(transcription + ['sil'])
+            hdecode_transcriptions.append(transcription)
+        new_dict_normal[word+word_suffix] = normal_transcriptions
+        new_dict_hdecode[word+word_suffix] = hdecode_transcriptions
+
+    if '<s>'+word_suffix in new_dict_normal:
+        del new_dict_normal['<s>'+word_suffix]
+    if '<s>'+word_suffix in new_dict_normal:
+        del new_dict_normal['<s>'+word_suffix]
+
+    if '</s>'+word_suffix in new_dict_hdecode:
+        del new_dict_hdecode['</s>'+word_suffix]
+    if '</s>'+word_suffix in new_dict_hdecode:
+        del new_dict_hdecode['</s>'+word_suffix]
+
+    new_dict_normal['<s>'] = [['sil']]
+    new_dict_hdecode['</s>'] = [['sil']]
+    new_dict_normal['<s>'] = [['sil']]
+    new_dict_hdecode['</s>'] = [['sil']]
+
     with open('dictionary/dict', 'w') as dict_file:
-        for key in sorted(new_dict):
-            for transcription in new_dict[key]:
+        for key in sorted(new_dict_normal):
+            for transcription in new_dict_normal[key]:
                 print >> dict_file, "%s %s" % (escape(key), ' '.join(transcription))
 
-    new_dict = {}
-    for word, transcriptions in dict.items():
-        new_transcriptions = []
-        for transcription in _unique_listelements(sorted(transcriptions, lambda x, y: len(x) - len(y))):
-            new_transcriptions.append(transcription)
-        new_dict[word+word_suffix] = new_transcriptions
-
-    if new_dict.has_key('<s>'+word_suffix):
-        del new_dict['<s>'+word_suffix]
-    if new_dict.has_key('</s>'+word_suffix):
-        del new_dict['</s>'+word_suffix]
-    new_dict['<s>'] = [['sil']]
-    new_dict['</s>'] = [['sil']]
-
     with open('dictionary/dict.hdecode', 'w') as dict_file:
-        for key in sorted(new_dict):
-            for transcription in new_dict[key]:
+        for key in sorted(new_dict_hdecode):
+            for transcription in new_dict_hdecode[key]:
                 print >> dict_file, "%s %s" % (escape(key), ' '.join(transcription))
     
 def unescape(word):
@@ -95,7 +97,7 @@ def import_corpora(corpora):
     
     locationmap = {}
     count = 0
-    for location, prefix, word_suffix in corpora:
+    for location, _, _ in corpora:
         if not os.path.exists(location + '/mfc'): sys.exit("Not Found: " + location + '/mfc')
         locationmap[location] = location + '/mfc'
         if os.path.islink(location + '/mfc'):
@@ -105,7 +107,7 @@ def import_corpora(corpora):
         
     for set in sets:
         with open('corpora/'+set+'.scp', 'w') as scp_file:
-            for location, prefix, word_suffix in corpora:
+            for location, _, _ in corpora:
                 if not os.path.exists(location + '/'+set+'.scp'): sys.exit("Not Found: " + location + '/'+set+'.scp')
                 for line in  open(location + '/'+set+'.scp'):
                     print >> scp_file, locationmap[location] + line[line.find('/'):].rstrip()
@@ -574,9 +576,7 @@ def speecon_fi_selection(speecon_dir, set, ext='FI0'):
     return fi0_files
 
 def dsp_eng_selection(dsp_eng_dir):
-    wav_files = []
-    wav_files = glob.glob(dsp_eng_dir + "/*/*.wav")
-    return wav_files
+    return glob.glob(dsp_eng_dir + "/*/*.wav")
 
 def bl_eng_selection(bl_eng_dir):
     wav_files = []

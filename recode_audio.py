@@ -3,7 +3,6 @@ from subprocess import Popen,PIPE
 import os
 import sys
 from optparse import OptionParser
-from tempfile import mkstemp
 
 usage = "usage: %prog [options] [input-file output-file]"
 parser = OptionParser(usage=usage)

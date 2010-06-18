@@ -16,8 +16,7 @@ import shutil
 from ConfigParser import SafeConfigParser
 from optparse import OptionParser
 
-if not os.path.exists('log'): os.mkdir('log')
-if not os.path.exists('log/tasks'): os.mkdir('log/tasks')
+data_manipulation.create_log_dirs()
 htk_logger.create_logger('recogniton', 'log/recognition.log')
 
 logger = htk_logger.logger

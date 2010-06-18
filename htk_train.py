@@ -57,7 +57,7 @@ config.read(configs if len(configs) > 0 else "train_config")
 
 current_step = 0
 experiment_name = config.get('DEFAULT', 'name')
-data_manipulation.createLogDirs()
+data_manipulation.create_log_dirs()
 target_hmm_dir = ""
 
 logger.info("Starting step: %d" % options.step)
@@ -131,7 +131,7 @@ transcriptions = 'files/mono0.mlf'
 if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Initialize model with global variance'))
     
-    source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+    source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
     
     protofile = 'config/proto'
     if not os.path.exists(protofile): sys.exit("Not Found: " + protofile)
@@ -147,7 +147,7 @@ for i in range(0,3):
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest'))
         
-        source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+        source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
         
         htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, binary=(i != 2))
     
@@ -158,7 +158,7 @@ current_step += 1
 if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Introduce sp model'))
     
-    source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+    source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
     
     data_manipulation.add_sp_to_phonelist(phones_list, 'files/monophones1')
     data_manipulation.copy_sil_to_sp(source_hmm_dir, target_hmm_dir)
@@ -173,7 +173,7 @@ current_step += 1
 if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Tie silence state to sp'))
     
-    source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+    source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
     
     sil_hed = "config/sil.hed"
     if not os.path.exists(sil_hed): sys.exit("Not Found: " + sil_hed)
@@ -187,7 +187,7 @@ for i in range(0,3):
 
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest'))
-        source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+        source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
         
         htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions)
     
@@ -210,7 +210,7 @@ for i in range(0,4):
     
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest'))
-        source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+        source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
         
         htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions)
     
@@ -221,7 +221,7 @@ current_step += 1
 if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Transform model to triphones'))
     
-    source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+    source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
     
     led_file = 'config/mktri.led'
     if not os.path.exists(led_file): sys.exit("Not Found: " + led_file)
@@ -245,7 +245,7 @@ for i in range(0,3):
     
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest'))
-        source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+        source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
         
         htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, True if i == 2 else False)
     
@@ -255,7 +255,7 @@ current_step += 1
 # Tie the triphones together
 if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Tying the model'))
-    source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+    source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
     
     data_manipulation.make_fulllist('files/monophones1', 'files/fulllist')
     
@@ -279,7 +279,7 @@ for i in range(0,3):
 
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest'))
-        source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+        source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
         
         htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions)
     
@@ -288,7 +288,7 @@ for mix in [1, 2, 4, 6, 8, 12, 16]:
     current_step += 1
     if current_step >= options.step:
         logger.info("Start step: %d (%s)" % (current_step, 'Mixture splitting'))
-        source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+        source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
         hed_file =  'files/mix%d.hed' % mix
         with open(hed_file, 'w') as hed:
             print >> hed, "MU %d {*.state[2-4].stream[1].mix}" % mix
@@ -303,7 +303,7 @@ for mix in [1, 2, 4, 6, 8, 12, 16]:
 
         if current_step >= options.step:
             logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest'))
-            source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+            source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
 
             htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, mix == 16 and i == 3)
 
@@ -317,7 +317,7 @@ for number_sat_round in range(0,4):
     cmllr_config = 'files/config.cmllr.%d' % number_sat_round
 
     if current_step >= options.step:
-        source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
+        source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
 
         regtree_hed =  'files/regtree_%s.hed' % number_sat_round
         with open(regtree_hed, 'w') as hed_file:
