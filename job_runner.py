@@ -317,7 +317,7 @@ class TritonRunner(Runner):
         while len(self.job) > 0:
             Popen(['srun', '-t', '00:01:00', '-J', 'wait%s' % self.jobname, '-n', '1', '-N', '1', '-p', 'short', '--mem-per-cpu', '10', '--dependency=afterany:'+':'.join(self.job.keys()), 'sleep', str(0)], stderr=PIPE).wait()
 
-            sacct_command = ['sacct', '-n', '--format=JobID,ExitCode,State', '-X', '-P', '-j', ','.join(self.job)]
+            sacct_command = ['sacct', '--starttime', '1970-01-01', '--endtime', '2025-01-01', '-n', '--format=JobID,ExitCode,State', '-X', '-P', '-j', ','.join(self.job)]
             result = Popen(sacct_command, stdout=PIPE).communicate()[0]
 
             while result.count('RUNNING') > 0 or result.count('PENDING') > 0:
