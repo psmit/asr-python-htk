@@ -17,7 +17,7 @@ clean_scp_files = True
 clean_old_logs = True
 log_step = -1
 
-def HDecode(step,  scp_file, model_dir, dict, phones_list, language_model,  label_dir, num_tokens, out_mlf, configs, lm_scale, beam, end_beam, max_pruning, adapt_dirs = None, num_speaker_chars = 3):
+def HDecode(log_id,  scp_file, model_dir, dict, phones_list, language_model,  label_dir, num_tokens, out_mlf, configs, lm_scale, beam, end_beam, max_pruning, adapt_dirs = None, num_speaker_chars = 3):
     global num_tasks, extra_HTK_options
 
     max_tasks = split_file(scp_file, num_tasks)
@@ -59,7 +59,7 @@ def HDecode(step,  scp_file, model_dir, dict, phones_list, language_model,  labe
                 dict,
                 phones_list])
 
-    ostream, estream = _get_output_stream_names(step)
+    ostream, estream = _get_output_stream_names(log_id)
     job_runner.submit_job([str(part) for part in HDecode], {'numtasks': min(max_tasks, num_tasks),
                                     'ostream': ostream,
                                     'estream': estream,
@@ -70,7 +70,7 @@ def HDecode(step,  scp_file, model_dir, dict, phones_list, language_model,  labe
     # remove splitted scp files
     clean_split_file(scp_file)
 
-def lattice_rescore(step, lat_dir, lat_dir_out, lm, lm_scale):
+def lattice_rescore(log_id, lat_dir, lat_dir_out, lm, lm_scale):
     global num_tasks
 
     clean_split_dir(lat_dir_out)
@@ -94,7 +94,7 @@ def lattice_rescore(step, lat_dir, lat_dir_out, lm, lm_scale):
                     '-write-htk',
                     '-debug', '1'])
 
-    ostream, estream = _get_output_stream_names(step)
+    ostream, estream = _get_output_stream_names(log_id)
     job_runner.submit_job([str(part) for part in rescore], {'numtasks': max_tasks,
                                     'ostream': ostream,
                                     'estream': estream,
@@ -103,7 +103,7 @@ def lattice_rescore(step, lat_dir, lat_dir_out, lm, lm_scale):
     merge_split_dir(lat_dir_out)
     clean_split_file(lattice_scp)
 
-def lattice_decode(step ,lat_dir, out_mlf, lm_scale):
+def lattice_decode(log_id ,lat_dir, out_mlf, lm_scale):
     global num_tasks
 
     decode = ["lattice-tool"]
@@ -121,7 +121,7 @@ def lattice_decode(step ,lat_dir, out_mlf, lm_scale):
                     '-in-lattice-list', lattice_scp+'.part.%t',
                     '-viterbi-decode'])
 
-    ostream, estream = _get_output_stream_names(step)
+    ostream, estream = _get_output_stream_names(log_id)
     job_runner.submit_job([str(part) for part in decode], {'numtasks': max_tasks,
                                     'ostream': ostream,
                                     'estream': estream,
@@ -146,7 +146,7 @@ def lattice_decode(step ,lat_dir, out_mlf, lm_scale):
 
     clean_split_file(lattice_scp)
 
-def HLEd(step, input_transcriptions, led_file, selector, phones_list, output_transcriptions, dict = None):
+def HLEd(log_id, input_transcriptions, led_file, selector, phones_list, output_transcriptions, dict = None):
     global num_tasks, extra_HTK_options
     HLEd = ["HLEd"]
     HLEd.extend(extra_HTK_options)
@@ -160,14 +160,14 @@ def HLEd(step, input_transcriptions, led_file, selector, phones_list, output_tra
                 led_file,
                 input_transcriptions])
 
-    ostream, estream = _get_output_stream_names(step)
+    ostream, estream = _get_output_stream_names(log_id)
     job_runner.submit_job(HLEd, {'numtasks': 1,
                                     'ostream': ostream,
                                     'estream': estream})
                                     
                                     
 
-def HCompV(step, scpfile, target_hmm_dir, protofile, min_variance, config = None):
+def HCompV(log_id, scpfile, target_hmm_dir, protofile, min_variance, config = None):
     global num_tasks, extra_HTK_options, default_config_file
     
     if config is None: config = default_config_file
@@ -181,13 +181,13 @@ def HCompV(step, scpfile, target_hmm_dir, protofile, min_variance, config = None
                 "-M", target_hmm_dir,
                 protofile])
     
-    ostream, estream = _get_output_stream_names(step)
+    ostream, estream = _get_output_stream_names(log_id)
     job_runner.submit_job(HCompV, {'numtasks': 1,
                                     'ostream': ostream,
                                     'estream': estream,
                                     'timelimit': '04:00:00'})            
 
-def HERest_estimate_transform(step, scp_file, source_hmm_dir, target_dir, phones_list, transcriptions,  max_adap_sentences = None, config = [], num_chars = 3, target_extension = 'cmllr', input_transform_dirs = [], use_parent = False, parent_transform_dirs = [], pruning = None, min_mix_weigth = 0.1, prune_treshold = 20.0):
+def HERest_estimate_transform(log_id, scp_file, source_hmm_dir, target_dir, phones_list, transcriptions,  max_adap_sentences = None, config = [], num_chars = 3, target_extension = 'cmllr', input_transform_dirs = [], use_parent = False, parent_transform_dirs = [], pruning = None, min_mix_weigth = 0.1, prune_treshold = 20.0):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
 
     if config is None: config = default_config_file
@@ -245,7 +245,7 @@ def HERest_estimate_transform(step, scp_file, source_hmm_dir, target_dir, phones
 
     HERest.extend([phones_list])
 
-    ostream, estream = _get_output_stream_names(step)
+    ostream, estream = _get_output_stream_names(log_id)
 
     job_runner.submit_job(HERest, {'numtasks': min(max_tasks, num_tasks),
                                     'ostream': ostream,
@@ -255,7 +255,7 @@ def HERest_estimate_transform(step, scp_file, source_hmm_dir, target_dir, phones
     clean_split_file(scp_file)
 
 
-def HERest(step, scp_file, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, stats = False, config = None, transform_dir = None, num_pattern_chars = 3, pruning = None, binary = True):
+def HERest(log_id, scp_file, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, stats = False, config = None, transform_dir = None, num_pattern_chars = 3, pruning = None, binary = True):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
     
     if config is None: config = default_config_file
@@ -301,7 +301,7 @@ def HERest(step, scp_file, source_hmm_dir, target_hmm_dir, phones_list, transcri
     
     for file in glob.glob(target_hmm_dir+"/*.acc"): os.remove(file)
 
-    ostream, estream = _get_output_stream_names(step)
+    ostream, estream = _get_output_stream_names(log_id)
     
     job_runner.submit_job(HERest, {'numtasks': max_tasks,
                                     'ostream': ostream,
@@ -332,7 +332,7 @@ def HERest(step, scp_file, source_hmm_dir, target_hmm_dir, phones_list, transcri
     clean_split_file(scp_file)
     
     
-def HHEd(step, source_hmm_dir, target_hmm_dir, hed, phones_list, w_flag = None):
+def HHEd(log_id, source_hmm_dir, target_hmm_dir, hed, phones_list, w_flag = None):
     global extra_HTK_options
     
     HHEd = ["HHEd"]
@@ -348,12 +348,12 @@ def HHEd(step, source_hmm_dir, target_hmm_dir, hed, phones_list, w_flag = None):
     HHEd.extend([hed,
                 phones_list])
     
-    ostream, estream = _get_output_stream_names(step)
+    ostream, estream = _get_output_stream_names(log_id)
     job_runner.submit_job(HHEd, {'numtasks': 1,
                                     'ostream': ostream,
                                     'estream': estream})
                                     
-def HVite(step, scp_file, hmm_dir, dict, phones_list, word_transcriptions, new_transcriptions, ext = 'lab', config = None, pruning = None):
+def HVite(log_id, scp_file, hmm_dir, dict, phones_list, word_transcriptions, new_transcriptions, ext = 'lab', config = None, pruning = None):
     global num_tasks, extra_HTK_options, default_config_file, default_HERest_pruning
     
     if config is None: config = default_config_file
@@ -384,7 +384,7 @@ def HVite(step, scp_file, hmm_dir, dict, phones_list, word_transcriptions, new_t
     HVite.extend([dict,
                 phones_list])
     
-    ostream, estream = _get_output_stream_names(step)
+    ostream, estream = _get_output_stream_names(log_id)
     job_runner.submit_job(HVite, {'numtasks': max_tasks,
                                     'ostream': ostream,
                                     'estream': estream})
@@ -400,7 +400,7 @@ def HVite(step, scp_file, hmm_dir, dict, phones_list, word_transcriptions, new_t
     clean_split_file(scp_file)
     
                                                 
-def HCopy(step, scp_file, config):
+def HCopy(log_id, scp_file, config):
     global num_tasks, extra_HTK_options
     
     split_file(scp_file, num_tasks)
@@ -410,14 +410,14 @@ def HCopy(step, scp_file, config):
     HCopy.extend(["-C", config,
                 "-S", scp_file+ ".part.%t"])
     
-    ostream, estream = _get_output_stream_names(step)
+    ostream, estream = _get_output_stream_names(log_id)
     job_runner.submit_job(HCopy, {'numtasks': num_tasks,
                                     'ostream': ostream,
                                     'estream': estream})    
                                     
     clean_split_file(scp_file)
     
-def recode_audio(step, scp_file, data_set, amr):
+def recode_audio(log_id, scp_file, data_set, amr):
     global num_tasks
 
     split_file(scp_file, num_tasks)
@@ -427,21 +427,27 @@ def recode_audio(step, scp_file, data_set, amr):
     if amr:
         recode_audio.append('-a')
         
-    ostream, estream = _get_output_stream_names(step)
+    ostream, estream = _get_output_stream_names(log_id)
     job_runner.submit_job(recode_audio, {'numtasks': num_tasks,
                                     'ostream': ostream,
                                     'estream': estream})
 
     clean_split_file(scp_file)
 
-def _get_output_stream_names(step):
-    global clean_old_logs, log_step
-    
-    if clean_old_logs and step != log_step:
-        for file in glob.glob('log/tasks/%03d.*' % step): os.remove(file)
-        
-    log_step = step
-    return ('log/tasks/%03d.%%c.o%%j.%%t' % step, 'log/tasks/%03d.%%c.e%%j.%%t' % step)
+def _get_output_stream_names(input):
+    try:
+        step = int(input)
+
+        global clean_old_logs, log_step
+
+        if clean_old_logs and step != log_step:
+            for file in glob.glob('log/tasks/%03d.*' % step): os.remove(file)
+
+        log_step = step
+        return ('log/tasks/%03d.%%c.o%%j.%%t' % step, 'log/tasks/%03d.%%c.e%%j.%%t' % step)
+    except ValueError:
+        return ('log/%%c.o%%j.%%t', 'log/tasks/%%c.e%%j.%%t')
+
 
 def split_file(file_name, parts, keep_speaker_together = False, num_speaker_chars = 3):
     target_files = [open(name, 'w') for name in [file_name + ".part." + str(i) for i in range(1,parts+1)]]
