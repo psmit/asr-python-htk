@@ -42,7 +42,7 @@ class Model:
         for key in self.configuration.keys():
             if type(self.configuration[key]) == type(""):
                 if '|MODEL|' in self.configuration[key]:
-                    self.configuration[key].replace('|MODEL|',self.configuration['model_dir'])
+                    self.configuration[key] = self.configuration[key].replace('|MODEL|',self.configuration['model_dir'])
 
 class Experiment:
     configuration = {
