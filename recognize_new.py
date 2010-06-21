@@ -1,5 +1,6 @@
 #!/usr/bin/env python2.6
 from ConfigParser import SafeConfigParser
+import multiprocessing
 
 
 class Model:
@@ -23,6 +24,7 @@ class Experiment:
     beam = 250
     end_beam = -1
     num_tokes = 32
+    fail_count = 0
 
     dependencies = []
 
@@ -35,6 +37,11 @@ class Experiment:
             if not experiments[dependency].done:
                 return False
         return True
+
+    def __call__(self):
+        self.run()
+        if not self.done:
+            self.fail_count = self.fail_count + 1
         
    
 class Adaptation:
@@ -67,7 +74,18 @@ def parse_exp_config_section(config, section, model):
     return []
 
 def run_experiments(model,experiments,tasks_per_experiment=50,total_tasks=800):
-    pass
+    pool = multiprocessing.Pool(max(total_tasks // 50,1))
+
+    max_fail_count =3
+
+    runnable_experiments = [experiment for experiment in experiments if (not experiment.done or experiment.fail_count < max_fail_count) and experiment.are_dependencies_ok()]
+    while len(runnable_experiments) > 0:
+        results = [pool.apply_async(experiment) for experiment in runnable_experiments]
+
+        for result in results:
+            print result.wait()
+        runnable_experiments = [experiment for experiment in experiments if (not experiment.done or experiment.fail_count < max_fail_count) and experiment.are_dependencies_ok()]
 
 if __name__ == "__main__":
-    pass
+    model,experiments = parse_config([])
+    run_experiments(model,experiments)
