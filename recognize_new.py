@@ -307,7 +307,7 @@ def run_experiments(experiments,tasks_per_experiment=50,total_tasks=800,max_fail
 #            experiments[name].done = done
 #            if not done:
 #                experiments[name].fail_count = experiments[name].fail_count +1
-        for experiment in experiments:
+        for experiment in experiments.values():
             experiment.run()
 
         runnable_experiments = [experiment for experiment in experiments.values() if (not experiment.done) and experiment.fail_count < max_fail_count and experiment.are_dependencies_ok(experiments)]
