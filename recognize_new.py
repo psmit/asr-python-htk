@@ -69,7 +69,7 @@ class Experiment:
     def run(self):
         try:
             work_dir = self.name
-            shutil.rmtree(work_dir)
+            if os.path.exists(work_dir): shutil.rmtree(work_dir)
 
             htk_lat_dir = os.path.join(work_dir, 'lattices.htk')
             rescore_lat_dir = os.path.join(work_dir, 'lattices.rescore')
