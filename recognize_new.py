@@ -36,6 +36,7 @@ class Model:
                     self.configuration[key] =t(config.get('model',key))
                 if self.configuration[key] == "":
                     raise Exception("Config Exception: [model] / %s not set" % key)
+            self.replace_config_vars()
 
     def replace_config_vars(self):
         for key in self.configuration.keys():
