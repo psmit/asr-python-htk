@@ -300,13 +300,15 @@ def run_experiments(experiments,tasks_per_experiment=50,total_tasks=800,max_fail
 
     runnable_experiments = [experiment for experiment in experiments.values() if (not experiment.done) and experiment.fail_count < max_fail_count and experiment.are_dependencies_ok(experiments)]
     while len(runnable_experiments) > 0:
-        results = [pool.apply_async(experiment) for experiment in runnable_experiments]
-
-        for result in results:
-            name, done = result.get()
-            experiments[name].done = done
-            if not done:
-                experiments[name].fail_count = experiments[name].fail_count +1
+#        results = [pool.apply_async(experiment) for experiment in runnable_experiments]
+#
+#        for result in results:
+#            name, done = result.get()
+#            experiments[name].done = done
+#            if not done:
+#                experiments[name].fail_count = experiments[name].fail_count +1
+        for experiment in experiments:
+            experiment.run()
 
         runnable_experiments = [experiment for experiment in experiments.values() if (not experiment.done) and experiment.fail_count < max_fail_count and experiment.are_dependencies_ok(experiments)]
 
