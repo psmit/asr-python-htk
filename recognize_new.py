@@ -2,7 +2,16 @@
 from ConfigParser import SafeConfigParser
 import multiprocessing
 import copy
-import random
+import os
+import shutil
+
+from htk_logger import logger
+
+
+import htk
+import data_manipulation
+import job_runner
+
 
 class Model:
     configuration = {
@@ -13,6 +22,8 @@ class Model:
         'speaker_name_width': 5,
         'recognize_scp': '|MODEL|/files/eval.scp',
         'recognize_mlf': '|MODEL|/files/words.mlf',
+        'dict': '|MODEL|/dictionary/dict.hdecode',
+        'tiedlist': '|MODEL|/files/tiedlist',
         'ref_del_char': None,
         'word_suffix': None,
     }
@@ -26,6 +37,12 @@ class Model:
                 if self.configuration[key] == "":
                     raise Exception("Config Exception: [model] / %s not set" % key)
 
+    def replace_config_vars(self):
+        for key in self.configuration.keys():
+            if type(self.configuration[key]) == type(""):
+                if '|MODEL|' in self.configuration[key]:
+                    self.configuration[key].replace('|MODEL|',self.configuration['model_dir'])
+
 class Experiment:
     configuration = {
         'model_name': 'hmm_si',
@@ -33,6 +50,7 @@ class Experiment:
         'beam': 250,
         'end_beam': -1,
         'num_tokens': 32,
+        'max_pruning': 40000,
     }
 
     dependencies = None
@@ -49,8 +67,61 @@ class Experiment:
 
 
     def run(self):
-        self.done = (random.random() < 1.0)
-        print "Do Experiment %s, success %s" % (self.name, self.done)
+        try:
+            work_dir = self.name
+            shutil.rmtree(work_dir)
+
+            htk_lat_dir = os.path.join(work_dir, 'lattices.htk')
+            rescore_lat_dir = os.path.join(work_dir, 'lattices.rescore')
+            log_dir = os.path.join(work_dir, 'log')
+            for dir in [work_dir, htk_lat_dir, rescore_lat_dir, log_dir]:
+                if not os.path.exists(dir):
+                    os.mkdir(dir)
+
+            if len(self.adaptations) == 0:
+
+                logger.info("Start step: %d (%s)" % (0, 'Generating lattices with HDecode'))
+                htk.HDecode(log_dir,
+                            self.model.configuration['recogize_scp'],
+                            self.model.configuration['model_dir'] + '/' + self.configuration['model'],
+                            self.model.configuration['dict'],
+                            self.model.configuration['tiedlist'],
+                            self.model.configuration['lm'],
+                            htk_lat_dir,
+                            self.configuration['num_tokens'],
+                            work_dir + '/hdecode.mlf',
+                            [self.model.configuration['config']],
+                            self.configuration['lm_scale'],
+                            self.configuration['beam'],
+                            self.configuration['end_beam'],
+                            self.configuration['max_pruning'])
+
+
+                logger.info("Start step: %d (%s)" % (0, 'Rescoring lattices with lattice-tool'))
+                htk.lattice_rescore(log_dir,
+                                    htk_lat_dir,
+                                    rescore_lat_dir,
+                                    self.model.configuration['lm_rescore'],
+                                    self.configuration['lm_scale'])
+
+
+                logger.info("Start step: %d (%s)" % (0, 'Decoding lattices with lattice-tool'))
+                htk.lattice_decode(log_dir,
+                                   rescore_lat_dir,
+                                   work_dir + '/hyp.mlf',
+                                   self.configuration['lm_scale'])
+
+                data_manipulation.mlf_to_trn(work_dir + '/hdecode.mlf',
+                                             work_dir + '/hdecode.trn',
+                                             self.model.configuration['speaker_name_width'])
+
+                data_manipulation.mlf_to_trn(work_dir + '/hyp.mlf',
+                                             work_dir + '/hyp.trn',
+                                             self.model.configuration['speaker_name_width'])
+            self.done = True
+            return
+        except job_runner.JobFailException:
+            self.done = False
 
     def replace_config_vars(self):
         self.dependencies = set()
@@ -237,7 +308,6 @@ def run_experiments(experiments,tasks_per_experiment=50,total_tasks=800,max_fail
             if not done:
                 experiments[name].fail_count = experiments[name].fail_count +1
 
-        print "Bla"
         runnable_experiments = [experiment for experiment in experiments.values() if (not experiment.done) and experiment.fail_count < max_fail_count and experiment.are_dependencies_ok(experiments)]
 
 if __name__ == "__main__":
