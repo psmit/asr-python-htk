@@ -81,7 +81,7 @@ class Experiment:
 
             if len(self.adaptations) == 0:
 
-                #logger.info("Start step: %d (%s)" % (0, 'Generating lattices with HDecode'))
+                print "Start step: %d (%s)" % (0, 'Generating lattices with HDecode')
                 htk.HDecode(log_dir,
                             self.model.configuration['recognize_scp'],
                             self.model.configuration['model_dir'] + '/' + self.configuration['model_name'],
@@ -98,7 +98,7 @@ class Experiment:
                             self.configuration['max_pruning'])
 
 
-                #logger.info("Start step: %d (%s)" % (0, 'Rescoring lattices with lattice-tool'))
+                print "Start step: %d (%s)" % (0, 'Rescoring lattices with lattice-tool')
                 htk.lattice_rescore(log_dir,
                                     htk_lat_dir,
                                     rescore_lat_dir,
@@ -106,7 +106,7 @@ class Experiment:
                                     self.configuration['lm_scale'])
 
 
-                #logger.info("Start step: %d (%s)" % (0, 'Decoding lattices with lattice-tool'))
+                print "Start step: %d (%s)" % (0, 'Decoding lattices with lattice-tool')
                 htk.lattice_decode(log_dir,
                                    rescore_lat_dir,
                                    work_dir + '/hyp.mlf',
