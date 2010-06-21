@@ -39,12 +39,12 @@ except ImportError:
 
 #global variables
 verbosity = 0
-runner = object
+runner = None
 
 #default_options is only used when job_runner is used as module
 default_options = {}
 
-def submit_job(commandarr, extra_options = {}):
+def submit_job(commandarr, extra_options = 1):
     global runner
     global default_options
     global verbosity
@@ -119,7 +119,7 @@ def setNewRunner(options, args):
 
 #Base class with common functionality. Do not use inmediately but a sub-class instead
 class Runner(object):
-    options = []
+    options = None
     commandarr = []
     jobname = ""
     verbosity = 0
@@ -378,206 +378,7 @@ class TritonRunner(Runner):
             out_string += str(prev_job)
 
         print "%s submitted as id's: %s" % (self.jobname, out_string[1:])
-#
-#
-#
-#
-#
-#        success = False
-#        while try_no < self.options.retry and not success:
-#            # submit tasks to sbatch
-#            self.job = None
-#
-#            if self.options.numtasks > 1:
-#                self.sbatch_multi_node_runner(commands)
-#            else:
-#                self.sbatch_single_runner()
-#
-#            if verbosity > 0:
-#                if type(self.job).__name__=='dict':
-#                    job_string = ','.join(self.job.keys())
-#                else:
-#                    job_string = str(self.job)
-#                print 'Job (%s) has id: %s' % (self.jobname, job_string)
-#
-#            if type(self.job).__name__=='dict':
-#                job_string = ':'.join(self.job.keys())
-#            else:
-#                job_string = str(self.job)
-#            # Start a job that waits until all our tasks are finished
-#            waitjob = Popen(['srun', '-t', '00:01:00', '-J', 'wait%s' % self.jobname, '-n', '1', '-N', '1', '-p', 'test', '--mem-per-cpu', '10', '--dependency=afterany:'+job_string, 'sleep', str(1)], stderr=PIPE)
-#            waitjob.wait()
-#
-#            # Fetch the error codes of our tasks
-#            if type(self.job).__name__=='dict':
-#                job_string = ','.join(self.job.keys())
-#            else:
-#                job_string = str(self.job)
-#            sacct_command = ['sacct', '-n', '--format=JobID,ExitCode,State', '-X', '-P', '-j', job_string]
-#            result = Popen(sacct_command, stdout=PIPE).communicate()[0]
-#
-#            while result.count('RUNNING') > 0 or result.count('PENDING') > 0:
-#                print '.'
-#                #print ' '.join(sacct_command)
-#                #print result
-#                time.sleep(2)
-#
-#                result = Popen(sacct_command, stdout=PIPE).communicate()[0]
-#
-#            # If there was any error take appropriate action
-#            statusses = result.split()
-#
-#            failed = False
-#            commands = []
-#            for status in statusses:
-#                if '|' in status:
-#                    parts = status.split('|', 2)
-#                    if parts[1] != '0:0' or parts[2] != 'COMPLETED':
-#                        if type(self.job).__name__=='dict':
-#                            commands.append(self.job[parts[0]])
-#                        print "Fail: " + status
-#                        failed = True
-#            if not failed:
-#                success = True
-#
-#            if not success:
-#                time.sleep(max(5,10 * try_no))
-#                print "Retrying jobs"
-#                try_no +=1
-#
-#        if not success:
-#            sys.exit("Failed to do this")
-#        elif verbosity > 0:
-#            print 'All tasks succeeded'
-#
-##        if result.count('0:0|COMPLETED') < 1:
-##            if verbosity > 0:
-##                print result
-##            sys.exit("Some tasks failed")
-##        elif verbosity > 0:
-##            print 'All tasks succeeded'
-#
-#
-#
-#        # Method for submitting one task to sbatch
-#    def sbatch_multi_node_runner(self, commands):
-#        self.job = {}
-#        cur_start = 1
-#        num_tasks_per_node = int(self.options.numtasks) / int(self.options.nodes)
-#
-#        real_commands = []
-#        real_commands.extend(commands)
-#        if len(commands) < 1:
-#            for node_num in range(1, self.options.nodes +1):
-#                global verbosity
-#
-#                # Construct the sbatch command
-#                batchcommand=['sbatch']
-#
-#                # Give a jobname
-#                batchcommand.extend(['-J', self.jobname])
-#
-#                # Set the timelimit
-#                batchcommand.extend(['-t', self.options.timelimit])
-#
-#                batchcommand.extend(['-N', str(1)])
-#                batchcommand.extend(['-n', str(12)])
-#
-#                # Set the memory limit
-#                batchcommand.append('--mem-per-cpu='+ str(self.options.memlimit))
-#
-#                # If people want to be nice, we set a priority
-#                if self.options.priority > 0:
-#                    batchcommand.append('--nice='+str(self.options.priority))
-#
-#                outfile = self.replace_flags(self.options.ostream, "parent")
-#                errorfile = self.replace_flags(self.options.estream, "parent")
-#
-#                batchcommand.extend(['-o', outfile])
-#                batchcommand.extend(['-e', errorfile])
-#
-#                if time_limit_to_seconds(self.options.timelimit) <= time_limit_to_seconds('00:15:00'):
-#                    batchcommand.extend(['-p', 'test'])
-#
-#                batchcommand.append('tritonarray.py')
-#
-#                if node_num == self.options.nodes:
-#                    batchcommand.extend(['-T', str(cur_start)+'-'+str(self.options.numtasks)])
-#                else:
-#                    end = cur_start + num_tasks_per_node - 1
-#                    batchcommand.extend(['-T', str(cur_start)+'-'+str(end)])
-#                    cur_start = end + 1
-#
-#                batchcommand.extend(['-o', self.options.ostream])
-#                batchcommand.extend(['-e', self.options.estream])
-#                batchcommand.append('--')
-#                batchcommand.extend(self.commandarr)
-#
-#                real_commands.append(batchcommand)
-#
-#
-#        for command in real_commands:
-#            success = False
-#
-#            while not success:
-#                #Call sbatch
-#                output = Popen(command, stdout=PIPE).communicate()[0]
-#
-#                #Find the jobid on the end of the line
-#                m = re.search('[0-9]+$', output)
-#                if m is not None:
-#                    self.job[m.group(0)] = command
-#                    success = True
-#                else:
-#                    time.sleep(2)
-#
-#
-#    def sbatch_single_runner(self):
-#        global verbosity
-#
-#        # Construct the sbatch command
-#        batchcommand=['sbatch']
-#
-#        # Give a jobname
-#        batchcommand.extend(['-J', self.jobname])
-#
-#        # Set the timelimit
-#        batchcommand.extend(['-t', self.options.timelimit])
-#        batchcommand.extend(['-n', str(1)])
-#
-#        # Set the memory limit
-#        batchcommand.append('--mem-per-cpu='+ str(self.options.memlimit))
-#
-#        # If people want to be nice, we set a priority
-#        if self.options.priority > 0:
-#            batchcommand.append('--nice='+str(self.options.priority))
-#
-#        outfile = self.replace_flags(self.options.ostream, "single")
-#        errorfile = self.replace_flags(self.options.estream, "single")
-#
-#        batchcommand.extend(['-o', outfile])
-#        batchcommand.extend(['-e', errorfile])
-#
-#        if time_limit_to_seconds(self.options.timelimit) <= time_limit_to_seconds('00:15:00'):
-#            batchcommand.extend(['-p', 'test'])
-#
-#        #Wrap it in a script file (Escaped)
-#        script = "#!/bin/bash\n" + "\"" + "\" \"".join(self.commandarr) + "\""
-#
-#        success = False
-#
-#        while not success:
-#                #Call sbatch. Feed in the script through STDIN and catch the result in output
-#                output = Popen(batchcommand, stdin=PIPE, stdout=PIPE).communicate(script)[0]
-#
-#                #Find the jobid on the end of the line
-#                m = re.search('[0-9]+$', output)
-#                if m is not None:
-#                        self.job = m.group(0)
-#                        success = True
-#                else:
-#                        time.sleep(2)
-#                
+
     delay = 1.0
     def submit_command(self, batch_command, real_command):
         script = "#!/bin/bash\n" + "\"" + "\" \"".join(real_command) + "\""
