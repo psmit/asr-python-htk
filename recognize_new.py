@@ -83,7 +83,7 @@ class Experiment:
                 #logger.info("Start step: %d (%s)" % (0, 'Generating lattices with HDecode'))
                 htk.HDecode(log_dir,
                             self.model.configuration['recognize_scp'],
-                            self.model.configuration['model_dir'] + '/' + self.configuration['model'],
+                            self.model.configuration['model_dir'] + '/' + self.configuration['model_name'],
                             self.model.configuration['dict'],
                             self.model.configuration['tiedlist'],
                             self.model.configuration['lm'],
