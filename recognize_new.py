@@ -4,6 +4,8 @@ import multiprocessing
 import copy
 import os
 import shutil
+import sys
+import signal
 
 from htk_logger import logger
 
@@ -315,6 +317,19 @@ def run_experiments(experiments,tasks_per_experiment=50,total_tasks=800,max_fail
 
         runnable_experiments = [experiment for experiment in experiments.values() if (not experiment.done) and experiment.fail_count < max_fail_count and experiment.are_dependencies_ok(experiments)]
 
+def signal_handler(signal, frame):
+    print 'Signal received! (recognize_new)'
+
+    sys.exit(255)
+
+
+
 if __name__ == "__main__":
+    #Register signal handlers
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
     experiments = parse_config([])
     run_experiments(experiments)
+
+
