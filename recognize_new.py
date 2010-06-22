@@ -156,6 +156,8 @@ class Experiment:
                             dependency = adaptation.configuration[key][l+5:r]
                             self.dependencies.add(dependency)
                             adaptation.configuration[key] = adaptation.configuration[key].replace('|EXP_%s|' % dependency, dependency)
+        if self.configuration['end_beam'] < 0:
+            self.configuration['end_beam'] = self.configuration['beam'] / 3 * 2
         return
 
     def are_dependencies_ok(self, experiments):
