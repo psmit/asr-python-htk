@@ -320,9 +320,12 @@ def run_experiments(experiments,tasks_per_experiment=50,total_tasks=800,max_fail
         runnable_experiments = [experiment for experiment in experiments.values() if (not experiment.done) and experiment.fail_count < max_fail_count and experiment.are_dependencies_ok(experiments)]
 
 def signal_handler(signal, frame):
+    print >> sys.stderr, "Enter signal handler"
     global pool
     if pool is not None:
+        print >> sys.stderr, "Start pool terminate"
         pool.terminate()
+    print >> sys.stderr, "After pool terminate"
     #job_runner.signal_handler(signal, frame)
     sys.exit(254)
 
