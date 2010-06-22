@@ -446,7 +446,7 @@ def _get_output_stream_names(input):
         log_step = step
         return ('log/tasks/%03d.%%c.o%%j.%%t' % step, 'log/tasks/%03d.%%c.e%%j.%%t' % step)
     except ValueError:
-        return ('%s/log/%%c.o%%j.%%t' % input, '%s/log/%%c.e%%j.%%t' % input)
+        return ('%s/%%c.o%%j.%%t' % input, '%s/%%c.e%%j.%%t' % input)
 
 
 def split_file(file_name, parts, keep_speaker_together = False, num_speaker_chars = 3):
