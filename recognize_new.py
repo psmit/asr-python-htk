@@ -301,7 +301,7 @@ def parse_adap_config(config,section):
 
     return adaptation_lists
 
-def run_experiments(experiments,tasks_per_experiment=50,total_tasks=800,max_fail_count=3):
+def run_experiments(experiments,tasks_per_experiment=50,total_tasks=100,max_fail_count=3):
     global pool
     pool = multiprocessing.Pool(max(total_tasks // tasks_per_experiment,1))
 
@@ -325,6 +325,8 @@ def signal_handler(signal, frame):
     if pool is not None:
         print >> sys.stderr, "Start pool terminate"
         pool.terminate()
+        pool.join()
+        pool = None
     print >> sys.stderr, "After pool terminate"
     #job_runner.signal_handler(signal, frame)
     sys.exit(254)
