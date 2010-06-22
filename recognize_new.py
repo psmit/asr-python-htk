@@ -318,16 +318,20 @@ def run_experiments(experiments,tasks_per_experiment=50,total_tasks=800,max_fail
         runnable_experiments = [experiment for experiment in experiments.values() if (not experiment.done) and experiment.fail_count < max_fail_count and experiment.are_dependencies_ok(experiments)]
 
 def signal_handler(signal, frame):
-    pass
+    global pool
+    if isinstance(pool, multiprocessing.Pool):
+        pool.terminate()
     #job_runner.signal_handler(signal, frame)
-    #sys.exit(254)
+    sys.exit(254)
 
-
+pool = None
 
 if __name__ == "__main__":
+    global pool
+
     #Register signal handlers
-    #signal.signal(signal.SIGINT, signal_handler)
-    #signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
 
     experiments = parse_config([])
     run_experiments(experiments)
