@@ -634,7 +634,7 @@ def write_mlf(transcriptions, mlf_file, extension = 'lab', include_sentence_boun
             print >> mlf_out, "."
 
 def mlf_to_trn(mlf, trn, num_speaker_chars=3, del_char = ''):
-    reg_exp = re.compile('\".*/([A-Za-z0-9]+)\.(mfc|lab|rec)\"')
+    reg_exp = re.compile('\".*/([A-Za-z0-9_]+)\.(mfc|lab|rec)\"')
 
     utts_seen = set()
 
@@ -649,7 +649,10 @@ def mlf_to_trn(mlf, trn, num_speaker_chars=3, del_char = ''):
                 utt_name = m.group(1)
             elif line.lstrip().rstrip() == '.':
                 if utt_name not in utts_seen:
-                    trans.append("(%s_%s)" % (utt_name[:num_speaker_chars],utt_name[num_speaker_chars:]))
+                    if '_' not in utt_name:
+                        trans.append("(%s_%s)" % (utt_name[:num_speaker_chars],utt_name[num_speaker_chars:]))
+                    else:
+                        trans.append("(%s)" % utt_name)
                     print >> trn_file, ' '.join(trans)
                     utts_seen.add(utt_name)
                 trans = []
