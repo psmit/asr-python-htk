@@ -68,8 +68,8 @@ def import_dictionaries(dicts):
         del new_dict_hdecode['</s>'+word_suffix]
 
     new_dict_normal['<s>'] = [['sil']]
-    new_dict_hdecode['</s>'] = [['sil']]
-    new_dict_normal['<s>'] = [['sil']]
+    new_dict_normal['</s>'] = [['sil']]
+    new_dict_hdecode['<s>'] = [['sil']]
     new_dict_hdecode['</s>'] = [['sil']]
 
     with open('dictionary/dict', 'w') as dict_file:
