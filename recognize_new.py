@@ -16,7 +16,7 @@ import job_runner
 
 pool = None
 
-class Model:
+class Model(object):
     configuration = {
         'model_dir': '',
         'lm': '',
@@ -47,7 +47,7 @@ class Model:
                 if '|MODEL|' in self.configuration[key]:
                     self.configuration[key] = self.configuration[key].replace('|MODEL|',self.configuration['model_dir'])
 
-class Experiment:
+class Experiment(object):
     configuration = {
         'model_name': 'hmm_si',
         'lm_scale': 19,
@@ -69,6 +69,10 @@ class Experiment:
         self.name=name
         self.model=model
 
+    def write(self):
+        work_dir = self.name
+        if os.path.exists(work_dir): shutil.rmtree(work_dir)
+        os.mkdir(work_dir)
 
     def run(self):
         try:
@@ -169,12 +173,38 @@ class Experiment:
                 return False
         return True
 
+    def create_exp_dir(self):
+        work_dir = self.name
+        if os.path.exists(work_dir): shutil.rmtree(work_dir)
+        os.mkdir(work_dir)
+
+        config = SafeConfigParser()
+        config.add_section('model')
+        for k,v in self.model.configuration:
+            config.set('model', k, str(v))
+
+        n_section = "exp_%s" % self.name
+        config.add_section(n_section)
+        for k,v in self.configuration:
+            config.set(n_section, k, str(v))
+
+        for i, adaptation in enumerate(self.adaptations):
+            j = i + 1
+            for k,v in adaptation.configuration:
+                config.set(n_section, 'adap%d_%s' % (j,k), str(v))
+
+        with open('%s/config' % work_dir, 'wb') as config_file:
+            config.write(config_file)
+
+        self.done = True
+
     def __call__(self):
-        self.run()
+        self.create_exp_dir()
+        #self.run()
         return (self.name,self.done)
         
    
-class Adaptation:
+class Adaptation(object):
     configuration = {
         'type': 'base',
         'scp': '',
@@ -313,33 +343,13 @@ def run_experiments(experiments,tasks_per_experiment=50,total_tasks=100,max_fail
             name, done = result.get()
             experiments[name].done = done
             if not done:
-                experiments[name].fail_count = experiments[name].fail_count +1
+                experiments[name].fail_count = experiments[name].fail_count + 1
 #        for experiment in experiments.values():
 #            experiment.run()
 
         runnable_experiments = [experiment for experiment in experiments.values() if (not experiment.done) and experiment.fail_count < max_fail_count and experiment.are_dependencies_ok(experiments)]
 
-#def signal_handler(signal, frame):
-    #print >> sys.stderr, "Enter signal handler"
-    #global pool
-    #if pool is not None:
-    #    print >> sys.stderr, "Start pool terminate"
-    #    pool.terminate()
-    #    pool.join()
-    #    pool = None
-    #print >> sys.stderr, "After pool terminate"
-    #job_runner.signal_handler(signal, frame)
-    #sys.exit(254)
-
-
-
 if __name__ == "__main__":
-    #global pool
-
-    #Register signal handlers
-    #signal.signal(signal.SIGINT, signal_handler)
-    #signal.signal(signal.SIGTERM, signal_handler)
-
     experiments = parse_config([])
     run_experiments(experiments)
 
