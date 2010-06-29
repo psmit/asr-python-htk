@@ -340,7 +340,7 @@ def run_experiments(experiments,tasks_per_experiment=50,total_tasks=100,max_fail
         results = [pool.apply_async(experiment) for experiment in runnable_experiments]
 
         for result in results:
-            print result.get()
+            result.get()
 
             name, done = (0,0)
             experiments[name].done = done
