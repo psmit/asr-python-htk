@@ -540,7 +540,7 @@ def create_wordtranscriptions_ued_bl(scp_files, ued_bl_dir, word_transcriptions)
 
 def wsj_selection(wsj_dirs, files_set):
     wv1_files = []
-    if files_set == 'si-84' or set == 'si-284':
+    if files_set == 'si-84' or files_set == 'si-284':
         for line in open(os.path.join(wsj_dirs[0], 'doc', 'indices', 'train', 'tr_s_wv1.ndx')):
             if not line.startswith(';'):
                 wv1_files.append(os.path.join(wsj_dirs[0], line.rstrip().split(':', 1)[1].split('/',1)[1]))
