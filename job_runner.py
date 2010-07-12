@@ -203,7 +203,7 @@ class StimulusRunner(Runner):
         
         # If people want to be nice, we set a priority (Stimulus sees negative priority as nice)
         if self.options.priority > 0:
-            batchcommand.append('-p='+str(-1 * self.options.priority))
+            batchcommand.extend(['-p', str(-1 * self.options.priority)])
         
             
         # Construct the filenames for the error and output stream
