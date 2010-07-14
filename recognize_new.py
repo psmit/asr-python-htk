@@ -294,7 +294,7 @@ class Adaptation:
         model_hvite = experiment.model.configuration['model_dir'] + '/' + self.configuration['model_hvite']
         model_adapt = experiment.model.configuration['model_dir'] + '/' + self.configuration['model_adapt']
 
-        phones_list = model_adapt + '/files/monophones'
+        phones_list = model_adapt + '/files/tiedlist'
         dict_hvite = experiment.model.configuration['dict_hvite']
         source_mlf = self.configuration['mlf']
         adapt_mlf = work_dir + '/adap%d.mlf'%id
