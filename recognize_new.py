@@ -297,7 +297,7 @@ class Adaptation:
         phones_list = model_adapt + '/files/monophones'
         dict_hvite = experiment.model.configuration['dict_hvite']
         source_mlf = self.configuration['mlf']
-        adapt_mlf = work_dir + '/' + self.name + '.mlf'
+        adapt_mlf = work_dir + '/adap%d.mlf'%id
         num_nodes = self.configuration['nodes']
 
         standard_config = experiment.model.configuration['config']
@@ -310,7 +310,7 @@ class Adaptation:
 
 
         # align transcription
-        htk.HVite(0, scp_file, model_hvite, dict_hvite, phones_list, source_mlf, adapt_mlf, 'rec')
+        htk.HVite(0, adap_scp, model_hvite, dict_hvite, phones_list, source_mlf, adapt_mlf, 'rec', standard_config)
 
         if self.configuration['type'] == 'tree':
             regtree_hed = files_dir + '/regtree%d.hed'%id
