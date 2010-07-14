@@ -381,6 +381,8 @@ class TritonRunner(Runner):
 
     delay = 1.0
     def submit_command(self, batch_command, real_command):
+        if self.verbosity > 1:
+            print >> sys.stderr, ' '.join(real_command)
         script = "#!/bin/bash\n" + "\"" + "\" \"".join(real_command) + "\""
 
         while True:
@@ -504,6 +506,7 @@ class LocalRunner(Runner):
                     print "Task " + str(command[0]) + " failed with code "+ str(resultcode) +"!"
                     self.cancelled = True
                     self.failed = True
+                    sys.exit(1)
         except Empty:
             pass
         
@@ -516,6 +519,7 @@ class LocalRunner(Runner):
                         p.terminate()
             except:
                 pass
+
 
 def signal_handler(signal, frame):
     global verbosity
