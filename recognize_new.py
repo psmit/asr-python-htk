@@ -105,7 +105,7 @@ class Experiment:
         recog_trn =  work_dir + '/recog.trn'
         configs =  [self.model.configuration['config']]
         speaker_name_width = self.model.configuration['speaker_name_width']
-        adaptation_dir=work_dir + '/xforms'
+#        adaptation_dir=work_dir + '/xforms'
 
 
         try:
@@ -509,6 +509,7 @@ if __name__ == "__main__":
             sys.exit("Expected exactly one experiment!")
 
         htk.num_tasks = options.num_tasks
+        htk.default_HERest_pruning = ['300.0', '500.0', '2000.0']
         
         for name,exp in experiments.items():
             print "Start running %s" % exp.name
