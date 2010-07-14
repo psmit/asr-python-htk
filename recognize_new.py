@@ -508,7 +508,7 @@ if __name__ == "__main__":
         if len(experiments) != 1:
             sys.exit("Expected exactly one experiment!")
 
-        htk.num_tasks = options.numtasks
+        htk.num_tasks = options.num_tasks
         
         for name,exp in experiments.items():
             print "Start running %s" % exp.name
