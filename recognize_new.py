@@ -507,6 +507,9 @@ if __name__ == "__main__":
         experiments = parse_config([options.recognition_dir + '/config'])
         if len(experiments) != 1:
             sys.exit("Expected exactly one experiment!")
+
+        htk.num_tasks = options.numtasks
+        
         for name,exp in experiments.items():
             print "Start running %s" % exp.name
             exp.run()
