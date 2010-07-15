@@ -381,6 +381,8 @@ class TritonRunner(Runner):
 
     delay = 1.0
     def submit_command(self, batch_command, real_command):
+        if self.verbosity > 2:
+            print >> sys.stderr, ' '.join(batch_command)
         if self.verbosity > 1:
             print >> sys.stderr, ' '.join(real_command)
         script = "#!/bin/bash\n" + "\"" + "\" \"".join(real_command) + "\""
