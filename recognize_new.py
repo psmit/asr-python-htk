@@ -293,6 +293,8 @@ class Adaptation(object):
         xforms_dir = work_dir + '/xforms'
         files_dir = work_dir + '/files'
 
+        log_dir = os.path.join(work_dir, 'log')
+
         target_extension = 'mllr%d' % id
         source_extension = None
         if parent_transform is not None:
@@ -327,7 +329,7 @@ class Adaptation(object):
 
 
         # align transcription
-        htk.HVite(0, adap_scp, model_hvite, dict_hvite, phones_list, source_mlf, adapt_mlf, source_mlf_ext, hvite_config)
+        htk.HVite(log_dir, adap_scp, model_hvite, dict_hvite, phones_list, source_mlf, adapt_mlf, source_mlf_ext, hvite_config)
 
         if self.configuration['type'] == 'tree':
             regtree_hed = files_dir + '/regtree%d.hed'%id
@@ -336,10 +338,10 @@ class Adaptation(object):
             data_manipulation.write_regtree_hed_file(regtree_hed, model_adapt, num_nodes, 'regtree%d'%id)
             data_manipulation.write_tree_cmlllr_config(adapt_config, regtree, '"IntVec 3 13 13 13"')
 
-            htk.HHEd(0, model_adapt, classes_dir, regtree_hed, phones_list, '/dev/null')
+            htk.HHEd(log_dir, model_adapt, classes_dir, regtree_hed, phones_list, '/dev/null')
 
 
-            htk.HERest_estimate_transform(0, adap_scp, model_adapt, xforms_dir, phones_list, adapt_mlf,
+            htk.HERest_estimate_transform(log_dir, adap_scp, model_adapt, xforms_dir, phones_list, adapt_mlf,
                                           num_adaptation_samples,
                                           [standard_config, adapt_config], speaker_name_width, target_extension,
                                           [(xforms_dir, source_extension), (classes_dir, None)], False,
@@ -357,7 +359,7 @@ class Adaptation(object):
                 input_transforms.append((xforms_dir, source_extension))
                 parent_transforms.append((xforms_dir, source_extension))
 
-            htk.HERest_estimate_transform(0, adap_scp, model_adapt, xforms_dir, phones_list, adapt_mlf,
+            htk.HERest_estimate_transform(log_dir, adap_scp, model_adapt, xforms_dir, phones_list, adapt_mlf,
                                           num_adaptation_samples,
                                           [standard_config, adapt_config], speaker_name_width, target_extension,
                                           input_transforms, False, parent_transforms)
