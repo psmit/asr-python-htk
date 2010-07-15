@@ -621,7 +621,7 @@ def copy_scp_file(orig_file, new_file):
             p = ''
             if not line.startswith('/'):
                 p = os.path.dirname(orig_file) + '/'
-            print >> nf, p + line
+            print >> nf, p + line.rstrip()
 
 def write_mlf(transcriptions, mlf_file, extension = 'lab', include_sentence_boundaries = False, append=False):
     mode = 'w'
