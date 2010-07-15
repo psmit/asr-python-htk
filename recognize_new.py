@@ -51,7 +51,7 @@ class Model(object):
                 if '|MODEL|' in self.configuration[key]:
                     self.configuration[key] = self.configuration[key].replace('|MODEL|',self.configuration['model_dir'])
 
-class Experiment:
+class Experiment(object):
     configuration = {
         'model_name': 'hmm_si',
         'lm_scale': 19,
@@ -253,7 +253,7 @@ class Experiment:
         return (self.name,self.done)
         
    
-class Adaptation:
+class Adaptation(object):
     configuration = {
         'type': 'base',
         'scp': '',
@@ -270,6 +270,19 @@ class Adaptation:
     dependencies = set()
 
     name = 'adaptation'
+
+#    def __copy__(self):
+#        ada = Adaptation(self.name)
+#        ada.configuration = copy.deepcopy(self.configuration)
+#        ada.dependencies = copy.copy(self.dependencies)
+
+    def __deepcopy__(self, memo):
+        ada = Adaptation(self.name)
+        ada.configuration = copy.deepcopy(self.configuration, memo)
+        ada.dependencies = copy.deepcopy(self.dependencies, memo)
+        return ada
+
+
     def __init__(self, name='adaptation'):
         self.name=name
 
@@ -403,14 +416,14 @@ def parse_exp_config_section(config, section, model):
     if len(adaptation_lists) > 0:
         if len(adaptation_lists) == 1:
             for experiment in experiments:
-                experiment.adaptations = adaptation_lists[0]
+                experiment.adaptations = copy.deepcopy(adaptation_lists[0])
         else:
             new_experiments = []
             for old_experiment in experiments:
                 for adaptation_list in adaptation_lists:
                     experiment = Experiment( '%s%s' %(old_experiment.name,''.join([adaptation.name for adaptation in adaptation_list])), model)
                     experiment.configuration = copy.deepcopy(old_experiment.configuration)
-                    experiment.adaptations = adaptation_list
+                    experiment.adaptations = copy.deepcopy(adaptation_list)
                     new_experiments.append(experiment)
 
             experiments = new_experiments
@@ -423,11 +436,13 @@ def parse_exp_config_section(config, section, model):
 def parse_adap_config(config,section):
     adaptation_lists = [[]]
 
+    default_adaptation = Adaptation('')
+    default_config = copy.deepcopy(default_adaptation.configuration)
     index = 1
     while(config.has_option(section,'adap%s_type'%index)):
         adaptations = []
-        adaptations.append(Adaptation(''))
-        default_config = copy.deepcopy(adaptations[0].configuration)
+        adaptations.append(copy.deepcopy(default_adaptation))
+#        default_config = copy.deepcopy(adaptations[0].configuration)
 
         for base_key in default_config.iterkeys():
             key = "adap%s_%s" % (index,base_key)
@@ -472,11 +487,11 @@ def run_experiments(experiments, tasks_per_experiment=50,total_tasks=100,max_fai
 
     runnable_experiments = [experiment for experiment in experiments.values() if (not experiment.done) and experiment.fail_count < max_fail_count and experiment.are_dependencies_ok(experiments)]
     while len(runnable_experiments) > 0:
-        results = [pool.apply_async(experiment) for experiment in runnable_experiments]
-
-        for result in results:
-            name, done = result.get(9999999)
-#        for name,done in [experiment() for experiment in runnable_experiments]:
+#        results = [pool.apply_async(experiment) for experiment in runnable_experiments]
+#
+#        for result in results:
+#            name, done = result.get(9999999)
+        for name,done in [experiment() for experiment in runnable_experiments]:
             experiments[name].done = done
             if not done:
                 experiments[name].fail_count = experiments[name].fail_count + 1
