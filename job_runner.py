@@ -526,8 +526,8 @@ def signal_handler(signal, frame):
     global runner
     
     print 'Signal received!'
-    
-    runner.cancel()
+    if runner is not None:
+        runner.cancel()
     
     if verbosity > 0:
         print 'Jobs are cancelled!'
