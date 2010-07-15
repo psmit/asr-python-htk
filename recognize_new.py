@@ -258,6 +258,7 @@ class Adaptation(object):
         'type': 'base',
         'scp': '',
         'mlf': '',
+        'mlf_ext': 'rec',
         'nodes': 128,
         'occupation': 1000,
         'num_sentences': 'all',
@@ -310,6 +311,7 @@ class Adaptation(object):
         phones_list = experiment.model.configuration['model_dir'] + '/files/tiedlist'
         dict_hvite = experiment.model.configuration['dict_hvite']
         source_mlf = self.configuration['mlf']
+        source_mlf_ext = self.configuration['mlf_ext']
         adapt_mlf = work_dir + '/adap%d.mlf'%id
         num_nodes = self.configuration['nodes']
 
@@ -323,7 +325,7 @@ class Adaptation(object):
 
 
         # align transcription
-        htk.HVite(0, adap_scp, model_hvite, dict_hvite, phones_list, source_mlf, adapt_mlf, 'rec', standard_config)
+        htk.HVite(0, adap_scp, model_hvite, dict_hvite, phones_list, source_mlf, adapt_mlf, source_mlf_ext, standard_config)
 
         if self.configuration['type'] == 'tree':
             regtree_hed = files_dir + '/regtree%d.hed'%id
