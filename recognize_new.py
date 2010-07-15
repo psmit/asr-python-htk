@@ -28,7 +28,7 @@ class Model(object):
         'recognize_scp': '|MODEL|/files/eval.scp',
         'recognize_mlf': '|MODEL|/files/words.mlf',
         'dict_hdecode': '|MODEL|/dictionary/dict.hdecode',
-        'dict_hvite': '|MODEL|/dictionary/dict.hvite',
+        'dict_hvite': '|MODEL|/dictionary/dict',
         'tiedlist': '|MODEL|/files/tiedlist',
         'ref_del_char': None,
         'word_suffix': None,
