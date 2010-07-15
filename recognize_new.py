@@ -303,7 +303,8 @@ class Adaptation(object):
             scp_file = work_dir + '/recog.scp'
 
         adap_scp = work_dir +"/adap%d.scp" %id
-        shutil.copyfile(scp_file, adap_scp)
+        data_manipulation.copy_scp_file(scp_file, adap_scp)
+#        shutil.copyfile(scp_file, adap_scp)
 
         model_hvite = experiment.model.configuration['model_dir'] + '/' + self.configuration['model_hvite']
         model_adapt = experiment.model.configuration['model_dir'] + '/' + self.configuration['model_adapt']

@@ -615,6 +615,14 @@ def read_mlf(mlf_file, remove_sentences_boundaries = False):
                 transcription.append(line.rstrip())
     return transcriptions
 
+def copy_scp_file(orig_file, new_file):
+    with open(new_file, 'w') as nf:
+        for line in open(orig_file):
+            p = ''
+            if not line.startswith('/'):
+                p = os.path.dirname(line)
+            print >> nf, p + line
+
 def write_mlf(transcriptions, mlf_file, extension = 'lab', include_sentence_boundaries = False, append=False):
     mode = 'w'
     if append:
