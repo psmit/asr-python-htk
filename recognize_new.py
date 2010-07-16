@@ -533,9 +533,11 @@ if __name__ == "__main__":
 
         htk.num_tasks = options.num_tasks
         htk.default_HERest_pruning = ['300.0', '500.0', '2000.0']
-        job_runner.default_options["verbosity"] = 10
+        job_runner.default_options["verbosity"] = 1
         job_runner.default_options["memlimit"] = 2500
         job_runner.default_options["timelimit"] = "03:00:00"
+        job_runner.default_options["exclude_nodes"] = options.exclude_nodes
+        job_runner.default_options["priority"] = options.priority
         
         for name,exp in experiments.items():
             print "Start running %s" % exp.name
