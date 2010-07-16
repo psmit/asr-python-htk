@@ -395,7 +395,7 @@ def parse_config(config_file_names):
     for section in config.sections():
         if section.startswith('exp_'):
             experiments.update(parse_exp_config_section(config, section, model))
-    return experiments
+    return experiments, model
 
 
 def parse_exp_config_section(config, section, model):
@@ -531,9 +531,8 @@ if __name__ == "__main__":
 
 
     if len(options.recognition_dir) == 0:
-        experiments = parse_config(configs)
-        if len(experiments) > 0:
-            experiments[0].model.make_reference()
+        experiments, model = parse_config(configs)
+        model.make_reference()
         for exp in experiments.keys():
             experiments[exp].launch_options = vars(options)
         run_experiments(experiments)
