@@ -537,7 +537,7 @@ if __name__ == "__main__":
             experiments[exp].launch_options = vars(options)
         run_experiments(experiments)
     else:
-        experiments = parse_config([options.recognition_dir + '/config'])
+        experiments,_ = parse_config([options.recognition_dir + '/config'])
         if len(experiments) != 1:
             sys.exit("Expected exactly one experiment! (found %s)" % ', '.join(experiments.keys()))
 
