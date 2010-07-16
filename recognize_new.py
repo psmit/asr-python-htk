@@ -86,6 +86,7 @@ class Experiment(object):
 
         xforms_dir = work_dir + '/xforms'
         classes_dir = work_dir + '/classes'
+        files_dir = work_dir + '/files'
 
 
         model = self.model.configuration['model_dir'] + '/' + self.configuration['model_name']
@@ -119,7 +120,7 @@ class Experiment(object):
             htk_lat_dir = os.path.join(work_dir, 'lattices.htk')
             rescore_lat_dir = os.path.join(work_dir, 'lattices.rescore')
             log_dir = os.path.join(work_dir, 'log')
-            for dir in [work_dir, htk_lat_dir, rescore_lat_dir, log_dir, xforms_dir, classes_dir]:
+            for dir in [work_dir, htk_lat_dir, rescore_lat_dir, log_dir, xforms_dir, classes_dir, files_dir]:
                 if not os.path.exists(dir):
                     os.mkdir(dir)
 
