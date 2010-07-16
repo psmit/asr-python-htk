@@ -356,7 +356,7 @@ class Adaptation(object):
             global_f = classes_dir + '/global%d' % id
 
             mask = None
-            if parent_transform[2] != speaker_name_width:
+            if parent_transform is not None and parent_transform[2] != speaker_name_width:
                 mask = '%%%'
                 if parent_transform[2] > 0:
                     mask = ('%' * parent_transform[2]) + "*.*"
