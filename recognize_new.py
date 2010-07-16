@@ -240,8 +240,8 @@ class Experiment(object):
                 command.extend(['--'+str(k).replace('_','-'), str(v)])
         command.extend(['--dir', self.name])
         print ' '.join(command)
-        #returncode = subprocess.call(command)
-        returncode = 0
+        returncode = subprocess.call(command)
+#        returncode = 0
 
         if returncode == 0:
             self.done = True
