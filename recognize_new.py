@@ -355,7 +355,12 @@ class Adaptation(object):
         elif self.configuration['type'] == 'base':
             global_f = classes_dir + '/global%d' % id
 
-            data_manipulation.write_base_cmllr_config(adapt_config, global_f)
+            mask = None
+            if parent_transform[2] != speaker_name_width:
+                mask = '%%%'
+                if parent_transform[2] > 0:
+                    mask = ('%' * parent_transform[2]) + "*.*"
+            data_manipulation.write_base_cmllr_config(adapt_config, global_f, mask)
             data_manipulation.write_global(global_f, 'global%d'%id)
 
             input_transforms = [(classes_dir, None)]
