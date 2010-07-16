@@ -702,10 +702,10 @@ def write_tree_cmlllr_config(file_name, tree, block_size=None):
         if block_size is not None:
             print >> cmllr_config_stream, "HADAPT:BLOCKSIZE = %s\n" % block_size
 
-def write_global(file_name):
+def write_global(file_name, name='global'):
     with open(file_name, 'w') as global_file:
-        print >> global_file, "~b \"global\" \n\
+        print >> global_file, "~b \"%s\" \n\
         <MMFIDMASK> *\n\
         <PARAMETERS> MIXBASE\n\
         <NUMCLASSES> 1\n\
-        <CLASS> 1 {*.state[2-4].mix[1-100]} "
+        <CLASS> 1 {*.state[2-4].mix[1-100]} " % (name)

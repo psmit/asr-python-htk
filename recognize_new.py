@@ -352,7 +352,7 @@ class Adaptation(object):
             global_f = classes_dir + '/global%d' % id
 
             data_manipulation.write_base_cmllr_config(adapt_config, global_f)
-            data_manipulation.write_global(global_f)
+            data_manipulation.write_global(global_f, 'global%d'%id)
 
             input_transforms = [(classes_dir, None)]
             parent_transforms = []
