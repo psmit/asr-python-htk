@@ -497,17 +497,17 @@ def parse_adap_config(config,section):
 
     return adaptation_lists
 
-def run_experiments(experiments, tasks_per_experiment=50,total_tasks=100,max_fail_count=3):
+def run_experiments(experiments, tasks_per_experiment=50,total_tasks=500,max_fail_count=3):
     global pool
     pool = multiprocessing.Pool(max(total_tasks // tasks_per_experiment,1))
 
     runnable_experiments = [experiment for experiment in experiments.values() if (not experiment.done) and experiment.fail_count < max_fail_count and experiment.are_dependencies_ok(experiments)]
     while len(runnable_experiments) > 0:
-#        results = [pool.apply_async(experiment) for experiment in runnable_experiments]
-#
-#        for result in results:
-#            name, done = result.get(9999999)
-        for name,done in [experiment() for experiment in runnable_experiments]:
+        results = [pool.apply_async(experiment) for experiment in runnable_experiments]
+
+        for result in results:
+            name, done = result.get(9999999)
+#        for name,done in [experiment() for experiment in runnable_experiments]:
             experiments[name].done = done
             if not done:
                 experiments[name].fail_count = experiments[name].fail_count + 1
