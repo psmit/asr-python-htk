@@ -51,6 +51,10 @@ class Model(object):
                 if '|MODEL|' in self.configuration[key]:
                     self.configuration[key] = self.configuration[key].replace('|MODEL|',self.configuration['model_dir'])
 
+    def make_reference(self):
+        data_manipulation.mlf_to_trn(self.configuration['recognize_mlf'], 'reference.trn',
+                                     self.configuration['speaker_name_width'], self.configuration['ref_del_char'])
+
 class Experiment(object):
     configuration = {
         'model_name': 'hmm_si',
@@ -523,6 +527,8 @@ if __name__ == "__main__":
 
     if len(options.recognition_dir) == 0:
         experiments = parse_config(configs)
+        if len(experiments) > 0:
+            experiments[0].model.make_reference()
         for exp in experiments.keys():
             experiments[exp].launch_options = vars(options)
         run_experiments(experiments)
