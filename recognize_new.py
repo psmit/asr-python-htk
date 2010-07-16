@@ -344,7 +344,7 @@ class Adaptation(object):
 
             htk.HERest_estimate_transform(log_dir, adap_scp, model_adapt, xforms_dir, phones_list, adapt_mlf,
                                           num_adaptation_samples,
-                                          [standard_config, adapt_config], speaker_name_width, target_extension,
+                                          [hvite_config, adapt_config], speaker_name_width, target_extension,
                                           [(xforms_dir, source_extension), (classes_dir, None)], False,
                                           [(xforms_dir, source_extension), (classes_dir, None)])
 
@@ -362,7 +362,7 @@ class Adaptation(object):
 
             htk.HERest_estimate_transform(log_dir, adap_scp, model_adapt, xforms_dir, phones_list, adapt_mlf,
                                           num_adaptation_samples,
-                                          [standard_config, adapt_config], speaker_name_width, target_extension,
+                                          [hvite_config, adapt_config], speaker_name_width, target_extension,
                                           input_transforms, False, parent_transforms)
 
 
