@@ -358,9 +358,10 @@ def HVite(log_id, scp_file, hmm_dir, dict, phones_list, word_transcriptions, new
     
     if config is None: config = default_config_file
     if pruning is None: pruning = default_HERest_pruning
-    
-    # divide scp files over HERest tasks
-    max_tasks = split_file(scp_file, num_tasks)
+
+    tasks = max(1,int(num_tasks / 10))
+    # divide scp files over HVite tasks
+    max_tasks = split_file(scp_file, tasks)
     
     HVite = ["HVite"]
     HVite.extend(extra_HTK_options)
