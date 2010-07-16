@@ -95,7 +95,8 @@ class Experiment(object):
 
         model = self.model.configuration['model_dir'] + '/' + self.configuration['model_name']
         recog_scp = work_dir +"/recog.scp"
-        shutil.copyfile(self.model.configuration['recognize_scp'], recog_scp)
+        data_manipulation.copy_scp_file(self.model.configuration['recognize_scp'], recog_scp)
+        #shutil.copyfile(self.model.configuration['recognize_scp'], recog_scp)
         #dict_hvite = self.model.configuration['dict_hvite']
         dict_hdecode = self.model.configuration['dict_hdecode']
         tiedlist = self.model.configuration['tiedlist']
