@@ -539,7 +539,7 @@ if __name__ == "__main__":
     else:
         experiments = parse_config([options.recognition_dir + '/config'])
         if len(experiments) != 1:
-            sys.exit("Expected exactly one experiment!")
+            sys.exit("Expected exactly one experiment! (found %s)" % ', '.join(experiments.keys()))
 
         htk.num_tasks = options.num_tasks
         htk.default_HERest_pruning = ['300.0', '500.0', '2000.0']
