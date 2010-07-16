@@ -114,7 +114,7 @@ def lattice_decode(log_id ,lat_dir, out_mlf, lm_scale):
         for lattice_file in glob.iglob(lat_dir + '/*.lat.gz'):
             print >> lattice_scp_file, lattice_file
 
-    max_tasks = split_file(lattice_scp, max(20,num_tasks))
+    max_tasks = split_file(lattice_scp, max(1,int(num_tasks/10)))
 
     decode.extend(['-read-htk',
                     '-htk-lmscale', lm_scale,
