@@ -118,7 +118,10 @@ def import_corpora(corpora, max_speaker_name_width):
         transcriptions = read_mlf(location+'/words.mlf', True)
         new_transcriptions = {}
         for key in transcriptions.keys():
-            new_transcriptions[key[:speaker_name_width]+('_'*difference)+key[speaker_name_width:]] = [prefix + s + word_suffix for s in transcriptions[key]]
+            if key is None:
+                print "Burk"
+            else:
+                new_transcriptions[key[:speaker_name_width]+('_'*difference)+key[speaker_name_width:]] = [prefix + s + word_suffix for s in transcriptions[key]]
         write_mlf(new_transcriptions, 'corpora/words.mlf', 'lab', True, True)
 
 def make_model_from_proto(hmm_dir, monophones):
