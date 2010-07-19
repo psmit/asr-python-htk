@@ -97,7 +97,7 @@ def getOptParser():
     parser.add_option("-o", "--output-stream", dest="ostream", help="write outputstream to FILE (%c for command, %j for id of first job, %J for real job id, %t for task id). If a directory is given, the default format is used in that directory", default="%c.o%j.%t", metavar="FILE")
     parser.add_option("-e", "--error-stream", dest="estream", help="write outputstream to FILE (%c for command, %j for id of first job, %J for real job id, %t for task id). If a directory is given, the default format is used in that directory", default="%c.e%j.%t", metavar="FILE")
     parser.add_option("-p", "--priority", type="int", dest="priority", help="Job priority. Higher priority is running later", default=0)
-    parser.add_option("-q", "--queue", dest="queue", help="Queue, only used for GridEngine (stimulus) at the moment", default="-soft -q helli.q")
+    parser.add_option("-q", "--queue", dest="queue", help="Queue (ignored on triton if starts with -)", default="-soft -q helli.q")
     parser.add_option("-c", "--cores", type="int", dest="cores", help="Number of cores to use (when running local). Negative numbers indicate the number of cores to keep free", default=-1)
     parser.add_option("-N", "--nodes", type="int", dest="nodes", help="Number of nodes to use (Triton)", default=1)
     parser.add_option("-r", "--retrys", type="int", dest="retry", help="Number of retry's for failed jobs (just Triton for now)", default=3)
@@ -286,7 +286,9 @@ class TritonRunner(Runner):
             batchcommand.extend(['-o', outfile])
             batchcommand.extend(['-e', errorfile])
 
-            if time_limit_to_seconds(self.options.timelimit) <= time_limit_to_seconds('04:00:00'):
+            if not self.options.queue.startswith('-') and len(self.options.queue.rstrip()) > 0:
+                batchcommand.extend(['-p', self.options.queue])
+            elif time_limit_to_seconds(self.options.timelimit) <= time_limit_to_seconds('04:00:00'):
                 batchcommand.extend(['-p', 'short'])
                 priority = priority + 1
 
