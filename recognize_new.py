@@ -527,6 +527,7 @@ if __name__ == "__main__":
     parser.add_option("-p", "--priority", type="int", dest="priority", help="priority (more is worse)",     default=0)
     parser.add_option('-x', '--exclude-nodes', dest="exclude_nodes", help="Triton nodes to exclude", default="")
     parser.add_option('-d', '--dir', dest="recognition_dir", help="parameter used for subprocesses", default="")
+    parser.add_option('-q', '--queue', dest="queue", help="Fix the queue where things are running in", default="")
 
     options, configs = parser.parse_args()
 
@@ -549,6 +550,7 @@ if __name__ == "__main__":
         job_runner.default_options["timelimit"] = "03:00:00"
         job_runner.default_options["exclude_nodes"] = options.exclude_nodes
         job_runner.default_options["priority"] = options.priority
+        job_runner.default_options["queue"] = options.queue
         
         for name,exp in experiments.items():
             print "Start running %s" % exp.name
