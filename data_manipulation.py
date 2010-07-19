@@ -90,37 +90,35 @@ def escape(word):
     if re.match(u"^[^a-zäö0-9<]", word.decode('iso-8859-15')): return "\\" + word
     else: return word
     
-def import_corpora(corpora):
+def import_corpora(corpora, max_speaker_name_width):
     if os.path.isdir('corpora'): shutil.rmtree('corpora')
     os.mkdir('corpora')
+    os.mkdir('corpora/mfc')
     sets = ['train', 'eval', 'devel']
-    
-    locationmap = {}
-    count = 0
-    for location, _, _ in corpora:
-        if not os.path.exists(location + '/mfc'): sys.exit("Not Found: " + location + '/mfc')
-        locationmap[location] = location + '/mfc'
-        if os.path.islink(location + '/mfc'):
-            count += 1
-            os.symlink(os.path.join(os.path.dirname(location + '/mfc'), os.readlink(location + '/mfc')), 'corpora/mfc' + str(count))
-            locationmap[location] = 'corpora/mfc' + str(count)
-        
+    for s in sets:
+        os.mkdir('corpora/mfc/'+s)
+
     for set in sets:
         with open('corpora/'+set+'.scp', 'w') as scp_file:
-            for location, _, _ in corpora:
+            for location, _, _, speaker_name_width in corpora:
+                difference = max_speaker_name_width - speaker_name_width
                 if not os.path.exists(location + '/'+set+'.scp'): sys.exit("Not Found: " + location + '/'+set+'.scp')
                 for line in  open(location + '/'+set+'.scp'):
-                    print >> scp_file, locationmap[location] + line[line.find('/'):].rstrip()
+                    b = os.path.basename(line.rstrip())
+                    new_link = 'corpora/mfc/'+set+'/'+ b[speaker_name_width:] + ( '_' * difference) + b[:speaker_name_width]
+                    os.symlink(location + '/mfc' + line[line.find('/'):].rstrip(), new_link)
+                    print >> scp_file, new_link
     
 
     if os.path.exists('corpora/words.mlf'):
         os.remove('corpora/words.mlf')
-    for location, prefix, word_suffix in corpora:
+    for location, prefix, word_suffix, speaker_name_width in corpora:
+        difference = max_speaker_name_width - speaker_name_width
         if not os.path.exists(location + '/words.mlf'): sys.exit("Not Found: " + location + '/words.mlf')
         transcriptions = read_mlf(location+'/words.mlf', True)
         new_transcriptions = {}
         for key in transcriptions.keys():
-            new_transcriptions[key] = [prefix + s + word_suffix for s in transcriptions[key]]
+            new_transcriptions[key[:speaker_name_width]+('_'*difference)+key[speaker_name_width:]] = [prefix + s + word_suffix for s in transcriptions[key]]
         write_mlf(new_transcriptions, 'corpora/words.mlf', 'lab', True, True)
 
 def make_model_from_proto(hmm_dir, monophones):
@@ -657,11 +655,12 @@ def mlf_to_trn(mlf, trn, num_speaker_chars=3, del_char = '', word_suffix = ''):
                 utt_name = m.group(1)
             elif line.lstrip().rstrip() == '.':
                 if utt_name not in utts_seen:
+                    trans = [tran+word_suffix for tran in trans]
                     if '_' not in utt_name:
                         trans.append("(%s_%s)" % (utt_name[:num_speaker_chars],utt_name[num_speaker_chars:]))
                     else:
                         trans.append("(%s)" % utt_name)
-                    print >> trn_file, ' '.join([tran+word_suffix for tran in trans])
+                    print >> trn_file, ' '.join(trans)
                     utts_seen.add(utt_name)
                 trans = []
             elif not line.startswith('<'):

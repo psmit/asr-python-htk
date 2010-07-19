@@ -64,6 +64,8 @@ logger.info("Starting step: %d" % options.step)
 
 dict = 'dictionary/dict'
 # Data Collection step
+speaker_name_width = int(config.get('corpora', 'speaker_name_width'))
+
 if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Data collection'))
     dicts = []
@@ -80,16 +82,24 @@ if current_step >= options.step:
     if len(dicts) == 0: sys.exit("No Dictionaries Found!")
     
     cur_corpus_id = 1
+    max_speaker_name_width = speaker_name_width
     while config.has_option("corpus"+str(cur_corpus_id), "location"):
+        corp_speaker_name_width = speaker_name_width
+        if config.has_option("corpus"+str(cur_corpus_id), 'speaker_name_width'):
+            corp_speaker_name_width = config.get("corpus"+str(cur_corpus_id), 'speaker_name_width')
+        max_speaker_name_width = max(corp_speaker_name_width, speaker_name_width)
+        
         corpora.append([config.get("corpus"+str(cur_corpus_id), "location"),
                         config.get("corpus"+str(cur_corpus_id), "prefix"),
-                        config.get("corpus"+str(cur_corpus_id), "word_suffix")])
+                        config.get("corpus"+str(cur_corpus_id), "word_suffix"),
+                        corp_speaker_name_width])
+
         cur_corpus_id += 1
     
     if len(corpora) == 0: sys.exit("No Corpora Found!")
     
     data_manipulation.import_dictionaries(dicts)
-    data_manipulation.import_corpora(corpora)
+    data_manipulation.import_corpora(corpora, max_speaker_name_width)
     
     mkmono0_led = 'config/mkmono0.led'
     mkmono1_led = 'config/mkmono1.led'
@@ -341,19 +351,12 @@ for number_sat_round in range(0,4):
             #             HADAPT:BLOCKSIZE              = \"IntVec 3 13 13 13\"\n\
 
         logger.info("Start step: %d (%s)" % (current_step, 'Estimate transform'))
-        htk.HERest_estimate_transform(current_step, scpfile, source_hmm_dir, source_hmm_dir + '/cmllr', phones_list, transcriptions, None, ['config/config', cmllr_config], int(config.get('corpora', 'speaker_name_width')), 'cmllr', [(source_hmm_dir + '/cmllr', '')])
+
+        htk.HERest_estimate_transform(current_step, scpfile, source_hmm_dir, source_hmm_dir + '/cmllr', phones_list, transcriptions, None, ['config/config', cmllr_config],
+                                      speaker_name_width, 'cmllr', [(source_hmm_dir + '/cmllr', '')])
 
         logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest (SAT)'))
-        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, True, ['config/config', cmllr_config], source_hmm_dir + '/cmllr',  int(config.get('corpora', 'speaker_name_width')))
-
-
-#    current_step += 1
-#
-#    if current_step >= options.step:
-#        logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest (SAT)'))
-#        source_hmm_dir, target_hmm_dir = data_manipulation.createHmmDir(current_step)
-#
-#        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, True, ['config/config', cmllr_config], source_hmm_dir + '/cmllr',  int(config.get('corpora', 'speaker_name_width')))
+        htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, True, ['config/config', cmllr_config], source_hmm_dir + '/cmllr',  speaker_name_width)
 
 
 
