@@ -105,7 +105,7 @@ def import_corpora(corpora, max_speaker_name_width):
                 if not os.path.exists(location + '/'+set+'.scp'): sys.exit("Not Found: " + location + '/'+set+'.scp')
                 for line in  open(location + '/'+set+'.scp'):
                     b = os.path.basename(line.rstrip())
-                    new_link = 'corpora/mfc/'+set+'/'+ b[speaker_name_width:] + ( '_' * difference) + b[:speaker_name_width]
+                    new_link = 'corpora/mfc/'+set+'/'+ b[:speaker_name_width] + ( '_' * difference) + b[speaker_name_width:]
                     os.symlink(location + '/mfc' + line[line.find('/'):].rstrip(), new_link)
                     print >> scp_file, new_link
     
