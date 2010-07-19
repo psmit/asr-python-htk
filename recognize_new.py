@@ -53,7 +53,8 @@ class Model(object):
 
     def make_reference(self):
         data_manipulation.mlf_to_trn(self.configuration['recognize_mlf'], 'reference.trn',
-                                     self.configuration['speaker_name_width'], self.configuration['ref_del_char'])
+                                     self.configuration['speaker_name_width'], self.configuration['ref_del_char'],
+                                     self.configuration['word_suffix'])
 
 class Experiment(object):
     configuration = {
