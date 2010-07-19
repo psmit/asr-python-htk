@@ -13,13 +13,13 @@ usage = "usage: %prog directories"
 parser = OptionParser(usage=usage)
 parser.add_option("-c", "--character", action='store_true', dest="character", help="use character scoring",     default=False)
 parser.add_option("-v", "--vocabulary", dest="vocab", default="", help="Vocabulary for removing sentences with OOV words")
-parser.add_option("-r", "--extra-result-dirs", dest="result_dirs", default="", help="Specify extra dirs with results")
+parser.add_option("-r", "--result-dirs", dest="result_dirs", default="", help="Specify extra dirs with results")
 parser.add_option("-s", "--speakers", dest="speakers", default="", help="Specificy comma seperated speakers")
 options, directories = parser.parse_args()
 
 
 
-result_dirs = ['baseline', 'unsup_si', 'unsup_sat']
+result_dirs = ['baseline']
 
 speakers = []
 if len(options.speakers) > 0:
