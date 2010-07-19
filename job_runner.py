@@ -243,7 +243,21 @@ class TritonRunner(Runner):
     
     def __init__(self, options, commandarr):
         super(TritonRunner,self).__init__(options, commandarr)
-        
+
+    def get_exclude_list(self, exclude_list):
+        new_list = exclude_list
+        if len(exclude_list) > 0 and not exclude_list.endswith(','):
+            new_list = new_list + ','
+
+        list = []
+        if os.path.exists('/home/smitp1/.bad_node_list'):
+            for line in open('/home/smitp1/.bad_node_list'):
+                list.append(line.rstrip())
+
+        new_list = new_list + ','.join(list)
+        return new_list
+
+
     def run(self):
         global verbosity
 
@@ -270,8 +284,9 @@ class TritonRunner(Runner):
             batchcommand.extend(['-n', str(1)])
 
             #exclude_nodes = self.options.exclude_nodes.split(',')
-            if len(self.options.exclude_nodes) > 0:
-                batchcommand.extend(['-x', self.options.exclude_nodes])
+            real_exclude_list = self.get_exclude_list(self.options.exclude_nodes)
+            if len(real_exclude_list) > 0:
+                batchcommand.extend(['-x', real_exclude_list])
 
 
             # Set the memory limit
