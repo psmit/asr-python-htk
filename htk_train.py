@@ -2,7 +2,7 @@
 # Usage: Run this script in the directory where it is working. Standard it searches a file train_config. Other configuration file can be given as arguments
 
 import locale
-locale.setlocale(locale.LC_ALL, ('en', 'iso-8859-1'))
+#locale.setlocale(locale.LC_ALL, ('en', 'iso-8859-1'))
 
 
 import data_manipulation
