@@ -64,7 +64,7 @@ logger.info("Starting step: %d" % options.step)
 
 dict = 'dictionary/dict'
 # Data Collection step
-speaker_name_width = int(config.get('corpora', 'speaker_name_width'))
+speaker_name_width = config.getint('corpora', 'speaker_name_width')
 
 if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Data collection'))
@@ -86,7 +86,7 @@ if current_step >= options.step:
     while config.has_option("corpus"+str(cur_corpus_id), "location"):
         corp_speaker_name_width = speaker_name_width
         if config.has_option("corpus"+str(cur_corpus_id), 'speaker_name_width'):
-            corp_speaker_name_width = config.get("corpus"+str(cur_corpus_id), 'speaker_name_width')
+            corp_speaker_name_width = config.getint("corpus"+str(cur_corpus_id), 'speaker_name_width')
         max_speaker_name_width = max(corp_speaker_name_width, speaker_name_width)
         
         corpora.append([config.get("corpus"+str(cur_corpus_id), "location"),
