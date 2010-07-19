@@ -687,7 +687,7 @@ def write_base_cmllr_config(file_name, base_class, mask=None):
         HMODEL:SAVEBINARY             = FALSE\n" % (base_class)
         if mask is not None:
             print >> cmllr_config_stream, "PAXFORMMASK = *.%s\n\
-            INXFORMMASK = *.%s\n" % mask, mask
+            INXFORMMASK = *.%s\n" % (mask, mask)
 
 
 def write_tree_cmlllr_config(file_name, tree, block_size=None):
