@@ -645,6 +645,9 @@ def write_mlf(transcriptions, mlf_file, extension = 'lab', include_sentence_boun
 def mlf_to_trn(mlf, trn, num_speaker_chars=3, del_char = '', word_suffix = ''):
     if del_char is None:
         del_char = ''
+    if word_suffix is None:
+        word_suffix = ''
+        
     reg_exp = re.compile('\".*/([A-Za-z0-9_]+)\.(mfc|lab|rec)\"')
 
     utts_seen = set()
