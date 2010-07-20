@@ -38,7 +38,7 @@ class Model(object):
     def __init__(self,config=None):
         if config is not None:
             for key in self.configuration.iterkeys():
-                if config.get('model',key) is not None:
+                if config.get('model',key) is not None and config.get('model',key) != "None":
                     t = type(self.configuration[key]) if self.configuration[key] is not None else str
                     self.configuration[key] =t(config.get('model',key))
                 if self.configuration[key] == "":
