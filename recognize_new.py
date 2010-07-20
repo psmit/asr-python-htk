@@ -30,7 +30,7 @@ class Model(object):
         'dict_hdecode': '|MODEL|/dictionary/dict.hdecode',
         'dict_hvite': '|MODEL|/dictionary/dict',
         'tiedlist': '|MODEL|/files/tiedlist',
-        'ref_del_char': '',
+        'ref_del_char': None,
         'word_suffix': None,
         'speaker_name_width': 5,
     }
