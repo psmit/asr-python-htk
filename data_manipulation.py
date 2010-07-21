@@ -184,7 +184,7 @@ def copy_sil_to_sp(source_hmm_dir, target_hmm_dir):
 def filter_scp_by_mlf(scp_orig, scp_new, mlf, report_list):
     scp = {}
     with open(scp_new, 'w') as scpfile:
-        namere = re.compile('(?<=/)[a-zA-Z0-9]*(?=\.[^/]*$)')
+        namere = re.compile('(?<=/)[a-zA-Z0-9_]*(?=\.[^/]*$)')
         for line in open(scp_orig):
             m = namere.search(line)
             if m:
