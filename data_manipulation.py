@@ -68,8 +68,8 @@ def import_dictionaries(dicts):
         del new_dict_hdecode['</s>'+word_suffix]
 
     new_dict_normal['<s>'] = [['sil']]
-    new_dict_hdecode['</s>'] = [['sil']]
-    new_dict_normal['<s>'] = [['sil']]
+    new_dict_normal['</s>'] = [['sil']]
+    new_dict_hdecode['<s>'] = [['sil']]
     new_dict_hdecode['</s>'] = [['sil']]
 
     with open('dictionary/dict', 'w') as dict_file:
@@ -90,37 +90,38 @@ def escape(word):
     if re.match(u"^[^a-zäö0-9<]", word.decode('iso-8859-15')): return "\\" + word
     else: return word
     
-def import_corpora(corpora):
+def import_corpora(corpora, max_speaker_name_width):
     if os.path.isdir('corpora'): shutil.rmtree('corpora')
     os.mkdir('corpora')
+    os.mkdir('corpora/mfc')
     sets = ['train', 'eval', 'devel']
-    
-    locationmap = {}
-    count = 0
-    for location, _, _ in corpora:
-        if not os.path.exists(location + '/mfc'): sys.exit("Not Found: " + location + '/mfc')
-        locationmap[location] = location + '/mfc'
-        if os.path.islink(location + '/mfc'):
-            count += 1
-            os.symlink(os.path.join(os.path.dirname(location + '/mfc'), os.readlink(location + '/mfc')), 'corpora/mfc' + str(count))
-            locationmap[location] = 'corpora/mfc' + str(count)
-        
+    for s in sets:
+        os.mkdir('corpora/mfc/'+s)
+
     for set in sets:
         with open('corpora/'+set+'.scp', 'w') as scp_file:
-            for location, _, _ in corpora:
+            for location, _, _, speaker_name_width in corpora:
+                difference = max_speaker_name_width - speaker_name_width
                 if not os.path.exists(location + '/'+set+'.scp'): sys.exit("Not Found: " + location + '/'+set+'.scp')
                 for line in  open(location + '/'+set+'.scp'):
-                    print >> scp_file, locationmap[location] + line[line.find('/'):].rstrip()
+                    b = os.path.basename(line.rstrip())
+                    new_link = 'corpora/mfc/'+set+'/'+ b[:speaker_name_width] + ( '_' * difference) + b[speaker_name_width:]
+                    os.symlink(location + '/mfc' + line[line.find('/'):].rstrip(), new_link)
+                    print >> scp_file, new_link
     
 
     if os.path.exists('corpora/words.mlf'):
         os.remove('corpora/words.mlf')
-    for location, prefix, word_suffix in corpora:
+    for location, prefix, word_suffix, speaker_name_width in corpora:
+        difference = max_speaker_name_width - speaker_name_width
         if not os.path.exists(location + '/words.mlf'): sys.exit("Not Found: " + location + '/words.mlf')
         transcriptions = read_mlf(location+'/words.mlf', True)
         new_transcriptions = {}
         for key in transcriptions.keys():
-            new_transcriptions[key] = [prefix + s + word_suffix for s in transcriptions[key]]
+            if key is None:
+                print "Burk"
+            else:
+                new_transcriptions[key[:speaker_name_width]+('_'*difference)+key[speaker_name_width:]] = [prefix + s + word_suffix for s in transcriptions[key]]
         write_mlf(new_transcriptions, 'corpora/words.mlf', 'lab', True, True)
 
 def make_model_from_proto(hmm_dir, monophones):
@@ -381,7 +382,7 @@ def prune_transcriptions(dict_file, orig_words_mlf, new_words_mlf):
         dict[key] = value
 
 
-    reg_exp = re.compile('\"\*/([A-Za-z0-9]+)\.(mfc|lab)\"')
+    reg_exp = re.compile('\"\*/([A-Za-z0-9_]+)\.(mfc|lab)\"')
     with open(new_words_mlf, 'w') as mlf_out:
         print >> mlf_out, "#!MLF!#"
         utt_name = None
@@ -540,7 +541,7 @@ def create_wordtranscriptions_ued_bl(scp_files, ued_bl_dir, word_transcriptions)
 
 def wsj_selection(wsj_dirs, files_set):
     wv1_files = []
-    if files_set == 'si-84' or set == 'si-284':
+    if files_set == 'si-84' or files_set == 'si-284':
         for line in open(os.path.join(wsj_dirs[0], 'doc', 'indices', 'train', 'tr_s_wv1.ndx')):
             if not line.startswith(';'):
                 wv1_files.append(os.path.join(wsj_dirs[0], line.rstrip().split(':', 1)[1].split('/',1)[1]))
@@ -615,6 +616,14 @@ def read_mlf(mlf_file, remove_sentences_boundaries = False):
                 transcription.append(line.rstrip())
     return transcriptions
 
+def copy_scp_file(orig_file, new_file):
+    with open(new_file, 'w') as nf:
+        for line in open(orig_file):
+            p = ''
+            if not line.startswith('/'):
+                p = os.path.dirname(orig_file) + '/'
+            print >> nf, p + line.rstrip()
+
 def write_mlf(transcriptions, mlf_file, extension = 'lab', include_sentence_boundaries = False, append=False):
     mode = 'w'
     if append:
@@ -633,8 +642,13 @@ def write_mlf(transcriptions, mlf_file, extension = 'lab', include_sentence_boun
                 print >> mlf_out, "</s>"
             print >> mlf_out, "."
 
-def mlf_to_trn(mlf, trn, num_speaker_chars=3, del_char = ''):
-    reg_exp = re.compile('\".*/([A-Za-z0-9]+)\.(mfc|lab|rec)\"')
+def mlf_to_trn(mlf, trn, num_speaker_chars=3, del_char = '', word_suffix = ''):
+    if del_char is None:
+        del_char = ''
+    if word_suffix is None:
+        word_suffix = ''
+        
+    reg_exp = re.compile('\".*/([A-Za-z0-9_]+)\.(mfc|lab|rec)\"')
 
     utts_seen = set()
 
@@ -649,7 +663,11 @@ def mlf_to_trn(mlf, trn, num_speaker_chars=3, del_char = ''):
                 utt_name = m.group(1)
             elif line.lstrip().rstrip() == '.':
                 if utt_name not in utts_seen:
-                    trans.append("(%s_%s)" % (utt_name[:num_speaker_chars],utt_name[num_speaker_chars:]))
+                    trans = [tran+word_suffix for tran in trans]
+                    if '_' not in utt_name:
+                        trans.append("(%s_%s)" % (utt_name[:num_speaker_chars],utt_name[num_speaker_chars:]))
+                    else:
+                        trans.append("(%s)" % utt_name)
                     print >> trn_file, ' '.join(trans)
                     utts_seen.add(utt_name)
                 trans = []
@@ -676,7 +694,7 @@ def write_base_cmllr_config(file_name, base_class, mask=None):
         HMODEL:SAVEBINARY             = FALSE\n" % (base_class)
         if mask is not None:
             print >> cmllr_config_stream, "PAXFORMMASK = *.%s\n\
-            INXFORMMASK = *.%s\n" % mask
+            INXFORMMASK = *.%s\n" % (mask, mask)
 
 
 def write_tree_cmlllr_config(file_name, tree, block_size=None):
@@ -691,10 +709,10 @@ def write_tree_cmlllr_config(file_name, tree, block_size=None):
         if block_size is not None:
             print >> cmllr_config_stream, "HADAPT:BLOCKSIZE = %s\n" % block_size
 
-def write_global(file_name):
+def write_global(file_name, name='global'):
     with open(file_name, 'w') as global_file:
-        print >> global_file, "~b \"global\" \n\
+        print >> global_file, "~b \"%s\" \n\
         <MMFIDMASK> *\n\
         <PARAMETERS> MIXBASE\n\
         <NUMCLASSES> 1\n\
-        <CLASS> 1 {*.state[2-4].mix[1-100]} "
+        <CLASS> 1 {*.state[2-4].mix[1-100]} " % (name)
