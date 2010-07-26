@@ -135,7 +135,7 @@ class Experiment(object):
                 current_parent_transform = adaptation.make_adaptation(i,current_parent_transform,self)
 
             adap_dirs = None
-            speaker_name_width = 3
+            speaker_name_width = self.model.configuration['speaker_name_width']
             if current_parent_transform is not None:
                 configs.append(current_parent_transform[1])
                 extension = current_parent_transform[0]
