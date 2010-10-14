@@ -528,15 +528,24 @@ if __name__ == "__main__":
     parser.add_option("-p", "--priority", type="int", dest="priority", help="priority (more is worse)",     default=0)
     parser.add_option('-x', '--exclude-nodes', dest="exclude_nodes", help="Triton nodes to exclude", default="")
     parser.add_option('-d', '--dir', dest="recognition_dir", help="parameter used for subprocesses", default="")
+    parser.add_option('-D', '--dirs-done', dest="dirs_done", default="")
     parser.add_option('-q', '--queue', dest="queue", help="Fix the queue where things are running in", default="")
 
     options, configs = parser.parse_args()
 
 
+
     if len(options.recognition_dir) == 0:
+        dirs_done = []
+        if len(options.dirs_done) > 0:
+            dirs_done = options.dirs_done.split(',')
+
+
         experiments, model = parse_config(configs)
         model.make_reference()
         for exp in experiments.keys():
+            if exp in dirs_done:
+                experiments[exp].done = True
             experiments[exp].launch_options = vars(options)
         run_experiments(experiments)
     else:
@@ -547,7 +556,7 @@ if __name__ == "__main__":
         htk.num_tasks = options.num_tasks
         htk.default_HERest_pruning = ['300.0', '500.0', '2000.0']
         job_runner.default_options["verbosity"] = 1
-        job_runner.default_options["memlimit"] = 2500
+        job_runner.default_options["memlimit"] = 1200
         job_runner.default_options["timelimit"] = "03:00:00"
         job_runner.default_options["exclude_nodes"] = options.exclude_nodes
         job_runner.default_options["priority"] = options.priority
