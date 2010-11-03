@@ -464,7 +464,7 @@ def create_wordtranscriptions_wsjcam(scp_files, wsj_dir, word_transcriptions):
         name = os.path.splitext(os.path.basename(file))[0]
         transcription = []
         for line in open(file):
-            parts = line.split(None, 2)
+            parts = line.rstrip().split(None, 2)
             if len(parts) > 2:
                 transcription.append(parts[2])
 
