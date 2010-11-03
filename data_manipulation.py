@@ -456,6 +456,42 @@ def create_wordtranscriptions_wsj(scp_files, wsj_dirs, word_transcriptions):
                 print >> transcriptions_file, '</s>'
                 print >> transcriptions_file, '.'
 
+
+def create_wordtranscriptions_wsjcam(scp_files, wsj_dir, word_transcriptions):
+    transcriptions = {}
+
+    for file in glob.iglob(wsj_dir + '/*/wsjcam0/*/*/*.wrd'):
+        name = os.path.splitext(os.path.basename(file))[0]
+        transcription = []
+        for line in open(file):
+            parts = line.split(None, 2)
+            if len(parts) > 2:
+                transcription.append(parts[2])
+
+        transcriptions[name] = transcription
+
+
+    with open(word_transcriptions, 'w') as transcriptions_file:
+        print >> transcriptions_file, "#!MLF!#"
+        for scp_file in scp_files:
+            for line in open(scp_file):
+                name = os.path.splitext(os.path.basename(line.rstrip()))[0]
+                if not transcriptions.has_key(name):
+                    sys.exit("No transcription found for %s" % name)
+
+                print >> transcriptions_file, '"*/%s.mfc"' % name
+                print >> transcriptions_file, '<s>'
+                for word in transcriptions[name]:
+                    if not word.startswith('[') and not word.startswith('<') and not word.endswith('-'):
+                        if word.startswith('"'):
+                           print >> transcriptions_file, "\%s" %  word
+                        elif len(word) > 0:
+                            print >> transcriptions_file, word
+                print >> transcriptions_file, '</s>'
+                print >> transcriptions_file, '.'
+
+
+
 def create_wordtranscriptions_dsp_eng(scp_files, dsp_eng_dir, word_transcriptions):
     transcriptions = {}
     for file in glob.iglob(dsp_eng_dir + '/*/*.txt'):
@@ -558,6 +594,17 @@ def wsj_selection(wsj_dirs, files_set):
 
 #        for file in glob.iglob(wsj_dirs[0] + '/si_et_05/*/*.wv1'):
 #            wv1_files.append(file)
+    return list(set(wv1_files))
+
+def wsjcam_selection(wsj_dir, files_set):
+    wv1_files = []
+    if files_set == 'si_tr':
+        for file in glob.iglob(wsj_dir + '/*/wsjcam0/si_tr/*/*c02*.wv1'):
+            wv1_files.append(file)
+    if files_set == 'si_et_20k':
+        for file in glob.iglob(wsj_dir + '/*/wsjcam0/si_et_*/*/*c03*.wv1'):
+            wv1_files.append(file)
+
     return list(set(wv1_files))
 
 def speecon_fi_selection(speecon_dir, set, ext='FI0'):

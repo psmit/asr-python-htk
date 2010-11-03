@@ -88,6 +88,9 @@ if current_step >= options.step:
         for dset in ['train', 'eval', 'devel']:
             waveforms[dset] = data_manipulation.wsj_selection(locations, config.get("audiofiles", dset+"_set"))
 
+    if config.get("audiofiles", "type") == 'wsjcam':
+        waveforms['train'] = data_manipulation.wsjcam_selection(config.get("audiofiles", "location"), 'si_tr')
+        waveforms['eval'] = data_manipulation.wsjcam_selection(config.get("audiofiles", "location"), 'si_et_20k')
 
     if config.get("audiofiles", "type") == 'dsp_eng':
         waveforms['train'] = data_manipulation.dsp_eng_selection(config.get("audiofiles", "location"))
@@ -142,6 +145,9 @@ if current_step >= options.step:
         locations = [os.path.join(config.get("audiofiles", "location"), 'wsj0'),
                      os.path.join(config.get("audiofiles", "location"), 'wsj1', 'wsj1')]
         data_manipulation.create_wordtranscriptions_wsj(['train.scp', 'devel.scp', 'eval.scp'],locations, 'words.mlf')
+
+    if config.get("audiofiles", "type") == 'wsjcam':
+        data_manipulation.create_wordtranscriptions_wsjcam(['train.scp', 'devel.scp', 'eval.scp'],config.get('audiofiles', 'location'), 'words.mlf')
 
     if config.get("audiofiles", "type") == 'dsp_eng':
         data_manipulation.create_wordtranscriptions_dsp_eng(['train.scp', 'devel.scp', 'eval.scp'],config.get('audiofiles', 'location'), 'words.mlf')
