@@ -27,7 +27,7 @@ for input_file, output_file in file_pairs:
     if options.verbosity > 0:
         print "%s -> %s" % (input_file, output_file)
     ini_command = []
-    if options.set == 'wsj':
+    if options.set == 'wsj' or options.set == 'wsjcam':
         ini_command = ['sph2pipe', '-f', 'wav', '-p', input_file]
     elif options.set == 'dsp_eng' or options.set == 'bl_eng' or options.set == 'ued_bl':
         ini_command = ['sox', '-t', 'wav', input_file, '-t', 'wav', '-r', '16000', '-']
