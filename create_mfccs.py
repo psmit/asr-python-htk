@@ -99,7 +99,8 @@ if current_step >= options.step:
         waveforms['eval'] = data_manipulation.bl_eng_selection(config.get("audiofiles", "location"))
 
     if config.get("audiofiles", "type") == 'ued_bl':
-        waveforms['eval'] = data_manipulation.ued_bl_selection(config.get("audiofiles", "location"), [config.get("audiofiles", "lang")], config.get("audiofiles", "selection").lstrip().rstrip().split(','))
+        waveforms['train'] = data_manipulation.ued_bl_selection(config.get("audiofiles", "location"), [config.get("audiofiles", "lang")], config.get("audiofiles", "selection").lstrip().rstrip().split(','), 'train')
+        waveforms['eval'] = data_manipulation.ued_bl_selection(config.get("audiofiles", "location"), [config.get("audiofiles", "lang")], config.get("audiofiles", "selection").lstrip().rstrip().split(','), 'eval')
 
     exclude_list = None
     if config.has_option("audiofiles", "exclude_list"):

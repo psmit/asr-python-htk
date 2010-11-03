@@ -633,13 +633,17 @@ def bl_eng_selection(bl_eng_dir):
             wav_files.append(file)
     return wav_files
 
-def ued_bl_selection(ued_bl_dir, langs, persons):
+def ued_bl_selection(ued_bl_dir, langs, persons,selection = 'train'):
     wav_files = []
     for lang in langs:
         for person in persons:
             for file in glob.iglob(ued_bl_dir + "/downsampled_22kHz/*/*/%s*/%s/*0.wav"%(person,lang)):
-                if int(os.path.splitext(os.path.basename(file))[0][-6:-2]) < 126:
-                    wav_files.append(file)
+                if selection == 'train':
+                    if int(os.path.splitext(os.path.basename(file))[0][-6:-2]) < 25+1 or int(os.path.splitext(os.path.basename(file))[0][-6:-2]) > 55:
+                        wav_files.append(file)
+                else: #eval
+                    if 25 < int(os.path.splitext(os.path.basename(file))[0][-6:-2]) < 55+1:
+                        wav_files.append(file)
     return wav_files
 
 def read_mlf(mlf_file, remove_sentences_boundaries = False):
