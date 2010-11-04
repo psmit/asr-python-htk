@@ -156,6 +156,7 @@ class Experiment(object):
                 data_manipulation.mlf_to_trn(rescore_mlf, recog_trn, speaker_name_width)
 
             else:
+                shutil.copyfile(hdecode_mlf, rescore_mlf)
                 data_manipulation.mlf_to_trn(hdecode_mlf, recog_trn, speaker_name_width)
 
 
