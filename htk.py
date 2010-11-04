@@ -46,7 +46,7 @@ def HDecode(log_id,  scp_file, model_dir, dict, phones_list, language_model,  la
                 '-H', model_dir + "/macros",
                 '-H', model_dir + "/hmmdefs",
                 '-z', 'lat',
-                '-o', 'T',
+                '-o', 'ST',
                 '-i', out_mlf+'.part.%t',
                 '-l', label_dir,
                 '-w', language_model,
