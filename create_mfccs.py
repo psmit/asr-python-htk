@@ -8,6 +8,7 @@ import data_manipulation
 import job_runner
 import htk
 import htk_logger
+import gather_wsj
 
 import os
 import os.path
@@ -81,16 +82,24 @@ if current_step >= options.step:
         for dset in ['train', 'eval', 'devel']:
             waveforms[dset] = data_manipulation.speecon_fi_selection(config.get("audiofiles", "location"), config.get("audiofiles", dset+"_set"), config.get("audiofiles", "extension"))
 
-    if config.get("audiofiles", "type") == 'wsj':
-        locations = [os.path.join(config.get("audiofiles", "location"), 'wsj0'),
-                     os.path.join(config.get("audiofiles", "location"), 'wsj1', 'wsj1')]
+    if config.get("audiofiles", "type") == 'wsj' or config.get("audiofiles", "type") == 'wsjcam':
+        if os.path.exists('wsj_gather'):
+            shutil.rmtree('wsj_gather')
+        os.mkdir('wsj_gather')
+
+        location = config.get("audiofiles", "location")
 
         for dset in ['train', 'eval', 'devel']:
-            waveforms[dset] = data_manipulation.wsj_selection(locations, config.get("audiofiles", dset+"_set"))
+            vocab = ""
+            if config.has_option("audiofiles", dset+"_vocab"):
+                vocab = config.get("audiofiles", dset+"_vocab")
+            gather_wsj.gather(config.get("audiofiles", "location"),'wsj_gather', dset, vocab, [config.get("audiofiles", dset+"_set")])
+            waveforms[dset] = [p.rstrip() for p in open('wsj_gather/%s.scp'%dset)]
+            #waveforms[dset] = data_manipulation.wsj_selection(locations, config.get("audiofiles", dset+"_set"))
 
-    if config.get("audiofiles", "type") == 'wsjcam':
-        waveforms['train'] = data_manipulation.wsjcam_selection(config.get("audiofiles", "location"), 'si_tr')
-        waveforms['eval'] = data_manipulation.wsjcam_selection(config.get("audiofiles", "location"), 'si_et_20k')
+#    if config.get("audiofiles", "type") == 'wsjcam':
+#        waveforms['train'] = data_manipulation.wsjcam_selection(config.get("audiofiles", "location"), 'si_tr')
+#        waveforms['eval'] = data_manipulation.wsjcam_selection(config.get("audiofiles", "location"), 'si_et_20k')
 
     if config.get("audiofiles", "type") == 'dsp_eng':
         waveforms['train'] = data_manipulation.dsp_eng_selection(config.get("audiofiles", "location"))
@@ -142,13 +151,21 @@ if current_step >= options.step:
     if config.get("audiofiles", "type") == 'speecon':
         data_manipulation.create_wordtranscriptions_speecon(['train.scp', 'devel.scp', 'eval.scp'],config.get('audiofiles', 'location'), 'words.mlf')
 
-    if config.get("audiofiles", "type") == 'wsj':
-        locations = [os.path.join(config.get("audiofiles", "location"), 'wsj0'),
-                     os.path.join(config.get("audiofiles", "location"), 'wsj1', 'wsj1')]
-        data_manipulation.create_wordtranscriptions_wsj(['train.scp', 'devel.scp', 'eval.scp'],locations, 'words.mlf')
 
-    if config.get("audiofiles", "type") == 'wsjcam':
-        data_manipulation.create_wordtranscriptions_wsjcam(['train.scp', 'devel.scp', 'eval.scp'],config.get('audiofiles', 'location'), 'words.mlf')
+    if config.get("audiofiles", "type") == 'wsj' or config.get("audiofiles", "type") == 'wsjcam':
+        transcriptions = {}
+        for dset in ['train', 'devel', 'eval']:
+            transcriptions.update(data_manipulation.read_mlf('wsj_gather/%s.mlf' % dset, True))
+
+        data_manipulation.write_mlf(transcriptions, 'words.mlf', 'mfc', True)
+
+#    if config.get("audiofiles", "type") == 'wsj':
+#        locations = [os.path.join(config.get("audiofiles", "location"), 'wsj0'),
+#                     os.path.join(config.get("audiofiles", "location"), 'wsj1', 'wsj1')]
+#        data_manipulation.create_wordtranscriptions_wsj(['train.scp', 'devel.scp', 'eval.scp'],locations, 'words.mlf')
+#
+#    if config.get("audiofiles", "type") == 'wsjcam':
+#        data_manipulation.create_wordtranscriptions_wsjcam(['train.scp', 'devel.scp', 'eval.scp'],config.get('audiofiles', 'location'), 'words.mlf')
 
     if config.get("audiofiles", "type") == 'dsp_eng':
         data_manipulation.create_wordtranscriptions_dsp_eng(['train.scp', 'devel.scp', 'eval.scp'],config.get('audiofiles', 'location'), 'words.mlf')
