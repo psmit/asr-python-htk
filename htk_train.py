@@ -66,6 +66,9 @@ dict = 'dictionary/dict'
 # Data Collection step
 speaker_name_width = config.getint('corpora', 'speaker_name_width')
 
+phones_list = 'files/monophones0'
+transcriptions = 'files/mono0.mlf'
+
 if current_step >= options.step:
     logger.info("Start step: %d (%s)" % (current_step, 'Data collection'))
     dicts = []
@@ -119,8 +122,10 @@ if current_step >= options.step:
 
     htk.HLEd(current_step, 'files/words.mlf', mkmono0_led, '*', 'files/monophones0', 'files/mono0.mlf', dict)
     htk.HLEd(current_step, 'files/words.mlf', mkmono1_led, '*', 'files/monophones1', 'files/mono1.mlf', dict)
-    
-    
+
+#    os.mkdir('dictionary/fsm')
+#    htk.lexgen(current_step, phones_list, dict,'dictionary/fsm/lex')
+
 current_step += 1   
 
 # Set some common variables
@@ -131,10 +136,6 @@ if not os.path.exists(configfile): sys.exit("Not Found: " + configfile)
 
 htk.default_config_file = configfile
 htk.default_HERest_pruning = config.get("DEFAULT", "HERest_pruning").split(None, 2)
-
-phones_list = 'files/monophones0'
-transcriptions = 'files/mono0.mlf'
-
 
 
 # Flat start step, calculate global variances with HCompV
@@ -317,6 +318,9 @@ for mix in [1, 2, 4, 6, 8, 12, 16]:
 
             htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, mix == 16 and i == 3)
 
+os.symlink(target_hmm_dir, 'hmm_si')
+
+
 ####################################
 #Speaker Adaptive Training
 ####################################
@@ -358,6 +362,7 @@ for number_sat_round in range(0,4):
         logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest (SAT)'))
         htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, True, ['config/config', cmllr_config], source_hmm_dir + '/cmllr',  speaker_name_width)
 
+os.symlink(target_hmm_dir, 'hmm_sat')
 
 
 print "Finished!"

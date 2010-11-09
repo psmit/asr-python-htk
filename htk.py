@@ -146,6 +146,61 @@ def lattice_decode(log_id ,lat_dir, out_mlf, lm_scale):
 
     clean_split_file(lattice_scp)
 
+def cdgen(log_id, monophones, tiedlist, mmf, outfsm):
+    cdgen = ["cdgen"]
+
+    cdgen.extend(['-monoListFName', monophones,
+                  '-silMonophone', 'sil',
+                  '-pauseMonophone', 'sp',
+                  '-tiedListFName', tiedlist,
+                  '-htkModelsFName', mmf,
+                  '-cdSepChars', '-+',
+                  '-cdType', 'xwrdtri',
+                  '-fsmFName', '%s.fsm' % outfsm,
+                  '-inSymsFName', '%s.insyms' % outfsm,
+                  '-outSymsFName', '%s.outsyms' % outfsm,
+                  ])
+
+    ostream, estream = _get_output_stream_names(log_id)
+    job_runner.submit_job([str(part) for part in cdgen], {'numtasks': 1,
+                                    'ostream': ostream,
+                                    'estream': estream,
+                                    })
+
+def lexgen(log_id, monophones, dict_hvite, outfsm):
+
+    lexgen = ["lexgen"]
+
+    lexgen.extend(['-lexFName', dict_hvite,
+                   '-sentStartWord', '<s>',
+                   '-sentEndWord', '</s>',
+                   '-monoListFName', monophones,
+                   '-silMonophone', 'sil',
+                   '-pauseMonophone', 'sp',
+                   '-fsmFName', '%s.fsm' % outfsm,
+                   '-inSymsFName', '%s.insyms' % outfsm,
+                   '-outSymsFName', '%s.outsyms' % outfsm,
+                   '-addPronunsWithEndSil',
+                   '-addPronunsWithEndPause',
+                   '-addPhiLoop',
+                   '-outputAuxPhones'
+                   ])
+
+    ostream, estream = _get_output_stream_names(log_id)
+    job_runner.submit_job([str(part) for part in lexgen], {'numtasks': 1,
+                                    'ostream': ostream,
+                                    'estream': estream,
+                                    })
+
+def gramgen(log_id):
+    pass
+
+def combine_fsms(log_id):
+    pass
+
+def juicer32(log_id):
+    pass
+
 def HLEd(log_id, input_transcriptions, led_file, selector, phones_list, output_transcriptions, dict = None):
     global num_tasks, extra_HTK_options
     HLEd = ["HLEd"]
