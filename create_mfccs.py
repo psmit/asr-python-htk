@@ -94,7 +94,7 @@ if current_step >= options.step:
             if config.has_option("audiofiles", dset+"_vocab"):
                 vocab = config.get("audiofiles", dset+"_vocab")
             gather_wsj.gather(config.get("audiofiles", "location"),'wsj_gather', dset, vocab, [config.get("audiofiles", dset+"_set")])
-            waveforms[dset] = [p.rstrip() for p in open('wsj_gather/%s.scp'%dset)]
+            waveforms[dset] = sorted(set([p.rstrip() for p in open('wsj_gather/%s.scp'%dset)]))
             #waveforms[dset] = data_manipulation.wsj_selection(locations, config.get("audiofiles", dset+"_set"))
 
 #    if config.get("audiofiles", "type") == 'wsjcam':
