@@ -27,6 +27,7 @@ class Model(object):
         'config': '',
         'recognize_scp': '|MODEL|/files/eval.scp',
         'recognize_mlf': '|MODEL|/files/words.mlf',
+        'dict': None,
         'dict_hdecode': '|MODEL|/dictionary/dict.hdecode',
         'dict_hvite': '|MODEL|/dictionary/dict',
         'tiedlist': '|MODEL|/files/tiedlist',
@@ -547,6 +548,10 @@ if __name__ == "__main__":
 
         experiments, model = parse_config(configs)
         model.make_reference()
+        if model.configuration['dict'] is not None:
+            data_manipulation.import_dictionaries([(model.configuration['dict'], '', '')])
+            model.configuration['dict_hdecode'] = 'dictionary/dict.hdecode'
+            model.configuration['dict_hvite'] = 'dictionary/dict.hvite'
         for exp in experiments.keys():
             if exp in dirs_done:
                 experiments[exp].done = True
