@@ -28,10 +28,15 @@ def import_dictionaries(dicts):
     make_clean_dir('dictionary')
     dict = {}
     for location, prefix, word_suffix in dicts:
-        if not os.path.exists(location + '/dict'):
+        realloc = ''
+        if os.path.isfile(location):
+            realloc = location
+        if os.path.isfile(location + '/dict'):
+            realloc = location + '/dict'
+        if len(realloc) == 0:
             sys.exit("Not Found: " + location + '/dict')
             
-        for line in open(location + '/dict'):
+        for line in open(realloc):
             word, transcription = line.split(None, 1)
             un_word = unescape(word.lower())
             un_word = un_word[0] + un_word[1:].replace('\\','')
