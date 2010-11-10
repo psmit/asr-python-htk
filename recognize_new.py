@@ -551,7 +551,7 @@ if __name__ == "__main__":
         if model.configuration['dict'] is not None:
             data_manipulation.import_dictionaries([(model.configuration['dict'], '', '')])
             model.configuration['dict_hdecode'] = 'dictionary/dict.hdecode'
-            model.configuration['dict_hvite'] = 'dictionary/dict.hvite'
+            model.configuration['dict_hvite'] = 'dictionary/dict'
         for exp in experiments.keys():
             if exp in dirs_done:
                 experiments[exp].done = True
