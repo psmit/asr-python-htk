@@ -80,6 +80,7 @@ class Experiment(object):
     def __init__(self, name='exp', model=None):
         self.name=name.replace('|','').replace('/','')
         self.model=model
+        self.configuration = copy.deepcopy(self.configuration)
 
     def write(self):
         work_dir = self.name
