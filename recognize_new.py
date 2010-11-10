@@ -163,8 +163,12 @@ class Experiment(object):
 
             else:
                 with open(rescore_mlf, 'w') as out_file:
+                    prev = ""
                     for line in open(hdecode_mlf):
+                        if line.rstrip() == '.' and prev != '</s>':
+                            print >> out_file, "</s>"
                         print >> out_file, line.rstrip().replace(htk_lat_dir, '*')
+                        prev = line.rstrip()
                 #shutil.copyfile(hdecode_mlf, rescore_mlf)
                 data_manipulation.mlf_to_trn(hdecode_mlf, recog_trn, speaker_name_width)
 
