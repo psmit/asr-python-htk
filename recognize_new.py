@@ -65,6 +65,7 @@ class Experiment(object):
         'end_beam': -1,
         'num_tokens': 32,
         'max_pruning': 40000,
+        'recognize_scp': '_',
     }
 
     launch_options = {}
@@ -97,7 +98,10 @@ class Experiment(object):
 
         model = self.model.configuration['model_dir'] + '/' + self.configuration['model_name']
         recog_scp = work_dir +"/recog.scp"
-        data_manipulation.copy_scp_file(self.model.configuration['recognize_scp'], recog_scp)
+        rscp = self.model.configuration['recognize_scp']
+        if not self.configuration['recognize_scp'].startswith('_'):
+            rscp = self.configuration['recognize_scp']
+        data_manipulation.copy_scp_file(rscp, recog_scp)
         #shutil.copyfile(self.model.configuration['recognize_scp'], recog_scp)
         #dict_hvite = self.model.configuration['dict_hvite']
         dict_hdecode = self.model.configuration['dict_hdecode']
