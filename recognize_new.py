@@ -550,8 +550,8 @@ if __name__ == "__main__":
         model.make_reference()
         if model.configuration['dict'] is not None:
             data_manipulation.import_dictionaries([(model.configuration['dict'], '', '')])
-            model.configuration['dict_hdecode'] = 'dictionary/dict.hdecode'
-            model.configuration['dict_hvite'] = 'dictionary/dict'
+            model.configuration['dict_hdecode'] = os.getcwd() + '/dictionary/dict.hdecode'
+            model.configuration['dict_hvite'] = os.getcwd() + '/dictionary/dict'
         for exp in experiments.keys():
             if exp in dirs_done:
                 experiments[exp].done = True
