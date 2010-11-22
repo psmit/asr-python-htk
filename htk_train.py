@@ -318,6 +318,8 @@ for mix in [1, 2, 4, 6, 8, 12, 16]:
 
             htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, mix == 16 and i == 3)
 
+if os.path.exists('hmm_si'):
+    os.unlink('hmm_si')
 os.symlink(target_hmm_dir, 'hmm_si')
 
 
@@ -363,6 +365,8 @@ for number_sat_round in range(0,4):
         htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, True, ['config/config', cmllr_config], source_hmm_dir + '/cmllr',  speaker_name_width)
 
 os.symlink(target_hmm_dir, 'hmm_sat')
+if os.path.exists('hmm_sat'):
+    os.unlink('hmm_sat')
 
 
 print "Finished!"

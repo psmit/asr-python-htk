@@ -644,10 +644,10 @@ def ued_bl_selection(ued_bl_dir, langs, persons,selection = 'train'):
         for person in persons:
             for file in glob.iglob(ued_bl_dir + "/downsampled_22kHz/*/*/%s*/%s/*0.wav"%(person,lang)):
                 if selection == 'train':
-                    if int(os.path.splitext(os.path.basename(file))[0][-6:-2]) < 25+1 or int(os.path.splitext(os.path.basename(file))[0][-6:-2]) > 55:
+                    if int(os.path.splitext(os.path.basename(file))[0][-6:-2]) < 70+1 or int(os.path.splitext(os.path.basename(file))[0][-6:-2]) > 100:
                         wav_files.append(file)
                 else: #eval
-                    if 25 < int(os.path.splitext(os.path.basename(file))[0][-6:-2]) < 55+1:
+                    if 70 < int(os.path.splitext(os.path.basename(file))[0][-6:-2]) < 100+1:
                         wav_files.append(file)
     return wav_files
 
