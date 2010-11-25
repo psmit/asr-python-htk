@@ -51,7 +51,9 @@ config = SafeConfigParser({'name': 'EXPERIMENT NAME_TO_BE_FILLED!',
                             'required_occupation': '200.0',
                             'speaker_name_width': '5',
                             'word_suffix': '',
-                            'skip_dict_lookup': '0'})
+                            'skip_dict_lookup': '0',
+                            'power': '0',
+                            'iterations': '0'})
 config.read(configs if len(configs) > 0 else "train_config")
 
 
@@ -317,6 +319,45 @@ for mix in [1, 2, 4, 6, 8, 12, 16]:
             source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
 
             htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, mix == 16 and i == 3)
+
+#Optional, variable number of gaussians / state, keeping the avg of 16
+if config.has_section('PS'):
+    power = float(config.get('PS', 'power'))
+    iterations = int(config.get('PS', 'iterations'))
+
+    for i in range(iterations, 0, -1):
+        current_step += 1
+        if current_step >= options.step:
+            logger.info("Start step: %d (%s)" % (current_step, 'Redividing Gaussians'))
+            source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
+            hed_file =  'files/PS%d.hed' % i
+            with open(hed_file, 'w') as hed:
+                print >> hed, 'LS "%s/stats"' % source_hmm_dir
+                print >> hed, "PS 16 %f %d" % (power, iterations)
+
+            htk.HHEd(current_step,source_hmm_dir, target_hmm_dir,hed_file,phones_list)
+
+
+        # Re estimate model 1 times
+        for i in range(0,1):
+            current_step += 1
+
+            if current_step >= options.step:
+                logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest'))
+                source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
+
+                htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, True)
+
+    # Re estimate model 2 times
+    for i in range(0,2):
+        current_step += 1
+
+        if current_step >= options.step:
+            logger.info("Start step: %d (%s)" % (current_step, 'Re-estimate model with HERest'))
+            source_hmm_dir, target_hmm_dir = data_manipulation.create_hmm_dir(current_step)
+
+            htk.HERest(current_step, scpfile, source_hmm_dir, target_hmm_dir, phones_list, transcriptions, True)
+
 
 if os.path.exists('hmm_si'):
     os.unlink('hmm_si')
