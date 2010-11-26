@@ -771,4 +771,4 @@ def write_global(file_name, name='global'):
         <MMFIDMASK> *\n\
         <PARAMETERS> MIXBASE\n\
         <NUMCLASSES> 1\n\
-        <CLASS> 1 {*.state[2-4].mix[1-100]} " % (name)
+        <CLASS> 1 {*.state[2-4].mix[1-1000]} " % (name)
