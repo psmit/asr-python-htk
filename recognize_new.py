@@ -159,7 +159,7 @@ class Experiment(object):
 
                 print "Start step: %d (%s)" % (0, 'Decoding lattices with lattice-tool')
                 htk.lattice_decode(log_dir, rescore_lat_dir, rescore_mlf, lm_scale)
-                data_manipulation.mlf_to_trn(rescore_mlf, recog_trn, speaker_name_width)
+                data_manipulation.mlf_to_trn(rescore_mlf, recog_trn, self.model.configuration['speaker_name_width'])
 
             else:
                 with open(rescore_mlf, 'w') as out_file:
@@ -170,7 +170,7 @@ class Experiment(object):
                         print >> out_file, line.rstrip().replace(htk_lat_dir, '*')
                         prev = line.rstrip()
                 #shutil.copyfile(hdecode_mlf, rescore_mlf)
-                data_manipulation.mlf_to_trn(hdecode_mlf, recog_trn, speaker_name_width)
+                data_manipulation.mlf_to_trn(hdecode_mlf, recog_trn, self.model.configuration['speaker_name_width'])
 
 
 
