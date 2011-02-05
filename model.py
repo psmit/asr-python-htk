@@ -2,7 +2,7 @@ from __future__ import print_function
 import glob
 import os
 import shutil
-from tools import System, HCompV, htk_config, HERest, HHEd
+from tools import *
 
 
 __author__ = 'peter'
@@ -46,7 +46,7 @@ class HTK_model(object):
     
 
     def initialize_new(self, scp_list, word_mlf, dict, remove_previous=False):
-        if not remove_previous and (os.path.exists(self.train_files_dir) or len(glob.iglob(self.model_dir + '/' + self.name + '.*')) > 0):
+        if not remove_previous and (os.path.exists(self.train_files_dir) or len(glob.glob(self.model_dir + '/' + self.name + '.*')) > 0):
             raise ExistingFilesException
 
         if os.path.exists(self.train_files_dir): shutil.rmtree(self.train_files_dir)
@@ -68,7 +68,7 @@ class HTK_model(object):
         # handle dictionary
         dic = HTK_dictionary()
         if isinstance(dict,basestring):
-            dic.read_dict(dic)
+            dic.read_dict(dict)
         elif all(isinstance(d,basestring) for d in dict):
             for d in dict:
                 dic.read_dict(d)
@@ -88,7 +88,7 @@ class HTK_model(object):
                 trans.read_mlf(w, HTK_transcription.WORD)
         else:
             raise TypeError
-        trans.write_mlf(self.training_word_mlf)
+        trans.write_mlf(self.training_word_mlf,target=HTK_transcription.WORD)
 
         self.id = 1
 
@@ -212,9 +212,6 @@ TI silst {sil.state[3],sp.state[2]}
         pass
 
 
-
-
-
 class HTK_dictionary(object):
     fixed_values = {'<s>':set(['sil']), '</s>':set(['sil'])}
 
@@ -225,15 +222,15 @@ class HTK_dictionary(object):
         self.dictionary.update(self.fixed_values)
 
         with open(file_name,'w') as file_desc:
-            for word in self.dictionary.iterkeys():
+            for word in sorted(self.dictionary.iterkeys()):
                 for transcription in self.dictionary[word]:
                     if word.startswith('<'):
-                        print("{1:s}\t{2:s}".format(word," ".join(transcription)),file=file_desc)
+                        print("{0:s}\t{1:s}".format(word," ".join(transcription)),file=file_desc)
                     elif hvite:
-                        print("{1:s}\t{2:s} sp".format(word," ".join(transcription)),file=file_desc)
-                        print("{1:s}\t{2:s} sil".format(word," ".join(transcription)),file=file_desc)
+                        print("{0:s}\t{1:s} sp".format(word," ".join(transcription)),file=file_desc)
+                        print("{0:s}\t{1:s} sil".format(word," ".join(transcription)),file=file_desc)
                     else:
-                        print("{1:s}\t{2:s}".format(word," ".join(transcription)),file=file_desc)
+                        print("{0:s}\t{1:s}".format(word," ".join(transcription)),file=file_desc)
 
     def read_dict(self,file_name):
         for line in open(file_name):
@@ -246,6 +243,7 @@ class HTK_dictionary(object):
             for trans in self.dictionary[word]:
                 for t in trans:
                     phones.add(t)
+        return phones
 
     def _add_transcription(self,word,transcription):
         if word not in self.dictionary:
@@ -254,7 +252,7 @@ class HTK_dictionary(object):
         while transcription[-1] in ["sp", "sil"]:
             transcription = transcription[:-1]
 
-        self.dictionary[word].add(transcription)
+        self.dictionary[word].add(tuple(transcription))
 
 
 class HTK_transcription(object):
@@ -292,7 +290,8 @@ class HTK_transcription(object):
         for line in open(mlf_file):
             if line.startswith("#"): continue
             elif line.startswith("\""):
-                cur_file_name = os.path.splitext(os.path.basename(line.strip()[1:-1]))
+                cur_file_name = os.path.splitext(os.path.basename(line.strip()[1:-1]))[0]
+                cur_transcription = []
             elif line.startswith("."):
                 self.transcriptions[target][cur_file_name] = cur_transcription
             else:

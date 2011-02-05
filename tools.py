@@ -1,10 +1,9 @@
-from datetime import time
 from itertools import izip
 import os
 import shutil
 import sys
 import tempfile
-from model import HTK_transcription
+from model import *
 
 __author__ = 'peter'
 
