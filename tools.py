@@ -3,6 +3,9 @@ import os
 import shutil
 import sys
 import tempfile
+from gridscripts.remote_run import RemoteRunner
+
+
 from model import *
 
 __author__ = 'peter'
