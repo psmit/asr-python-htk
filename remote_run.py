@@ -1,11 +1,10 @@
 import collections
-import time
 import os
 import sys
-
-from subprocess import Popen
+import time
 
 from multiprocessing.pool import Pool, cpu_count
+from subprocess import Popen
 from tempfile import mkdtemp
 
 
