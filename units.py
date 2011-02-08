@@ -139,8 +139,8 @@ class HTK_transcription(object):
         with open(trn_file, 'w') as trn_desc:
             for file_name in self.transcriptions[target].iterkeys():
                 if speaker_name_width > 0:
-                    file_name = file_name[:speaker_name_width] + '_' + file_name[speaker_name_widte_h:]
-                print("{1:s} ({2:s})".format(" ".join(self.transcriptions[target][file_name]), filname))
+                    file_name = file_name[:speaker_name_width] + '_' + file_name[speaker_name_width:]
+                print("{1:s} ({2:s})".format(" ".join(self.transcriptions[target][file_name]), file_name), file=trn_desc)
 
 
 class SCPFile(object):
