@@ -3,104 +3,12 @@ import os
 import shutil
 import sys
 import tempfile
-from gridscripts.remote_run import RemoteRunner
 
+from gridscripts.remote_run import RemoteRunner,JobFailedException, System, SplittableJob,Task,BashJob
 
-from model import *
+from units import HTK_transcription, SCPFile
 
 __author__ = 'peter'
-
-
-class JobFailedException(Exception): pass
-
-class TaskFailedException(Exception): pass
-
-class System(object):
-    @staticmethod
-    def get_global_temp_dir():
-        try:
-            return tempfile.mkdtemp(dir=os.environ['GLOBAL_TMP'])
-        except KeyError:
-            sys.exit("Please set the GLOBAL_TMP environment variable to a directory for temporary files")
-
-    @staticmethod
-    def get_local_temp_dir():
-        try:
-            return tempfile.mkdtemp(dir=os.environ['LOCAL_TMP'])
-        except KeyError:
-            sys.exit("Please set the LOCAL_TMP environment variable to a directory for temporary files")
-        except OSError:
-            sys.exit("The LOCAL_TMP directory does not seem to exist")
-
-
-class Job(object):
-    max_num_retries = 2
-    cleaning = True
-
-    def _run(self):
-        pass
-
-    def __call__(self):
-        self._run()
-
-
-
-
-class AtomicJob(Job):
-    pass
-
-
-class Task(object):
-    max_task_retries = 3
-
-    def _run(self):
-        raise TaskFailedException
-
-    def _clean(self,keep_input_files=False):
-        pass
-
-    def __call__(self):
-        tries = 0
-        while True:
-            try:
-                self._run()
-            except TaskFailedException:
-                if tries < self.max_task_retries:
-                    tries += 1
-                    self._clean(keep_input_files=True)
-                else:
-                    raise
-            else:
-                return
-
-    def _test_success(self):
-        return True
-
-
-class SplittableJob(Job):
-    max_num_tasks = 10
-
-    def __init__(self):
-        self.tasks = []
-
-    def _split_to_tasks(self):
-        pass
-
-    def _merge_tasks(self):
-        pass
-
-    def __call__(self):
-        self._split_to_tasks()
-
-        try:
-            for task in self.tasks:
-                task()
-
-            self._merge_tasks()
-
-        except TaskFailedException:
-            raise JobFailedException
-
 
 
 class htk_config(object):
@@ -108,14 +16,14 @@ class htk_config(object):
         'mix_weight_floor': (float,None),
         'prune_threshold': (float,None),
         'min_examples': (int,None),
-        'pruning': (float,None),
+        'pruning': (float,[300.0,500.0,2000.0]),
         'num_tokens': (int,None),
-        'lm_scale': (int,None),
-        'beam': (float,200.0),
-        'end_beam': (float,None),
+        'lm_scale': (int,None),             #HDecode
+        'beam': (float,200.0),              #HDecode
+        'end_beam': (float,None),           #HDecode
         'max_pruning': (int,None),
         'num_speaker_chars': (int,-1),
-        'min_variance': (float,None),
+        'min_variance': (float,0.05),       #HCompV
     }
 
     def __init__(self, config_file = None, debug_flags = None):
@@ -235,7 +143,7 @@ class HERest(SplittableJob):
         if isinstance(pruning, float):
             base_command.extend(['-t',pruning])
         elif all(isinstance(p,float) for p in pruning):
-            base_command.extend(['-t', ' '.join(str(p) for p in pruning)])
+            base_command.extend(['-t']+ [str(p) for p in pruning])
         else:
             raise TypeError
             
@@ -252,7 +160,7 @@ class HERest(SplittableJob):
 
 
         #positional arguments
-        base_command.extend(hmm_list)
+        base_command.append(hmm_list)
 
 
         #store instance variables
@@ -269,7 +177,7 @@ class HERest(SplittableJob):
                                                  self.num_speaker_chars if self.num_speaker_chars is not None else -1)
 
         for i, scp_file in enumerate(scp_files):
-            self.tasks.append(HERest.HERestTask(self,i+1,self.scp_file))
+            self.tasks.append(HERestTask(self,i+1,scp_file))
 
 
     def _merge_tasks(self):
@@ -277,8 +185,8 @@ class HERest(SplittableJob):
             raise JobFailedException
 
         if self.output_hmm_model is not None:
-            t = HERest.HERestTask(self,0)
-            t()
+            t = HERestTask(self,0)
+            t.run()
             if not t._test_success():
                 raise JobFailedException
 
@@ -293,52 +201,56 @@ class HERest(SplittableJob):
             shutil.rmtree(self.acc_tmp_dir)
 
 
-    class HERestTask(Task):
-        def __init__(self,parent_job,task_id,scp_file=None):
-            self.parent = parent_job
-            self.task_id = task_id
-            self.scp_file = scp_file
+class HERestTask(Task,BashJob):
+    def __init__(self,parent_job,task_id,scp_file=None):
+        super(HERestTask,self).__init__(task_id)
+        self.parent = parent_job
+        self.task_id = task_id
+        self.scp_file = scp_file
 
-        def _run(self):
-            localized_command = [cmd_part.format({'scp_file':self.scp_file})
-                                 for cmd_part in self.parent.base_command]
+        if task_id is 0:
+            self.command = [parent_job.base_command[0],'-p',str(self.task_id)] + parent_job.base_command[1:] + [os.path.join(self.parent.acc_tmp_dir,'HER{0:d}.acc'.format(id)) for id in xrange(1,len(self.parent.tasks)+1)]
+        else:
+            self.command = [parent_job.base_command[0],'-S',self.scp_file,'-p',str(self.task_id)] + parent_job.base_command[1:]
 
-            print ' '.join(localized_command)
+    def _test_success(self):
+        if self.task_id is 0:
+            return os.path.exists(os.path.join(self.parent.acc_tmp_dir, os.path.basename(self.parent.hmm_model)))
 
-        def _test_success(self):
+        else:
             success = True
             if self.parent.output_hmm_model is not None:
-                success = success and os.path.exists(os.path.join(os.path.dirname(self.parent.output_hmm_model),self.task_id+'.acc'))
+                success = success and os.path.exists(os.path.join(self.parent.acc_tmp_dir,'HER{0:d}.acc'.format(self.task_id)))
             if self.parent.output_adaptation is not None:
                 success = success and any(os.path.exists(f) for f in self._get_output_transforms())
 
             return success
 
-        def _clean(self,keep_input_files=False):
+    def _clean(self,keep_input_files=False):
 
-            if not keep_input_files and self.scp_file is not None:
-                os.remove(self.scp_file)
+        if not keep_input_files and self.scp_file is not None:
+            os.remove(self.scp_file)
 
-            if self.task_id > 0:
-                try:
-                    if self.parent.output_hmm_model is not None:
-                        os.remove(os.path.join(os.path.dirname(self.parent.output_hmm_model),self.task_id+'.acc') )
+        if self.task_id > 0:
+            try:
+                if self.parent.output_hmm_model is not None:
+                    os.remove(os.path.join(self.parent.acc_tmp_dir,'HER{0:d}.acc'.format(self.task_id)))
 
-                    for f in self._get_output_transforms():
-                        os.remove(f)
+                for f in self._get_output_transforms():
+                    os.remove(f)
 
-                except OSError:
-                    pass
+            except OSError:
+                pass
 
 
-        def _get_output_transforms(self):
-            if self.parent.output_adaptation is None:
-                return []
+    def _get_output_transforms(self):
+        if self.parent.output_adaptation is None:
+            return []
 
-            speakers = set(s[:self.parent.num_speaker_chars] for s in open(self.scp_file))
-            output_dir, output_extension = self.parent.output_adaptation
+        speakers = set(s[:self.parent.num_speaker_chars] for s in open(self.scp_file))
+        output_dir, output_extension = self.parent.output_adaptation
 
-            return [os.path.join(output_dir, s + '.'+ output_extension) for s in speakers]
+        return [os.path.join(output_dir, s + '.'+ output_extension) for s in speakers]
 
                         
 
@@ -409,7 +321,7 @@ class HDecode(SplittableJob):
 
         for i, files in enumerate(izip(scp_files,mlf_files)):
             scp_file, output_mlf = files
-            self.tasks.append(HDecode.HDecodeTask(self,i+1,scp_file,output_mlf))
+            self.tasks.append(HDecodeTask(self,i+1,scp_file,output_mlf))
 
 
     def _merge_tasks(self):
@@ -430,35 +342,46 @@ class HDecode(SplittableJob):
 
             shutil.rmtree(self.tmp_dir)
 
-    class HDecodeTask(Task):
-        def __init__(self,parent_job,task_id,scp_file,output_mlf):
-            self.parent = parent_job
-            self.task_id = task_id
-            self.scp_file = scp_file
-            self.output_mlf = output_mlf
+class HDecodeTask(Task,BashJob):
+    def __init__(self,parent_job,task_id,scp_file,output_mlf):
+        super(HDecodeTask,self).__init__(task_id)
+        self.parent = parent_job
+        self.task_id = task_id
+        self.scp_file = scp_file
+        self.output_mlf = output_mlf
 
-        def _run(self):
-            localized_command = [cmd_part.format({'scp_file':self.scp_file,'output_mlf':self.output_mlf})
-                                 for cmd_part in self.parent.base_command]
+    def _run(self):
+        localized_command = [cmd_part.format({'scp_file':self.scp_file,'output_mlf':self.output_mlf})
+                             for cmd_part in self.parent.base_command]
 
-            print ' '.join(localized_command)
+        print ' '.join(localized_command)
 
-        def _clean(self,keep_input_files=False):
-            if not keep_input_files:
-                os.remove(self.scp_file)
-            os.remove(self.output_mlf)
-        def _test_success(self):
-            return os.path.exists(self.output_mlf) and len(a for a in open(self.output_mlf) if a.startswith('"')) == len(open(self.scp_file))
+    def _clean(self,keep_input_files=False):
+        if not keep_input_files:
+            os.remove(self.scp_file)
+        os.remove(self.output_mlf)
+    def _test_success(self):
+        return os.path.exists(self.output_mlf) and len(a for a in open(self.output_mlf) if a.startswith('"')) == len(open(self.scp_file))
 
 
     
-class HLEd(AtomicJob):
-    def __init__(self, htk_config):
+class HLEd(BashJob):
+    def __init__(self, htk_config, input_transcriptions, led_file, phones_list, dict, output_transcriptions, selector = '*' ):
         super(HLEd,self).__init__()
-        self.htk_config = htk_config
+        command = ['HLEd']
+        command.extend(htk_config.get_flags())
+
+        command.extend(htk_config.turn_to_config('-d', dict))
+        command.extend(htk_config.turn_to_config('-n', phones_list))
+        command.extend(htk_config.turn_to_config('-l', selector))
+        command.extend(htk_config.turn_to_config('-i', output_transcriptions))
+
+        command.append(led_file)
+        command.append(input_transcriptions)
+        self.command = command
 
 
-class HCompV(AtomicJob):
+class HCompV(BashJob):
     def __init__(self, htk_config, scp_file, proto_file, min_variance = None):
         super(HCompV,self).__init__()
         command = ['HCompV']
@@ -472,12 +395,9 @@ class HCompV(AtomicJob):
         command.append(proto_file)
 
         self.command = command
-
-    def _run(self):
-        print ' '.join(self.command)
         
 
-class HHEd(AtomicJob):
+class HHEd(BashJob):
     def __init__(self, htk_config, input_model, output_model, hmm_list, script=None, binary=False):
         super(HHEd,self).__init__()
         self.htk_config = htk_config
@@ -507,31 +427,3 @@ class HVite(SplittableJob):
 
         
 
-class SCPFile(object):
-    def __init__(self,file):
-        self.file = file
-
-    def split(self,num_parts,dir,prefix_length=-1):
-        parts = []
-        for i in xrange(num_parts): parts.append([])
-
-        prev_file = ""
-        cur_index = -1
-
-        for file in sorted(f.strip() for f in open(self.file)):
-            if prefix_length < 0 or os.path.basename(file)[:prefix_length] != prev_file[:prefix_length]:
-                cur_index += 1
-            parts[cur_index].append(file)
-            prev_file = file
-
-        scp_files = []
-        for i in xrange(num_parts):
-            if len(parts[i]) > 0:
-                scp_file = 'scp.%d'% i+1
-                with open(os.path.join(dir, scp_file), 'w') as scp_desc:
-                    for file in parts[i]:
-                        print >> scp_desc, file
-                scp_files.append(scp_file)
-            else:
-                break
-        return scp_files

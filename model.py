@@ -3,6 +3,7 @@ import glob
 import os
 import shutil
 from tools import *
+from units import HTK_dictionary,HTK_transcription
 
 
 __author__ = 'peter'
@@ -22,7 +23,7 @@ class TrainLogger(object):
 
 
 class HTK_model(object):
-    def __init__(self, name, model_dir):
+    def __init__(self, name, model_dir, htk_config):
         self.name = name
 
         self.model_dir = model_dir
@@ -33,7 +34,7 @@ class HTK_model(object):
         self.training_phone_mlf = os.path.join(self.train_files_dir, 'phone.mlf')
         self.training_dict = os.path.join(self.train_files_dir,'dict')
 
-        self.htk_config = htk_config()
+        self.htk_config = htk_config
         self.training_files_speaker_name_chars = 3
 
         self.phones = []
@@ -46,24 +47,14 @@ class HTK_model(object):
     
 
     def initialize_new(self, scp_list, word_mlf, dict, remove_previous=False):
+        System.set_log_dir(self.name)
+
         if not remove_previous and (os.path.exists(self.train_files_dir) or len(glob.glob(self.model_dir + '/' + self.name + '.*')) > 0):
             raise ExistingFilesException
 
         if os.path.exists(self.train_files_dir): shutil.rmtree(self.train_files_dir)
         for f in glob.iglob(self.model_dir + '/' + self.name + '.*'): os.remove(f)
         os.mkdir(self.train_files_dir)
-
-        # handle scp files
-        if isinstance(scp_list,basestring):
-            shutil.copyfile(scp_list,self.training_scp)
-        elif all(isinstance(scp,basestring) for scp in scp_list):
-            with open(self.training_scp, 'w') as scp_desc:
-                for scp in scp_list:
-                    for file in open(scp):
-                        print(file.strip(),file=scp_desc)
-        else:
-            raise TypeError
-
 
         # handle dictionary
         dic = HTK_dictionary()
@@ -88,7 +79,7 @@ class HTK_model(object):
                 trans.read_mlf(w, HTK_transcription.WORD)
         else:
             raise TypeError
-        trans.write_mlf(self.training_word_mlf,target=HTK_transcription.WORD)
+
 
         self.id = 1
 
@@ -98,14 +89,91 @@ class HTK_model(object):
                 print(p, file=phones_desc)
 
 
+        # handle scp files
+        if isinstance(scp_list,basestring):
+            scp_list = [scp_list]
+
+        real_trans = HTK_transcription()
+        real_trans.transcriptions[real_trans.WORD] = {}
+
+        with open(self.training_scp, 'w') as scp_desc:
+            for scp in scp_list:
+                for file in open(scp):
+                    id = os.path.splitext(os.path.basename(file.strip()))[0]
+
+                    ok = True
+
+                    for word in trans.transcriptions[HTK_transcription.WORD][id]:
+                        if word not in dic.dictionary:
+                            print("%s skipped, because has missing word %s" % (file.strip(), word))
+                            ok = False
+                            break        
+                    if ok:
+                        print(file.strip(),file=scp_desc)
+                        real_trans.transcriptions[real_trans.WORD][id] = trans.transcriptions[real_trans.WORD][id]
+
+        real_trans.write_mlf(self.training_word_mlf,target=HTK_transcription.WORD)
+
     def initialize_existing(self):
         pass
+
+    def expand_word_transcription(self, use_sp=False):
+        tmp_dir = System.get_global_temp_dir()
+        mkmono = os.path.join(tmp_dir,'mkmono.led')
+
+        with open(mkmono, 'w') as mkmono_desc:
+            print("""EX
+IS sil sil""" ,file=mkmono_desc)
+        
+            if use_sp:
+                self.training_phone_mlf = os.path.join(self.train_files_dir, 'phone1.mlf')
+            else:
+                self.training_phone_mlf = os.path.join(self.train_files_dir, 'phone0.mlf')
+                print("DE sp", file=mkmono_desc)
+
+        #runner = RemoteRunner()
+#        runner.run(HLEd(self.htk_config, self.training_word_mlf,mkmono,self.get_model_name_id() + '.hmmlist', self.training_dict,self.training_phone_mlf))
+        HLEd(self.htk_config, self.training_word_mlf,mkmono,self.get_model_name_id() + '.hmmlist', self.training_dict,self.training_phone_mlf).run()
+
+
+        shutil.rmtree(tmp_dir)
 
     def flat_start(self):
         tmp_dir = System.get_global_temp_dir()
         proto_file = os.path.join(tmp_dir, 'proto')
         vFloors = os.path.join(tmp_dir, 'vFloors')
-        HCompV(self.htk_config, self.training_scp, proto_file)()
+
+        with open(proto_file, 'w') as proto_desc:
+            print("""~o <VecSize> 39 <MFCC_0_D_A_Z>
+~h "proto"
+<BeginHMM>
+        <NumStates> 5
+        <State> 2
+                <Mean> 39
+0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+                <Variance> 39
+1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+        <State> 3
+                <Mean> 39
+0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+                <Variance> 39
+1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+        <State> 4
+                <Mean> 39
+0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+                <Variance> 39
+                1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+<TransP> 5
+0.0 1.0 0.0 0.0 0.0
+0.0 0.6 0.4 0.0 0.0
+0.0 0.0 0.6 0.4 0.0
+0.0 0.0 0.0 0.7 0.3
+0.0 0.0 0.0 0.0 0.0
+<EndHMM>""", file=proto_desc)
+
+#        runner = RemoteRunner()
+#        runner.run(HCompV(self.htk_config, self.training_scp, proto_file))
+        HCompV(self.htk_config, self.training_scp, proto_file).run()
 
 
         out_model = self.get_model_name_id() + ".mmf"
@@ -123,7 +191,7 @@ class HTK_model(object):
         with open(out_model, 'w') as model_desc:
             print(model_def, file=model_desc)
             for line in open(vFloors):
-                print(line, file=model_desc)
+                print(line.strip(), file=model_desc)
 
             #Write the hmmdefs  (replacing for each monophone, proto with the monophone)
             for line in open( self.get_model_name_id() + '.hmmlist'):
@@ -135,7 +203,7 @@ class HTK_model(object):
         self.id += 1
         shutil.copyfile(self.get_model_name_id(1)+'.hmmlist',self.get_model_name_id()+'.hmmlist')
         HERest(self.htk_config, self.training_scp,self.get_model_name_id(1)+'.mmf',self.get_model_name_id()+'.hmmlist',
-               self.training_phone_mlf,output_hmm_model=self.get_model_name_id()+'.mmf')()
+               self.training_phone_mlf,output_hmm_model=self.get_model_name_id()+'.mmf').run()
 
 
     def introduce_short_pause_model(self):
@@ -186,7 +254,7 @@ AT 4 2 0.2 {sil.transP}
 AT 1 3 0.3 {sp.transP}
 TI silst {sil.state[3],sp.state[2]}
 """, file = sil_desc)
-        HHEd(self.htk_config,self.get_model_name_id(1)+'.mmf', self.get_model_name_id(0)+'.mmf',self.get_model_name_id()+'.hmmlist',script=sil_desc)()
+        HHEd(self.htk_config,self.get_model_name_id(1)+'.mmf', self.get_model_name_id(0)+'.mmf',self.get_model_name_id()+'.hmmlist',script=sil_desc).run()
         shutil.rmtree(tmp_dir)
 
 
@@ -210,125 +278,5 @@ TI silst {sil.state[3],sp.state[2]}
     @TrainLogger
     def estimate_transform(self):
         pass
-
-
-class HTK_dictionary(object):
-    fixed_values = {'<s>':set(['sil']), '</s>':set(['sil'])}
-
-    def __init__(self):
-        self.dictionary = {}
-
-    def write_dict(self,file_name,hvite=True):
-        self.dictionary.update(self.fixed_values)
-
-        with open(file_name,'w') as file_desc:
-            for word in sorted(self.dictionary.iterkeys()):
-                for transcription in self.dictionary[word]:
-                    if word.startswith('<'):
-                        print("{0:s}\t{1:s}".format(word," ".join(transcription)),file=file_desc)
-                    elif hvite:
-                        print("{0:s}\t{1:s} sp".format(word," ".join(transcription)),file=file_desc)
-                        print("{0:s}\t{1:s} sil".format(word," ".join(transcription)),file=file_desc)
-                    else:
-                        print("{0:s}\t{1:s}".format(word," ".join(transcription)),file=file_desc)
-
-    def read_dict(self,file_name):
-        for line in open(file_name):
-            parts = line.split()
-            self._add_transcription(parts[0],parts[1:])
-
-    def get_phones(self):
-        phones = set()
-        for word in self.dictionary.iterkeys():
-            for trans in self.dictionary[word]:
-                for t in trans:
-                    phones.add(t)
-        return phones
-
-    def _add_transcription(self,word,transcription):
-        if word not in self.dictionary:
-            self.dictionary[word] = set()
-
-        while transcription[-1] in ["sp", "sil"]:
-            transcription = transcription[:-1]
-
-        self.dictionary[word].add(tuple(transcription))
-
-
-class HTK_transcription(object):
-    WORD = 0
-    PHONE = 1
-    STATE = 2
-
-    def __init__(self):
-        self.transcriptions = {}
-
-
-    def expand_words_to_phones(self,model,use_sp,use_triphones):
-        script = ""
-        if use_triphones:
-            script = "ME sil sil sil\nWB sp\nNB sp\nTC sil sil\n"
-        else:
-            script = "EX\nIS sil sil\n"
-            if not use_sp:
-                script += "DE sp\n"
-
-        model.htk.HLEd(self,model.dict,script)
-
-
-    def align_phone_transcriptions(self, model):
-        pass
-
-
-    def read_mlf(self, mlf_file, target=PHONE):
-        cur_file_name = None
-        cur_transcription = []
-
-        if target not in self.transcriptions:
-            self.transcriptions[target] = {}
-
-        for line in open(mlf_file):
-            if line.startswith("#"): continue
-            elif line.startswith("\""):
-                cur_file_name = os.path.splitext(os.path.basename(line.strip()[1:-1]))[0]
-                cur_transcription = []
-            elif line.startswith("."):
-                self.transcriptions[target][cur_file_name] = cur_transcription
-            else:
-                if target < HTK_transcription.STATE:
-                    cur_transcription.append(line.split()[0])
-                else:
-                    start,end,state = line.split()[:3]
-                    cur_transcription.append((int(start),int(end),state))
-
-    def write_mlf(self, mlf_file, target=PHONE, extension="lab"):
-        with open(mlf_file, 'w') as mlf_desc:
-            print("#!MLF!#",file=mlf_desc)
-
-            for file_name in self.transcriptions[target].iterkeys():
-                print("\"*/{0:>s}.{1:>s}\"".format(file_name,extension),file=mlf_desc)
-
-                for part in self.transcriptions[target][file_name]:
-                    print(part,file=mlf_desc)
-                print(".",file=mlf_desc)
-
-    def read_trn(self, trn_file):
-        target = HTK_transcription.PHONE
-
-        if target not in self.transcriptions:
-            self.transcriptions[target] = {}
-
-        for line in open(trn_file):
-            parts = line.split()
-            self.transcriptions[target][parts[-1][1:-1].replace('_','')] = parts[:-1]
-
-    def write_trn(self, trn_file, speaker_name_width = -1):
-        target = HTK_transcription.PHONE
-
-        with open(trn_file, 'w') as trn_desc:
-            for file_name in self.transcriptions[target].iterkeys():
-                if speaker_name_width > 0:
-                    file_name = file_name[:speaker_name_width] + '_' + file_name[speaker_name_widte_h:]
-                print("{1:s} ({2:s})".format(" ".join(self.transcriptions[target][file_name]), filname))
 
 
