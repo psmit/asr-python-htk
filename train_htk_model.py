@@ -2,8 +2,8 @@
 from optparse import OptionParser
 import os
 import sys
-from model import HTK_model
-from tools import htk_config
+from htk2.model import HTK_model
+from htk2.tools import htk_config
 
 usage = "usage: %prog [options] modelname file_list transcription dictionary [model_dir]"
 parser = OptionParser(usage=usage)
