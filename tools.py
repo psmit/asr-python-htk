@@ -24,6 +24,10 @@ class htk_config(object):
         'max_pruning': (int,None),
         'num_speaker_chars': (int,-1),
         'min_variance': (float,0.05),       #HCompV
+        'tying_rules': (str,'/share/puhe/peter/rules/phonetic_rules._en'),  #tying
+        'tying_threshold': (int, 1000),                                     #tying
+        'required_occupation': (int, 200),                                  #tying
+
     }
 
     def __init__(self, config_file = None, debug_flags = None):
@@ -95,7 +99,8 @@ class htk_config(object):
 class HERest(SplittableJob):
     def __init__(self, htk_config, scp_file, hmm_model, hmm_list, input_mlf, config_file = None, input_adaptation = None,
                  parent_adaptation = None, output_adaptation = None, output_hmm_model=None, pruning = None,
-                 prune_threshold = None, num_speaker_chars=None, min_examples=None, mix_weight_floor=None, max_adap_sentences = None ):
+                 prune_threshold = None, num_speaker_chars=None, min_examples=None, mix_weight_floor=None, max_adap_sentences = None,
+                stats= None):
         super(HERest,self).__init__()
 
         base_command = ["HERest"]
@@ -170,6 +175,7 @@ class HERest(SplittableJob):
         self.output_adaptation = output_adaptation
         self.scp_file = scp_file
         self.num_speaker_chars = num_speaker_chars
+        self.stats = stats
 
     def _split_to_tasks(self):
         self.scp_tmp_dir = System.get_global_temp_dir()
@@ -210,6 +216,8 @@ class HERestTask(Task,BashJob):
 
         if task_id is 0:
             self.command = [parent_job.base_command[0],'-p',str(self.task_id)] + parent_job.base_command[1:] + [os.path.join(self.parent.acc_tmp_dir,'HER{0:d}.acc'.format(id)) for id in xrange(1,len(self.parent.tasks)+1)]
+            if self.parent.stats is not None:
+                self.command = [self.command[0],'-s',self.parent.stats]+self.command[1:]
         else:
             self.command = [parent_job.base_command[0],'-S',self.scp_file,'-p',str(self.task_id)] + parent_job.base_command[1:]
 

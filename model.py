@@ -1,6 +1,7 @@
 from __future__ import print_function
 import glob
 import os
+import re
 import shutil
 from tools import *
 from units import HTK_dictionary,HTK_transcription
@@ -206,11 +207,15 @@ IS sil sil""" ,file=mkmono_desc)
                 
         shutil.rmtree(tmp_dir)
         
-    def re_estimate(self):
+    def re_estimate(self,stats=False):
         self.id += 1
+        if stats:
+            stats = self.get_model_name_id()+'.stats'
+        else:
+            stats = None
         shutil.copyfile(self.get_model_name_id(1)+'.hmmlist',self.get_model_name_id()+'.hmmlist')
         HERest(self.htk_config, self.training_scp,self.get_model_name_id(1)+'.mmf',self.get_model_name_id()+'.hmmlist',
-               self.training_phone_mlf,output_hmm_model=self.get_model_name_id()+'.mmf').run()
+               self.training_phone_mlf,output_hmm_model=self.get_model_name_id()+'.mmf',stats=stats).run()
 
 
     def introduce_short_pause_model(self):
@@ -267,14 +272,135 @@ TI silst {sil.state[3],sp.state[2]}
         self.expand_word_transcription(True)
 
     def transform_to_triphone(self):
-        pass
+        tmp_dir = System.get_global_temp_dir()
+        mktri = os.path.join(tmp_dir,'mktri.led')
+
+        with open(mktri, 'w') as mktri_desc:
+            print("""ME sil sil sil
+WB sp
+NB sp
+TC sil sil""" ,file=mktri_desc)
+        old_mlf = self.training_phone_mlf
+        self.training_phone_mlf = os.path.join(self.train_files_dir, 'tri.mlf')
+        self.id += 1
+        HLEd(self.htk_config, old_mlf, mktri, self.get_model_name_id() + '.hmmlist', self.training_dict,self.training_phone_mlf).run()
+        self._remove_triphone_sil(self.get_model_name_id() + '.hmmlist', True)
+        self._remove_triphone_sil(self.training_phone_mlf)
+
+        tri_hed = os.path.join(tmp_dir,'tri.hed')
+
+        self._make_tri_hed(self.get_model_name_id() + '.hmmlist',self.get_model_name_id(1) + '.hmmlist',tri_hed)
+
+        HHEd(self.htk_config,self.get_model_name_id(1)+'.mmf',self.get_model_name_id()+'.mmf',self.get_model_name_id(1)+'.hmmlist',script=tri_hed).run()
+        
+        shutil.rmtree(tmp_dir)    
+
+    @staticmethod
+    def _remove_triphone_sil(file, unique = False):
+        lines = []
+        reg = re.compile("([a-z_]+\-sil)|(sil\+[a-z_]+)")
+
+        for line in open(file):
+            lines.append(reg.sub('sil', reg.sub('sil', line.rstrip())))
+
+        with open(file, 'w') as wfile:
+            for line in lines:
+                if not unique or (not line.rstrip() == 'sil' and not line.rstrip() == 'sil+sil'):
+                    print(line, file=wfile)
+            if unique:
+                print("sil",file=wfile)
+
+    @staticmethod
+    def _make_tri_hed(triphones_list, phones_list, tri_hed):
+        with open(tri_hed, 'w') as trihed:
+            print("CL %s" % triphones_list,file=trihed)
+            for line in open(phones_list):
+                print("TI T_%(phone)s {(*-%(phone)s+*,%(phone)s+*,*-%(phone)s).transP}" % {'phone': line.rstrip()}, file=trihed)
 
     def tie_triphones(self):
-        pass
+        self.id += 1
+        tmp_dir = System.get_global_temp_dir()
+        full_list = os.path.join(tmp_dir,'full_list')
 
+        self._make_full_list(self.get_model_name_id(5) + '.hmmlist',full_list)
+
+        tree_hed = os.path.join(tmp_dir,'tree.hed')
+        self._make_tree_hed(self.htk_config.tying_rules, self.get_model_name_id(5) + '.hmmlist',tree_hed,
+                            self.htk_config.tying_threshold,self.htk_config.required_occupation,self.get_model_name_id(1) + '.stats',
+                            full_list,self.get_model_name_id() + '.hmmlist', os.path.join(tmp_dir,'trees'))
+
+        HHEd(self.htk_config,self.get_model_name_id(1) + '.mmf',self.get_model_name_id(0) + '.mmf',self.get_model_name_id(1) + '.hmmlist',script=tree_hed).run()
+
+        shutil.rmtree(tmp_dir)
+
+    @staticmethod
+    def _make_full_list(phone_list, full_list):
+        phones = []
+        for phone in open(phone_list):
+            if phone.rstrip() != 'sp': phones.append(phone.rstrip())
+
+        with open(full_list, 'w') as flist:
+            for phone1 in phones:
+                for phone2 in phones:
+                    if phone2 != 'sil':
+                        for phone3 in phones:
+                            print ("%s-%s+%s" % (phone1, phone2, phone3), file=flist)
+            print ('sp', file=flist)
+            print ('sil', file=flist)
+
+    @staticmethod
+    def _make_tree_hed(phone_rules_file, phones_list, tree_hed_file, tb, ro, statsfile, fulllist, tiedlist, trees):
+
+        phone_rules = {}
+        for line in open(phone_rules_file):
+            rule, phones = line.split(None, 1)
+            if not phone_rules.has_key(rule):
+                phone_rules[rule] = []
+            phone_rules[rule].extend([phone.lower() for phone in phones.split()])
+
+        for phone in open(phones_list):
+            phone_rules[phone.rstrip()] = [phone.rstrip()]
+
+        if phone_rules.has_key('sp'): del phone_rules['sp']
+        if phone_rules.has_key('sil'): del phone_rules['sil']
+
+        with open(tree_hed_file, 'w') as tree_hed:
+            print("LS %s" % statsfile,file=tree_hed)
+            print("RO %.1f" % ro,file=tree_hed)
+            print("TR 0",file=tree_hed)
+
+            for rule, phones in phone_rules.items():
+                print('QS "L_%s" {%s}' % (rule, ",".join([phone + '-*' for phone in phones])),file=tree_hed)
+                print('QS "R_%s" {%s}' % (rule, ",".join(['*+' + phone  for phone in phones])),file=tree_hed)
+
+
+            print("TR 2",file=tree_hed)
+
+            for state in range(2,5):
+                for phone in open(phones_list):
+                    print('TB %(tb).1f "%(phone)s_s%(state)d" {("%(phone)s","*-%(phone)s+*","%(phone)s+*","*-%(phone)s").state[%(state)d]}' % {'tb': tb, 'state': state, 'phone': phone.rstrip()},file=tree_hed)
+
+            print("TR 1",file=tree_hed)
+
+
+            print('AU "%s"' % fulllist,file=tree_hed)
+            print('CO "%s"' % tiedlist,file=tree_hed)
+            print('ST "%s"' % trees,file=tree_hed)
 
     def split_mixtures(self,num_mixes):
-        pass
+        self.id += 1
+        tmp_dir = System.get_global_temp_dir()
+        hed_file =  os.path.join(tmp_dir,'mix.hed')
+
+        with open(hed_file, 'w') as hed:
+            print("MU %d {*.state[2-4].stream[1].mix}" % num_mixes,file=hed)
+            print("MU %d {sil.state[2-4].stream[1].mix}" % 2*num_mixes,file=hed)
+
+        shutil.copyfile(self.get_model_name_id(1) + '.hmmlist',self.get_model_name_id() + '.hmmlist')
+
+        HHEd(self.htk_config,self.get_model_name_id(1) + '.mmf',self.get_model_name_id(0) + '.mmf',self.get_model_name_id() + '.hmmlist',script=hed_file).run()
+
+        shutil.rmtree(tmp_dir)
 
     def split_mixtures_variably(self,num_mixes, num_steps, step):
         pass
