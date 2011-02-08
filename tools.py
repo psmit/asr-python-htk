@@ -1,11 +1,9 @@
 from itertools import izip
+
 import os
 import shutil
-import sys
-import tempfile
 
-from gridscripts.remote_run import RemoteRunner,JobFailedException, System, SplittableJob,Task,BashJob
-
+from gridscripts.remote_run import JobFailedException, System, SplittableJob,Task,BashJob
 from units import HTK_transcription, SCPFile
 
 __author__ = 'peter'

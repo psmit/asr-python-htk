@@ -1,10 +1,14 @@
 from __future__ import print_function
+
 import glob
 import os
 import re
 import shutil
-from tools import *
+
+from gridscripts.remote_run import System
+from tools import HCompV,HERest,HHEd,HLEd,HVite
 from units import HTK_dictionary,HTK_transcription
+
 
 
 __author__ = 'peter'
