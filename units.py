@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 from __future__ import print_function
 import os
+import re
 
 
 class HTK_dictionary(object):
@@ -7,6 +9,7 @@ class HTK_dictionary(object):
 
     def __init__(self):
         self.dictionary = {}
+        self.unquoted_list = None
 
     def write_dict(self,file_name,hvite=True):
         self.dictionary.update(self.fixed_values)
@@ -17,15 +20,26 @@ class HTK_dictionary(object):
                     if word.startswith('<'):
                         print("{0:s}\t{1:s}".format(word,transcription),file=file_desc)
                     elif hvite:
-                        print("{0:s}\t{1:s} sp".format(word," ".join(transcription)),file=file_desc)
-                        print("{0:s}\t{1:s} sil".format(word," ".join(transcription)),file=file_desc)
+                        print("{0:s}\t{1:s} sp".format(self._escape(word)," ".join(transcription)),file=file_desc)
+                        print("{0:s}\t{1:s} sil".format(self._escape(word)," ".join(transcription)),file=file_desc)
                     else:
-                        print("{0:s}\t{1:s}".format(word," ".join(transcription)),file=file_desc)
+                        print("{0:s}\t{1:s}".format(self._escape(word)," ".join(transcription)),file=file_desc)
 
     def read_dict(self,file_name):
         for line in open(file_name):
             parts = line.split()
-            self._add_transcription(parts[0],parts[1:])
+            self._add_transcription(self._unescape(parts[0]),parts[1:])
+        self.unquoted_list = None
+
+    def word_in_dict(self,word):
+        if self.unquoted_list is None:
+            self.unquoted_list = set(self._escape(s) for s in self.dictionary.iterkeys())
+            for k in self.fixed_values.iterkeys():
+                self.unquoted_list.add(k)
+
+        return word in self.unquoted_list
+
+
 
     def get_phones(self):
         phones = set()
@@ -44,6 +58,16 @@ class HTK_dictionary(object):
 
         self.dictionary[word].add(tuple(transcription))
 
+    @staticmethod
+    def _unescape(word):
+        if re.match("^\\\\[^a-z0-9<]", word): return word[1:]
+        else: return word
+    
+    @staticmethod
+    def _escape(word):
+        if re.match(u"^[^a-zäö0-9<]", word.decode('iso-8859-15')): return "\\" + word
+        else: return word
+
 
 class HTK_transcription(object):
     WORD = 0
@@ -54,20 +78,17 @@ class HTK_transcription(object):
         self.transcriptions = {}
 
 
-    def expand_words_to_phones(self,model,use_sp,use_triphones):
-        script = ""
-        if use_triphones:
-            script = "ME sil sil sil\nWB sp\nNB sp\nTC sil sil\n"
-        else:
-            script = "EX\nIS sil sil\n"
-            if not use_sp:
-                script += "DE sp\n"
+#    def expand_words_to_phones(self,model,use_sp,use_triphones):
+#        script = ""
+#        if use_triphones:
+#            script = "ME sil sil sil\nWB sp\nNB sp\nTC sil sil\n"
+#        else:
+#            script = "EX\nIS sil sil\n"
+#            if not use_sp:
+#                script += "DE sp\n"
+#
+#        model.htk.HLEd(self,model.dict,script)
 
-        model.htk.HLEd(self,model.dict,script)
-
-
-    def align_phone_transcriptions(self, model):
-        pass
 
     def read_mlf(self, mlf_file, target=PHONE):
         cur_file_name = None

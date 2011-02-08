@@ -107,7 +107,7 @@ class HTK_model(object):
                     ok = True
 
                     for word in trans.transcriptions[HTK_transcription.WORD][id]:
-                        if word not in dic.dictionary:
+                        if not dic.word_in_dict(word):
                             print("%s skipped, because has missing word %s" % (file.strip(), word))
                             ok = False
                             break        

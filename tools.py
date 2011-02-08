@@ -148,7 +148,7 @@ class HERest(SplittableJob):
         if isinstance(pruning, float):
             base_command.extend(['-t',pruning])
         elif all(isinstance(p,float) for p in pruning):
-            base_command.extend(['-t']+ [str(p) for p in pruning])
+            base_command.extend(['-t']+ [str(p) for p in pruning])  
         else:
             raise TypeError
             

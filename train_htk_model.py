@@ -62,12 +62,6 @@ for mix in [1, 2, 4, 6, 8, 12, 16]:
     model.split_mixtures(mix)
     for _ in xrange(4): model.re_estimate()
 
-
-
-
-
-
-
 print "Success"
 
 
