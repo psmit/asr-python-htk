@@ -350,18 +350,108 @@ class HDecodeTask(Task,BashJob):
         self.scp_file = scp_file
         self.output_mlf = output_mlf
 
-    def _run(self):
-        localized_command = [cmd_part.format({'scp_file':self.scp_file,'output_mlf':self.output_mlf})
-                             for cmd_part in self.parent.base_command]
+    def _clean(self,keep_input_files=False):
+        if not keep_input_files:
+            os.remove(self.scp_file)
+        os.remove(self.output_mlf)
 
-        print ' '.join(localized_command)
+    def _test_success(self):
+        return os.path.exists(self.output_mlf) and len(a for a in open(self.output_mlf) if a.startswith('"')) == len(open(self.scp_file))
+
+
+
+class HVite(SplittableJob):
+    def __init__(self,htk_config, scp_file, hmm_model, dict, hmm_list, output_transcriptions, input_transcriptions, config_file = None, ext='lab', pruning=None):
+        super(HVite,self).__init__()
+        self.htk_config = htk_config
+
+        base_command = ["HVite"]
+        base_command.extend(htk_config.get_flags(config_file))
+
+        base_command.extend(htk_config.turn_to_config('-H',hmm_model))
+        base_command.extend(htk_config.turn_to_config('-l','*'))
+        base_command.extend(htk_config.turn_to_config('-o','ST'))
+        base_command.extend(htk_config.turn_to_config('-x',ext))
+        base_command.extend(htk_config.turn_to_config('-y','lab'))
+        base_command.extend(htk_config.turn_to_config('-I',input_transcriptions))
+
+
+        #pruning flag
+        if pruning is None: pruning = htk_config.pruning
+        if isinstance(pruning, float):
+            base_command.extend(['-t',pruning])
+        elif all(isinstance(p,float) for p in pruning):
+            base_command.extend(['-t']+ [str(p) for p in pruning])
+        else:
+            raise TypeError
+
+
+        base_command.append('-a')
+        base_command.append('-m')
+
+        base_command.append(dict)
+        base_command.append(hmm_list)
+#
+#        "-S", scp_file+ ".part.%t",
+#                    "-i", new_transcriptions + ".part.%t",
+
+#    HVite.extend(extra_HTK_options)
+#
+#
+#    HVite.extend(["-t"])
+#    HVite.extend(pruning)
+#
+
+        #store instance variables
+        self.scp_file = scp_file
+        self.output_mlf = output_transcriptions
+        self.base_command = base_command
+
+    def _split_to_tasks(self):
+        self.tmp_dir = System.get_global_temp_dir()
+        scp_files = SCPFile(self.scp_file).split(self.max_num_tasks,self.tmp_dir, -1)
+
+        mlf_files = [scp_file + '.mlf' for scp_file in scp_files]
+
+        for i, files in enumerate(izip(scp_files,mlf_files)):
+            scp_file, output_mlf = files
+            self.tasks.append(HViteTask(self,i+1,scp_file,output_mlf))
+
+    def _merge_tasks(self):
+
+        if not all(task._test_success() for task in self.tasks):
+            raise JobFailedException
+
+        tr = HTK_transcription()
+        for task in self.tasks:
+            tr.read_mlf(task.output_mlf)
+
+        tr.write_mlf(self.output_mlf)
+        
+        if self.cleaning:
+            for task in self.tasks:
+                task._clean()
+
+            shutil.rmtree(self.tmp_dir)
+
+
+class HViteTask(Task,BashJob):
+    def __init__(self,parent_job,task_id,scp_file,output_mlf):
+        super(HViteTask,self).__init__(task_id)
+        self.parent = parent_job
+        self.task_id = task_id
+        self.scp_file = scp_file
+        self.output_mlf = output_mlf
+
+        self.command = [parent_job.base_command[0],'-S', self.scp_file , '-i', self.output_mlf] + parent_job.base_command[1:]
 
     def _clean(self,keep_input_files=False):
         if not keep_input_files:
             os.remove(self.scp_file)
         os.remove(self.output_mlf)
+
     def _test_success(self):
-        return os.path.exists(self.output_mlf) and len(a for a in open(self.output_mlf) if a.startswith('"')) == len(open(self.scp_file))
+        return os.path.exists(self.output_mlf) and len([a for a in open(self.output_mlf) if a.startswith('"')]) == len([a for a in open(self.scp_file)])
 
 
     
@@ -405,6 +495,7 @@ class HHEd(BashJob):
         command = ['HHEd']
         command.extend(htk_config.get_flags())
         command.extend(htk_config.turn_to_config('-H', input_model))
+#        command.extend(htk_config.turn_to_config('-M', os.path.dirname(output_model)))
         command.extend(htk_config.turn_to_config('-w', output_model))
 
         if binary:
@@ -417,13 +508,4 @@ class HHEd(BashJob):
 
         self.command = command
 
-    def _run(self):
-        print ' '.join(self.command)
-
-class HVite(SplittableJob):
-    def __init(self,htk_config):
-        super(HVite,self).__init__()
-        self.htk_config = htk_config
-
-        
 

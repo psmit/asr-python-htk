@@ -10,16 +10,16 @@ __author__ = 'peter'
 
 class ExistingFilesException(Exception): pass
 
-class TrainLogger(object):
-    a = []
-    def __init__(self,f):
-        self.f = f
-        self.__name__ = f.__name__
-
-    def __call__(self,*args,**kwargs):
-        print("Calling %s" % self.__name__)
-        self.a.append(self.__name__)
-        self.f(self, *args,**kwargs)
+#class TrainLogger(object):
+#    a = []
+#    def __init__(self,f):
+#        self.f = f
+#        self.__name__ = f.__name__
+#
+#    def __call__(self,*args,**kwargs):
+#        print("Calling %s" % self.__name__)
+#        self.a.append(self.__name__)
+#        self.f(self, *args,**kwargs)
 
 
 class HTK_model(object):
@@ -48,6 +48,8 @@ class HTK_model(object):
 
     def initialize_new(self, scp_list, word_mlf, dict, remove_previous=False):
         System.set_log_dir(self.name)
+        if remove_previous:
+            for f in glob.iglob(System.get_log_dir()+'/*'): os.remove(f)
 
         if not remove_previous and (os.path.exists(self.train_files_dir) or len(glob.glob(self.model_dir + '/' + self.name + '.*')) > 0):
             raise ExistingFilesException
@@ -113,6 +115,7 @@ class HTK_model(object):
                         real_trans.transcriptions[real_trans.WORD][id] = trans.transcriptions[real_trans.WORD][id]
 
         real_trans.write_mlf(self.training_word_mlf,target=HTK_transcription.WORD)
+        self.expand_word_transcription()
 
     def initialize_existing(self):
         pass
@@ -131,12 +134,16 @@ IS sil sil""" ,file=mkmono_desc)
                 self.training_phone_mlf = os.path.join(self.train_files_dir, 'phone0.mlf')
                 print("DE sp", file=mkmono_desc)
 
-        #runner = RemoteRunner()
-#        runner.run(HLEd(self.htk_config, self.training_word_mlf,mkmono,self.get_model_name_id() + '.hmmlist', self.training_dict,self.training_phone_mlf))
-        HLEd(self.htk_config, self.training_word_mlf,mkmono,self.get_model_name_id() + '.hmmlist', self.training_dict,self.training_phone_mlf).run()
+        HLEd(self.htk_config, self.training_word_mlf, mkmono, self.get_model_name_id() + '.hmmlist', self.training_dict,self.training_phone_mlf).run()
 
 
         shutil.rmtree(tmp_dir)
+
+    def align_transcription(self):
+        self.training_phone_mlf = os.path.join(self.train_files_dir, 'phone_aligned.mlf')
+
+#        htk.HVite(current_step, scpfile, target_hmm_dir, dict, phones_list, 'files/words.mlf', transcriptions)
+        HVite(self.htk_config, self.training_scp, self.get_model_name_id() + '.mmf', self.training_dict, self.get_model_name_id() + '.hmmlist', self.training_phone_mlf, self.training_word_mlf).run()
 
     def flat_start(self):
         tmp_dir = System.get_global_temp_dir()
@@ -221,7 +228,7 @@ IS sil sil""" ,file=mkmono_desc)
 
         state = ""
 
-        with open(self.get_model_name_id()+'.mmf') as model_desc:
+        with open(self.get_model_name_id()+'.mmf', 'w') as model_desc:
             for line in open(self.get_model_name_id(1)+'.mmf'):
                 print(line, file=model_desc)
 
@@ -248,16 +255,16 @@ IS sil sil""" ,file=mkmono_desc)
 
 
         tmp_dir = System.get_global_temp_dir()
-        with open(os.path.join(tmp_dir,'sil.hed')) as sil_desc:
+        with open(os.path.join(tmp_dir,'sil.hed'), 'w') as sil_desc:
             print("""AT 2 4 0.2 {sil.transP}
 AT 4 2 0.2 {sil.transP}
 AT 1 3 0.3 {sp.transP}
 TI silst {sil.state[3],sp.state[2]}
 """, file = sil_desc)
-        HHEd(self.htk_config,self.get_model_name_id(1)+'.mmf', self.get_model_name_id(0)+'.mmf',self.get_model_name_id()+'.hmmlist',script=sil_desc).run()
+        HHEd(self.htk_config,self.get_model_name_id(1)+'.mmf', self.get_model_name_id()+'.mmf',self.get_model_name_id()+'.hmmlist',script=os.path.join(tmp_dir,'sil.hed')).run()
         shutil.rmtree(tmp_dir)
 
-
+        self.expand_word_transcription(True)
 
     def transform_to_triphone(self):
         pass
@@ -266,16 +273,12 @@ TI silst {sil.state[3],sp.state[2]}
         pass
 
 
-    
-    @TrainLogger
     def split_mixtures(self,num_mixes):
         pass
 
-    @TrainLogger
     def split_mixtures_variably(self,num_mixes, num_steps, step):
         pass
 
-    @TrainLogger
     def estimate_transform(self):
         pass
 

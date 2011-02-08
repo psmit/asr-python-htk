@@ -36,25 +36,23 @@ model_name = os.path.basename(model_name)
 model = HTK_model(model_name, model_dir, htk_config)
 model.initialize_new(scp_list,transcription,dictionary,remove_previous=True)
 
-model.expand_word_transcription()
-
 model.flat_start()
 
-for _ in xrange(3):
-    model.re_estimate()
+for _ in xrange(3): model.re_estimate()
 
+model.introduce_short_pause_model()
+
+for _ in xrange(3): model.re_estimate()
     
+model.align_transcription()
+
+for _ in xrange(3): model.re_estimate()
 
 
 
 
 
 
-
-
-
-
-
-print "Hello"
+print "Success"
 
 

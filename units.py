@@ -15,7 +15,7 @@ class HTK_dictionary(object):
             for word in sorted(self.dictionary.iterkeys()):
                 for transcription in self.dictionary[word]:
                     if word.startswith('<'):
-                        print("{0:s}\t{1:s}".format(word," ".join(transcription)),file=file_desc)
+                        print("{0:s}\t{1:s}".format(word,transcription),file=file_desc)
                     elif hvite:
                         print("{0:s}\t{1:s} sp".format(word," ".join(transcription)),file=file_desc)
                         print("{0:s}\t{1:s} sil".format(word," ".join(transcription)),file=file_desc)
