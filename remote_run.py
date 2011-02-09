@@ -45,20 +45,18 @@ class System(object):
         return cls.log_dir
 
 class RemoteRunner(object):
-#    def __init__(self):
-#        self.runner = RemoteRunner._select_runner()()
+    _runner = None
 
     def __init__(self,job):
         self.job = job
 
-    @staticmethod
-    def _select_runner():
-        return _LocalRunner
+    @classmethod
+    def _select_runner(cls):
+        if cls._runner is None:
+            cls._runner = _LocalRunner
 
-#    @staticmethod
-#    def run(job):
-#        RemoteRunner._select_runner().run(job)
-##        self.runner.run(job)
+        return cls._runner
+
 
     def __call__(self):
         RemoteRunner._select_runner()().run(self.job)
@@ -132,6 +130,9 @@ class _Runner(object):
     def __init__(self, max_tries = 3):
         self.max_tries = max_tries
 
+    def is_local(self):
+        return False
+
     def run(self,job):
         pass
 
@@ -140,6 +141,9 @@ class _LocalRunner(_Runner):
         super(_LocalRunner,self).__init__(max_tries)
         self.pool = None
 
+    def is_local(self):
+        return True
+    
     @classmethod
     def max_tasks(cls):
         return cpu_count()
