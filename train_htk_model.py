@@ -2,8 +2,12 @@
 from optparse import OptionParser
 import os
 import sys
+import time
 from htk2.model import HTK_model
 from htk2.tools import htk_config
+from remote_run import RemoteRunner
+
+start_time = time.time()
 
 usage = "usage: %prog [options] modelname file_list transcription dictionary [model_dir]"
 parser = OptionParser(usage=usage)
@@ -36,6 +40,9 @@ model_name = os.path.basename(model_name)
 model = HTK_model(model_name, model_dir, htk_config)
 model.initialize_new(scp_list,transcription,dictionary,remove_previous=True)
 
+if RemoteRunner._select_runner().is_local():
+    model.transfer_files_local()
+
 model.flat_start()
 
 for _ in xrange(3): model.re_estimate()
@@ -62,6 +69,12 @@ for mix in [1, 2, 4, 6, 8, 12, 16]:
     model.split_mixtures(mix)
     for _ in xrange(4): model.re_estimate()
 
+
+model.clean_files_local()
+
+end_time = time.time()
+
+print end_time - start_time
 print "Success"
 
 

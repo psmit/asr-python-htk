@@ -122,6 +122,27 @@ class HTK_model(object):
         real_trans.write_mlf(self.training_word_mlf,target=HTK_transcription.WORD)
         self.expand_word_transcription()
 
+    def transfer_files_local(self):
+        if not hasattr(self,'training_scp_orig'):
+            self.training_scp_orig = self.training_scp
+            tmp_dir = System.get_local_temp_dir()
+
+            self.training_scp = os.path.join(tmp_dir,'training_scp_local.scp')
+            with open(self.training_scp) as scp_desc:
+                for file in open(self.training_scp_orig):
+                    file = file.strip()
+                    bn = os.path.basename(file)
+                    shutil.copyfile(file, os.path.join(tmp_dir,bn))
+                    print(os.path.join(tmp_dir,bn),file=scp_desc)
+
+    def clean_files_local(self):
+        if hasattr(self,'training_scp_orig'):
+            line = open(self.training_scp).readline().strip()
+            shutil.rmtree(os.path.dirname(line))
+
+            self.training_scp = self.training_scp_orig
+            delattr(self,'training_scp_orig')
+
     def initialize_existing(self):
         pass
 
