@@ -72,6 +72,7 @@ for mix in [1, 2, 4, 6, 8, 12, 16]:
 
 
 model.clean_files_local()
+model.clean_up()
 
 end_time = time.time()
 

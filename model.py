@@ -47,8 +47,9 @@ class HTK_model(object):
         self.id = None
 
 
-    def get_model_name_id(self,prev=0):
-        id = self.id-prev
+    def get_model_name_id(self,prev=0,id=None):
+        if id is None:
+            id = self.id-prev
         return self.model_dir + '/' + "{0}.{1:02d}".format(self.name,id)
     
 
@@ -442,4 +443,15 @@ TC sil sil""" ,file=mktri_desc)
     def estimate_transform(self):
         pass
 
+
+    def clean_up(self,keep_versions = None):
+        if keep_versions is None:
+            keep_versions = set()
+        else:
+            keep_versions = set(keep_versions)
+
+        for i in xrange(1,self.id):
+            if i not in keep_versions:
+                for file in glob.iglob(self.get_model_name_id(id=i)+'.*'):
+                    os.remove(file)
 
