@@ -24,7 +24,7 @@ class System(object):
     def get_local_temp_dir():
         try:
             if not os.path.exists(os.environ['LOCAL_TMP']):
-                os.mkdir(os.environ['LOCAL_TMP'],mode=0700)
+                os.mkdir(os.environ['LOCAL_TMP'], 0700)
             return mkdtemp(dir=os.environ['LOCAL_TMP'])
         except KeyError:
             sys.exit("Please set the LOCAL_TMP environment variable to a directory for temporary files")
