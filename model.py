@@ -109,6 +109,8 @@ class HTK_model(object):
             for scp in scp_list:
                 for file in open(scp):
                     id = os.path.splitext(os.path.basename(file.strip()))[0]
+                    if not file.startswith('/'):
+                        file = os.path.join(os.path.dirname(scp),file.strip())
 
                     ok = True
 
