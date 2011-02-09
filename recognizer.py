@@ -1,6 +1,7 @@
 import os
 from htk2.tools import HDecode, HERest, HHEd, HVite
 from gridscripts.remote_run import System
+from htk2.units import HTK_transcription
 
 class HTK_recognizer(object):
     def __init__(self, htk_config, name, model, scp, dictionary, language_model):
@@ -48,5 +49,16 @@ class HTK_recognizer(object):
         self.adaptations.append((self.xforms_dir,new_extension))
 
 
-    def recognize(self,lm_scale):
-        HDecode(self.htk_config,self.scp,self.model+'.mmf',self.dict,self.model+'.hmmlist',self.language_model,self.name+'.'+str(self.id),lm_scale=lm_scale).run()
+    def recognize(self,lm_scale,sub_name = None):
+        in_transform = None
+        if self.adaptations > 0:
+            in_transform = [self.adaptations[-1],(self.classes_dir,None)]
+
+        if sub_name is None:
+            sub_name = str(self.id)
+
+        HDecode(self.htk_config,self.scp,self.model+'.mmf',self.dict,self.model+'.hmmlist',self.language_model,self.name+'.'+sub_name+'.mlf',lm_scale=lm_scale,adapt_dirs=in_transform).run()
+
+        trans = HTK_transcription()
+        trans.read_mlf(self.name+'.'+sub_name+'.mlf',target=HTK_transcription.WORD)
+        trans.write_trn(self.name+'.'+sub_name+'.trn')

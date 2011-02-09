@@ -1,4 +1,4 @@
-
+from htk2.recognizer import HTK_recognizer
 from htk2.tools import htk_config
 from optparse import OptionParser
 
@@ -11,4 +11,9 @@ htk_config.add_options_to_optparse(parser)
 
 options, args = parser.parse_args()
 
+name,model,scp,dict,lm = args[:5]
+
+recognizer = HTK_recognizer(htk_config,name,model,scp,dict,lm)
+
+recognizer.recognize(None,'baseline')
 
