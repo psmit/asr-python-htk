@@ -262,7 +262,7 @@ class HERestTask(Task,BashJob):
 
 class HDecode(SplittableJob):
 
-    def __init__(self, htk_config, scp_file, hmm_model, dict, hmm_list, language_model, output_mlf, config_file,
+    def __init__(self, htk_config, scp_file, hmm_model, dict, hmm_list, language_model, output_mlf, config_file = None,
                  num_tokens = None, lm_scale = None, max_pruning = None, beam = None, end_beam = None, adapt_dirs=None,
                  num_speaker_chars=None ,lattice_extension=None):
         super(HDecode,self).__init__()

@@ -68,7 +68,7 @@ for _ in xrange(3): model.re_estimate()
 
 for mix in [1, 2, 4, 6, 8, 12, 16]:
     model.split_mixtures(mix)
-    for _ in xrange(4): model.re_estimate()
+    for i in xrange(4): model.re_estimate(stats=(i == 3 and mix == 16))
 
 
 model.clean_files_local()
