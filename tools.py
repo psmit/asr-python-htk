@@ -515,3 +515,8 @@ class HHEd(BashJob):
         self.command = command
 
 
+class Copier(object):
+    def __init__(self,target_dir):
+        self.target_dir = target_dir
+    def __call__(self,src):
+        shutil.copyfile(src, self.target_dir)

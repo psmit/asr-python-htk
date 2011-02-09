@@ -1,13 +1,14 @@
 from __future__ import print_function
 
 import glob
+from multiprocessing.pool import Pool
 import os
 import re
 import shutil
 
 from gridscripts.remote_run import System
-from tools import HCompV,HERest,HHEd,HLEd,HVite
-from units import HTK_dictionary,HTK_transcription
+from htk2.tools import HCompV,HERest,HHEd,HLEd,HVite, Copier
+from htk2.units import HTK_dictionary,HTK_transcription
 
 
 
@@ -128,12 +129,20 @@ class HTK_model(object):
             tmp_dir = System.get_local_temp_dir()
 
             self.training_scp = os.path.join(tmp_dir,'training_scp_local.scp')
+
+            files = []
             with open(self.training_scp, 'w') as scp_desc:
+
                 for file in open(self.training_scp_orig):
                     file = file.strip()
-                    bn = os.path.basename(file)
-                    shutil.copyfile(file, os.path.join(tmp_dir,bn))
-                    print(os.path.join(tmp_dir,bn),file=scp_desc)
+                    files.append(file)
+                    print(os.path.join(tmp_dir,os.path.basename(file)),file=scp_desc)
+
+            pool = Pool()
+            pool.map(Copier(tmp_dir),files)
+            pool.close()
+            pool.join()
+
 
     def clean_files_local(self):
         if hasattr(self,'training_scp_orig'):
