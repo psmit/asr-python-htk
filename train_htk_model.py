@@ -5,7 +5,7 @@ import sys
 import time
 from htk2.model import HTK_model
 from htk2.tools import htk_config
-from remote_run import RemoteRunner
+from gridscripts.remote_run import RemoteRunner
 
 start_time = time.time()
 
