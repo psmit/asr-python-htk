@@ -12,6 +12,7 @@ start_time = time.time()
 usage = "usage: %prog [options] modelname file_list transcription dictionary [model_dir]"
 parser = OptionParser(usage=usage)
 parser.add_option('-c', '--config', dest="config")
+parser.add_option('--no-local', dest='local_allowed', default=True, action="store_false")
 htk_config = htk_config(debug_flags=['-A','-V','-D','-T','1'])
 htk_config.add_options_to_optparse(parser)
 
@@ -40,7 +41,7 @@ model_name = os.path.basename(model_name)
 model = HTK_model(model_name, model_dir, htk_config)
 model.initialize_new(scp_list,transcription,dictionary,remove_previous=True)
 
-if RemoteRunner._select_runner().is_local():
+if options.local_allowed and RemoteRunner._select_runner().is_local():
     model.transfer_files_local()
 
 model.flat_start()
