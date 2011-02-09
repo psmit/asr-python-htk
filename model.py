@@ -128,7 +128,7 @@ class HTK_model(object):
             tmp_dir = System.get_local_temp_dir()
 
             self.training_scp = os.path.join(tmp_dir,'training_scp_local.scp')
-            with open(self.training_scp) as scp_desc:
+            with open(self.training_scp, 'w') as scp_desc:
                 for file in open(self.training_scp_orig):
                     file = file.strip()
                     bn = os.path.basename(file)
