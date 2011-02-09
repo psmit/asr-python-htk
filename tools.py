@@ -519,4 +519,4 @@ class Copier(object):
     def __init__(self,target_dir):
         self.target_dir = target_dir
     def __call__(self,src):
-        shutil.copyfile(src, self.target_dir)
+        shutil.copyfile(src, os.path.join(self.target_dir,os.path.basename(src)))
