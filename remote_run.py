@@ -130,7 +130,8 @@ class _Runner(object):
     def __init__(self, max_tries = 3):
         self.max_tries = max_tries
 
-    def is_local(self):
+    @classmethod
+    def is_local(cls):
         return False
 
     def run(self,job):
@@ -141,7 +142,8 @@ class _LocalRunner(_Runner):
         super(_LocalRunner,self).__init__(max_tries)
         self.pool = None
 
-    def is_local(self):
+    @classmethod
+    def is_local(cls):
         return True
     
     @classmethod
