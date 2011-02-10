@@ -124,7 +124,7 @@ class HTK_transcription(object):
                 print(".",file=mlf_desc)
 
     def read_trn(self, trn_file):
-        target = HTK_transcription.PHONE
+        target = HTK_transcription.WORD
 
         if target not in self.transcriptions:
             self.transcriptions[target] = {}
@@ -134,13 +134,13 @@ class HTK_transcription(object):
             self.transcriptions[target][parts[-1][1:-1].replace('_','')] = parts[:-1]
 
     def write_trn(self, trn_file, speaker_name_width = -1):
-        target = HTK_transcription.PHONE
+        target = HTK_transcription.WORD
 
         with open(trn_file, 'w') as trn_desc:
             for file_name in self.transcriptions[target].iterkeys():
                 if speaker_name_width > 0:
                     file_name = file_name[:speaker_name_width] + '_' + file_name[speaker_name_width:]
-                print("{1:s} ({2:s})".format(" ".join(self.transcriptions[target][file_name]), file_name), file=trn_desc)
+                print("{0:>s} ({1:>s})".format(" ".join(t for t in self.transcriptions[target][file_name] if not t.startswith('<')), file_name), file=trn_desc)
 
 
 class SCPFile(object):

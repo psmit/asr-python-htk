@@ -264,7 +264,7 @@ class HDecode(SplittableJob):
 
     def __init__(self, htk_config, scp_file, hmm_model, dict, hmm_list, language_model, output_mlf, config_file = None,
                  num_tokens = None, lm_scale = None, max_pruning = None, beam = None, end_beam = None, adapt_dirs=None,
-                 num_speaker_chars=None ,lattice_extension=None):
+                 num_speaker_chars=-1 ,lattice_extension=None):
         super(HDecode,self).__init__()
 
         base_command = ["HDecode"]
@@ -272,8 +272,8 @@ class HDecode(SplittableJob):
 
 
         #task specific flags
-        base_command.extend(htk_config.turn_to_config('-S','{scp_list}'))
-        base_command.extend(htk_config.turn_to_config('-i','{output_mlf}'))
+#        base_command.extend(htk_config.turn_to_config('-S','{scp_list}'))
+#        base_command.extend(htk_config.turn_to_config('-i','{output_mlf}'))
 
 
         #adaptation flags
@@ -316,6 +316,8 @@ class HDecode(SplittableJob):
 
         self.base_command = base_command
 
+        self.htk_config = htk_config
+
 
 
     def _split_to_tasks(self):
@@ -323,7 +325,7 @@ class HDecode(SplittableJob):
         scp_files = SCPFile(self.scp_file).split(self.max_num_tasks,self.tmp_dir,
                                                  self.num_speaker_chars if self.num_speaker_chars is not None else -1)
 
-        mlf_files = [os.path.splitext(scp_file)[0] + '.mlf' for scp_file in scp_files]
+        mlf_files = [scp_file + '.mlf' for scp_file in scp_files]
 
         for i, files in enumerate(izip(scp_files,mlf_files)):
             scp_file, output_mlf = files
@@ -337,10 +339,10 @@ class HDecode(SplittableJob):
 
         tr = HTK_transcription()
         for task in self.tasks:
-            tr.read_mlf(task.output_mlf)
+            tr.read_mlf(task.output_mlf,target=HTK_transcription.WORD)
 
-        tr.write_mlf(self.output_mlf)
-        tr.write_trn(os.path.splitext(self.output_mlf)[0] + '.trn')
+        tr.write_mlf(self.output_mlf,target=HTK_transcription.WORD)
+        tr.write_trn(os.path.splitext(self.output_mlf)[0] + '.trn',speaker_name_width=self.num_speaker_chars if self.num_speaker_chars > 0 else self.htk_config.num_speaker_chars)
 
         if self.cleaning:
             for task in self.tasks:
@@ -356,14 +358,15 @@ class HDecodeTask(Task,BashJob):
         self.scp_file = scp_file
         self.output_mlf = output_mlf
 
+        self.command = [parent_job.base_command[0],'-S',self.scp_file,'-i',self.output_mlf] + parent_job.base_command[1:]
+
     def _clean(self,keep_input_files=False):
         if not keep_input_files:
             os.remove(self.scp_file)
         os.remove(self.output_mlf)
 
     def _test_success(self):
-        return os.path.exists(self.output_mlf) and len(a for a in open(self.output_mlf) if a.startswith('"')) == len(open(self.scp_file))
-
+        return os.path.exists(self.output_mlf) and len([a for a in open(self.output_mlf) if a.startswith('"')]) == len([a for a in open(self.scp_file)])
 
 
 class HVite(SplittableJob):

@@ -1,3 +1,5 @@
+#!/usr/bin/env python2.6
+
 from htk2.recognizer import HTK_recognizer
 from htk2.tools import htk_config
 from optparse import OptionParser

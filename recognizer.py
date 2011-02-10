@@ -1,14 +1,22 @@
+from __future__ import print_function
+
 import os
+import shutil
 from htk2.tools import HDecode, HERest, HHEd, HVite
 from gridscripts.remote_run import System
-from htk2.units import HTK_transcription
+from htk2.units import HTK_transcription, HTK_dictionary
 
 class HTK_recognizer(object):
     def __init__(self, htk_config, name, model, scp, dictionary, language_model):
         if not name.startswith('/'):
             name = os.path.join(os.getcwd(), name)
 
+        if htk_config.num_speaker_chars < 0:
+            htk_config.num_speaker_chars = 3
+            
         self.name = name
+        if os.path.exists(name):
+            shutil.rmtree(name)
         os.mkdir(name)
 
         self.xforms_dir = os.path.join(name,'xforms')
@@ -19,8 +27,21 @@ class HTK_recognizer(object):
 
 
         self.model = model
-        self.scp = scp
+
+        self.scp = os.path.join(name,'list.scp')
+        with open(self.scp, 'w') as scp_desc:
+            for line in open(scp):
+                print(os.path.join(os.path.dirname(scp), line.strip()),file=scp_desc)
+
         self.dict = dictionary
+
+
+        d = HTK_dictionary()
+        d.read_dict(dictionary)
+
+        self.dict = os.path.join(name, 'dict.hdecode')
+        d.write_dict(self.dict,False)
+
         self.language_model = language_model
 
         self.htk_config = htk_config
@@ -40,7 +61,7 @@ class HTK_recognizer(object):
         HVite(self.htk_config,scp_file,self.model+'.mmf',self.dict,self.model+'.hmmlist',phone_mlf,mlf_file).run()
 
         in_transform = None
-        if self.adaptations > 0:
+        if len(self.adaptations) > 0:
             in_transform = [self.adaptations[-1],(self.classes_dir,None)]
 
         HERest(self.htk_config,scp_file,self.model+'.mmf',self.model+'.hmmlist',phone_mlf,num_speaker_chars=num_speaker_chars,
@@ -48,10 +69,14 @@ class HTK_recognizer(object):
 
         self.adaptations.append((self.xforms_dir,new_extension))
 
+        shutil.rmtree(tmp_dir)
+
 
     def recognize(self,lm_scale,sub_name = None):
+        tmp_dir = System.get_global_temp_dir()
+
         in_transform = None
-        if self.adaptations > 0:
+        if len(self.adaptations) > 0:
             in_transform = [self.adaptations[-1],(self.classes_dir,None)]
 
         if sub_name is None:
@@ -59,6 +84,8 @@ class HTK_recognizer(object):
 
         HDecode(self.htk_config,self.scp,self.model+'.mmf',self.dict,self.model+'.hmmlist',self.language_model,self.name+'.'+sub_name+'.mlf',lm_scale=lm_scale,adapt_dirs=in_transform).run()
 
-        trans = HTK_transcription()
-        trans.read_mlf(self.name+'.'+sub_name+'.mlf',target=HTK_transcription.WORD)
-        trans.write_trn(self.name+'.'+sub_name+'.trn')
+#        trans = HTK_transcription()
+#        trans.read_mlf(self.name+'.'+sub_name+'.mlf',target=HTK_transcription.WORD)
+#        trans.write_trn(self.name+'.'+sub_name+'.trn')
+
+        shutil.rmtree(tmp_dir)
