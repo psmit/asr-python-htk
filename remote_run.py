@@ -198,7 +198,7 @@ class _LocalRunner(_Runner):
             if not all(r is None for r in results):
                 raise JobFailedException
 
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, SystemExit):
             if self.pool is not None:
                 self.pool.terminate()
                 self.pool.join()
