@@ -16,8 +16,8 @@ class htk_config(object):
         'min_examples': (int,None),
         'pruning': (float,[300.0,500.0,2000.0]),
         'num_tokens': (int,None),
-        'lm_scale': (int,None),             #HDecode
-        'beam': (float,200.0),              #HDecode
+        'lm_scale': (float,19.0),             #HDecode
+        'beam': (float,250.0),              #HDecode
         'end_beam': (float,None),           #HDecode
         'max_pruning': (int,None),
         'num_speaker_chars': (int,-1),
@@ -25,6 +25,7 @@ class htk_config(object):
         'tying_rules': (str,'/share/puhe/peter/rules/phonetic_rules._en'),  #tying
         'tying_threshold': (int, 1000),                                     #tying
         'required_occupation': (int, 200),                                  #tying
+        'adap_align_dict': (str, '/share/puhe/peter/dict/cmubeep/dict'),    #adptation
 
     }
 
@@ -107,17 +108,19 @@ class HERest(SplittableJob):
         #task specific flags
         #base_command.extend(htk_config.turn_to_config('-S','{scp_list}'))
 
-
+        self.acc_tmp_dir = System.get_global_temp_dir()
         # Output dependent flags
         if output_hmm_model is not None:
-            self.acc_tmp_dir = System.get_global_temp_dir()
             base_command.extend(htk_config.turn_to_config('-M', self.acc_tmp_dir))
 
             #base_command.extend(htk_config.turn_to_config('-M', os.path.dirname(output_hmm_model)))
 
         if output_adaptation is not None:
             base_command.extend(['-u','a'])
-            #TODO: add output adaptation dirs
+            target_dir, extension = output_adaptation
+            base_command.extend(['-K', target_dir])
+            if extension is not None:
+                base_command.append(extension)
 
 
         num_speaker_chars = num_speaker_chars if num_speaker_chars is not None else htk_config.num_speaker_chars
@@ -128,13 +131,14 @@ class HERest(SplittableJob):
                 base_command.extend(['-J', source_dir])
                 if extension is not None:
                     base_command.append(extension)
-            base_command.append('-a')
+
 
         if parent_adaptation is not None:
             for source_dir, extension in parent_adaptation:
                 base_command.extend(['-E', source_dir])
                 if extension is not None:
                     base_command.append(extension)
+            base_command.append('-a')
 
         if num_speaker_chars > 0:
             pattern = "*/" + ('%' * num_speaker_chars) + "*.*"
@@ -198,8 +202,9 @@ class HERest(SplittableJob):
 
 
         if self.cleaning:
-            for task in self.tasks:
-                task._clean()
+            if self.output_hmm_model is not None:
+                for task in self.tasks:
+                    task._clean()
 
             shutil.rmtree(self.scp_tmp_dir)
             shutil.rmtree(self.acc_tmp_dir)
@@ -253,7 +258,7 @@ class HERestTask(Task,BashJob):
         if self.parent.output_adaptation is None:
             return []
 
-        speakers = set(s[:self.parent.num_speaker_chars] for s in open(self.scp_file))
+        speakers = set(os.path.basename(s)[:self.parent.num_speaker_chars] for s in open(self.scp_file))
         output_dir, output_extension = self.parent.output_adaptation
 
         return [os.path.join(output_dir, s + '.'+ output_extension) for s in speakers]
@@ -505,7 +510,10 @@ class HHEd(BashJob):
         command.extend(htk_config.get_flags())
         command.extend(htk_config.turn_to_config('-H', input_model))
 #        command.extend(htk_config.turn_to_config('-M', os.path.dirname(output_model)))
-        command.extend(htk_config.turn_to_config('-w', output_model))
+        if os.path.isdir(output_model):
+            command.extend(htk_config.turn_to_config('-M', output_model))
+        else:
+            command.extend(htk_config.turn_to_config('-w', output_model))
 
         if binary:
             command.append('-B')

@@ -137,10 +137,11 @@ class HTK_transcription(object):
         target = HTK_transcription.WORD
 
         with open(trn_file, 'w') as trn_desc:
-            for file_name in self.transcriptions[target].iterkeys():
+            for file_name in sorted(self.transcriptions[target].iterkeys()):
+                disp_name = file_name
                 if speaker_name_width > 0:
-                    file_name = file_name[:speaker_name_width] + '_' + file_name[speaker_name_width:]
-                print("{0:>s} ({1:>s})".format(" ".join(t for t in self.transcriptions[target][file_name] if not t.startswith('<')), file_name), file=trn_desc)
+                    disp_name = file_name[:speaker_name_width] + '_' + file_name[speaker_name_width:]
+                print("{0:>s} ({1:>s})".format(" ".join(t for t in self.transcriptions[target][file_name] if not t.startswith('<')), disp_name), file=trn_desc)
 
 
 class SCPFile(object):
@@ -158,7 +159,7 @@ class SCPFile(object):
             if prefix_length < 0 or os.path.basename(file)[:prefix_length] != prev_file[:prefix_length]:
                 cur_index = (cur_index + 1) % len(parts)
             parts[cur_index].append(file)
-            prev_file = file
+            prev_file = os.path.basename(file)
 
         scp_files = []
         for i in xrange(num_parts):

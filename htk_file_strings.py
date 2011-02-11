@@ -46,3 +46,29 @@ MKTRI = """ME sil sil sil
 WB sp
 NB sp
 TC sil sil"""
+
+
+GLOBAL = """~b "{global_name:>s}"
+        <MMFIDMASK> *
+        <PARAMETERS> MIXBASE
+        <NUMCLASSES> 1
+        <CLASS> 1 {{*.state[2-4].mix[1-1000]}}"""
+
+# RN "{global_name:>s}" removed
+REGTREE_HED = """LS "{stats_file:>s}"
+RC {num_nodes:d} "{regtree:>s}" """
+
+BASE_ADAP_CONFIG = """HADAPT:BASECLASS = {base_class:>s}
+HADAPT:USEBIAS = TRUE
+HADAPT:TRANSKIND = CMLLR"""
+
+# HADAPT:BASECLASS = {base_class:>s} removed
+TREE_ADAP_CONFIG = """HADAPT:USEBIAS = TRUE
+HADAPT:TRANSKIND = CMLLR
+HADAPT:ADAPTKIND = TREE
+HADAPT:REGTREE = {regtree:>s}"""
+
+
+HVITE_CONFIG = """
+FORCECXTEXP = T
+ALLOWXWRDEXP = T"""
