@@ -98,7 +98,7 @@ class HTK_recognizer(object):
                 print(htk_file_strings.BASE_ADAP_CONFIG.format(base_class=global_name),file=adap_desc)
                 if self.adap_num_speaker_chars is not None:
                     mask = "*/" + ('%' * self.adap_num_speaker_chars) + "*.*"
-                    print("PAXFORMMASK = *.{mask:>s}\nINXFORMMASK = *.{mask:>s}".format(mask=mask),file=adap_desc)
+                    print("PAXFORMMASK = {mask:>s}\nINXFORMMASK = {mask:>s}".format(mask=mask),file=adap_desc)
 
 
 
@@ -112,7 +112,7 @@ class HTK_recognizer(object):
                 print(htk_file_strings.TREE_ADAP_CONFIG.format(regtree=os.path.join(self.classes_dir,regtree_name)+'.tree'),file=adap_desc)
                 if self.adap_num_speaker_chars is not None:
                     mask = "*/" + ('%' * self.adap_num_speaker_chars) + "*.*"
-                    print("PAXFORMMASK = *.{mask:>s}\nINXFORMMASK = *.{mask:>s}".format(mask=mask),file=adap_desc)
+                    print("PAXFORMMASK = {mask:>s}\nINXFORMMASK = {mask:>s}".format(mask=mask),file=adap_desc)
                     
 
         HERest(self.htk_config,tmp_scp_file,self.model+'.mmf',self.model+'.hmmlist',phone_mlf,config_file=adap_config,
