@@ -19,7 +19,9 @@ recognizer = HTK_recognizer(htk_config,name,model,scp,dict,lm)
 
 recognizer.recognize(None,'baseline')
 
-recognizer.add_adaptation(scp,recognizer.name+'.baseline.mlf',num_speaker_chars=3)
+#recognizer.add_adaptation(scp,recognizer.name+'.baseline.mlf',num_speaker_chars=3)
+recognizer.add_adaptation(scp,recognizer.name+'.baseline.mlf',num_speaker_chars=3,num_nodes=32)
+recognizer.add_adaptation(scp,recognizer.name+'.baseline.mlf',num_speaker_chars=1,num_nodes=32)
 
 recognizer.recognize(None,'adapted',3)
 

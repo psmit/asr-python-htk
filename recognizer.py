@@ -53,6 +53,7 @@ class HTK_recognizer(object):
         self.htk_config = htk_config
 
         self.adaptations = []
+        self.adap_num_speaker_chars = None
 
         self.id = 0
         System.set_log_dir(os.path.basename(name))
@@ -95,16 +96,24 @@ class HTK_recognizer(object):
                 print(htk_file_strings.GLOBAL.format(global_name=global_name),file=global_desc)
             with open(adap_config, 'w') as adap_desc:
                 print(htk_file_strings.BASE_ADAP_CONFIG.format(base_class=global_name),file=adap_desc)
+                if self.adap_num_speaker_chars is not None:
+                    mask = "*/" + ('%' * self.adap_num_speaker_chars) + "*.*"
+                    print("PAXFORMMASK = *.{mask:>s}\nINXFORMMASK = *.{mask:>s}".format(mask=mask),file=adap_desc)
+
+
 
         else: # tree adaptation
             regtree_name = 'regtree{0:d}'.format(len(self.adaptations))
             regtree_hed = os.path.join(tmp_dir,'regtree.hed')
             with open(regtree_hed,'w') as regtree_desc:
                 print(htk_file_strings.REGTREE_HED.format(stats_file=self.model+'.stats',num_nodes=num_nodes,regtree=regtree_name),file=regtree_desc)
-            HHEd(self.htk_config,self.model+'.mmf',self.classes_dir,self.model+'.hmmlist',regtree_hed)
+            HHEd(self.htk_config,self.model+'.mmf',self.classes_dir,self.model+'.hmmlist',regtree_hed).run()
             with open(adap_config, 'w') as adap_desc:
                 print(htk_file_strings.TREE_ADAP_CONFIG.format(regtree=os.path.join(self.classes_dir,regtree_name)+'.tree'),file=adap_desc)
-
+                if self.adap_num_speaker_chars is not None:
+                    mask = "*/" + ('%' * self.adap_num_speaker_chars) + "*.*"
+                    print("PAXFORMMASK = *.{mask:>s}\nINXFORMMASK = *.{mask:>s}".format(mask=mask),file=adap_desc)
+                    
 
         HERest(self.htk_config,tmp_scp_file,self.model+'.mmf',self.model+'.hmmlist',phone_mlf,config_file=adap_config,
                num_speaker_chars=num_speaker_chars, max_adap_sentences=files_per_speaker,
@@ -112,10 +121,12 @@ class HTK_recognizer(object):
 
         self.adaptations.append((self.xforms_dir,new_extension))
 
+        self.adap_num_speaker_chars = num_speaker_chars
+        
         shutil.rmtree(tmp_dir)
 
 
-    def recognize(self,lm_scale,sub_name = None, num_speaker_chars=-1):
+    def recognize(self,lm_scale,sub_name = None):
         tmp_dir = System.get_global_temp_dir()
 
         in_transform = None
@@ -125,7 +136,7 @@ class HTK_recognizer(object):
         if sub_name is None:
             sub_name = str(self.id)
 
-        HDecode(self.htk_config,self.scp,self.model+'.mmf',self.dict,self.model+'.hmmlist',self.language_model,self.name+'.'+sub_name+'.mlf',lm_scale=lm_scale,adapt_dirs=in_transform,num_speaker_chars=num_speaker_chars).run()
+        HDecode(self.htk_config,self.scp,self.model+'.mmf',self.dict,self.model+'.hmmlist',self.language_model,self.name+'.'+sub_name+'.mlf',lm_scale=lm_scale,adapt_dirs=in_transform,adapt_speaker_chars=self.adap_num_speaker_chars).run()
 
 #        trans = HTK_transcription()
 #        trans.read_mlf(self.name+'.'+sub_name+'.mlf',target=HTK_transcription.WORD)

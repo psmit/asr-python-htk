@@ -269,11 +269,11 @@ class HDecode(SplittableJob):
 
     def __init__(self, htk_config, scp_file, hmm_model, dict, hmm_list, language_model, output_mlf, config_file = None,
                  num_tokens = None, lm_scale = None, max_pruning = None, beam = None, end_beam = None, adapt_dirs=None,
-                 num_speaker_chars=-1 ,lattice_extension=None):
+                 adapt_speaker_chars = -1, trn_speaker_chars = None, lattice_extension=None):
         super(HDecode,self).__init__()
 
         base_command = ["HDecode"]
-        base_command.extend(htk_config.get_flags(config_file))
+        base_command.extend( htk_config.get_flags(config_file) )
 
 
         #task specific flags
@@ -283,7 +283,7 @@ class HDecode(SplittableJob):
 
         #adaptation flags
         if adapt_dirs is not None:
-            num_speaker_chars = num_speaker_chars if num_speaker_chars is not None else htk_config.num_speaker_chars
+            adapt_speaker_chars = adapt_speaker_chars if adapt_speaker_chars is not None else htk_config.num_speaker_chars
 
             for source_dir, extension in adapt_dirs:
                 base_command.extend(['-J', source_dir])
@@ -293,8 +293,8 @@ class HDecode(SplittableJob):
             base_command.append('-m')
 
             pattern = '*.%%%'
-            if num_speaker_chars > 0:
-                pattern = "*/" + ('%' * num_speaker_chars) + "*.*"
+            if adapt_speaker_chars > 0:
+                pattern = "*/" + ('%' * adapt_speaker_chars) + "*.*"
             base_command.extend(['-h',pattern])
 
 
@@ -317,7 +317,8 @@ class HDecode(SplittableJob):
         #store instance variables
         self.scp_file = scp_file
         self.output_mlf = output_mlf
-        self.num_speaker_chars = num_speaker_chars
+
+        self.trn_speaker_chars = trn_speaker_chars if trn_speaker_chars is not None else htk_config.num_speaker_chars
 
         self.base_command = base_command
 
@@ -327,8 +328,8 @@ class HDecode(SplittableJob):
 
     def _split_to_tasks(self):
         self.tmp_dir = System.get_global_temp_dir()
-        scp_files = SCPFile(self.scp_file).split(self.max_num_tasks,self.tmp_dir,
-                                                 self.num_speaker_chars if self.num_speaker_chars is not None else -1)
+        scp_files = SCPFile(self.scp_file).split(self.max_num_tasks,self.tmp_dir, -1)
+#                                                 self.num_speaker_chars if self.num_speaker_chars is not None else -1)
 
         mlf_files = [scp_file + '.mlf' for scp_file in scp_files]
 
@@ -347,7 +348,7 @@ class HDecode(SplittableJob):
             tr.read_mlf(task.output_mlf,target=HTK_transcription.WORD)
 
         tr.write_mlf(self.output_mlf,target=HTK_transcription.WORD)
-        tr.write_trn(os.path.splitext(self.output_mlf)[0] + '.trn',speaker_name_width=self.num_speaker_chars if self.num_speaker_chars > 0 else self.htk_config.num_speaker_chars)
+        tr.write_trn(os.path.splitext(self.output_mlf)[0] + '.trn',speaker_name_width=self.trn_speaker_chars if self.trn_speaker_chars > 0 else self.htk_config.num_speaker_chars)
 
         if self.cleaning:
             for task in self.tasks:
