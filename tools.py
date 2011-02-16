@@ -26,6 +26,8 @@ class htk_config(object):
         'tying_threshold': (int, 1000),                                     #tying
         'required_occupation': (int, 200),                                  #tying
         'adap_align_dict': (str, '/share/puhe/peter/dict/cmubeep/dict'),    #adptation
+        'ps_power': (float,None),           #training with variable number of mixtures
+        'ps_iterations': (int, None),       #training with variable number of mixtures
 
     }
 

@@ -323,17 +323,28 @@ class HTK_model(object):
 
         with open(hed_file, 'w') as hed:
             print("MU {0:d} {{*.state[2-4].stream[1].mix}}".format(num_mixes),file=hed)
-            print("MU {0:d} {{sil.state[2-4].stream[1].mix}}".format(2) *num_mixes,file=hed)
+            print("MU {0:d} {{sil.state[2-4].stream[1].mix}}".format(2 *num_mixes),file=hed)
 
         shutil.copyfile(self._get_model_name_id(1) + '.hmmlist',self._get_model_name_id() + '.hmmlist')
         HHEd(self.htk_config,self._get_model_name_id(1) + '.mmf',self._get_model_name_id(0) + '.mmf',self._get_model_name_id() + '.hmmlist',script=hed_file).run()
         shutil.rmtree(tmp_dir)
 
-    def split_mixtures_variably(self,num_mixes, num_steps, step):
-        pass
+    def split_mixtures_variably(self,power, num_iterations):
+        self.id += 1
+        tmp_dir = System.get_global_temp_dir()
+        hed_file =  os.path.join(tmp_dir,'mix.hed')
 
-    def estimate_transform(self):
-        pass
+        with open(hed_file, 'w') as hed:
+            print('LS "%s/stats"' % self._get_model_name_id(1) + '.stats',file=hed)
+            print("PS 16 %f %d" % (power, num_iterations),file=hed)
+
+        shutil.copyfile(self._get_model_name_id(1) + '.hmmlist',self._get_model_name_id() + '.hmmlist')
+        
+        HHEd(self.htk_config,self._get_model_name_id(1) + '.mmf',self._get_model_name_id(0) + '.mmf',self._get_model_name_id() + '.hmmlist',script=hed_file).run()
+        shutil.rmtree(tmp_dir)
+
+#    def estimate_transform(self):
+#        pass
 
 
     def clean_up(self,keep_versions = None):

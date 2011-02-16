@@ -73,6 +73,13 @@ for mix in [1, 2, 4, 6, 8, 12, 16]:
     for i in xrange(4): model.re_estimate(stats=(i == 3 and mix == 16))
 
 
+if htk_config.ps_power is not None and htk_config.ps_iterations is not None:
+    for _ in xrange(htk_config.ps_iterations):
+        model.split_mixtures_variably(htk_config.ps_power,htk_config.ps_iterations)
+        model.re_estimate(stats=True)
+
+    for _ in xrange(2): model.re_estimate(stats=True)
+
 model.clean_files_local()
 model.clean_up()
 
