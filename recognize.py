@@ -13,6 +13,10 @@ htk_config.add_options_to_optparse(parser)
 
 options, args = parser.parse_args()
 
+if options.config is not None:
+    htk_config.load_config_vals(options.config)
+htk_config.load_object_vals(options)
+
 name,model,scp,dict,lm = args[:5]
 
 recognizer = HTK_recognizer(htk_config,name,model,scp,dict,lm)
