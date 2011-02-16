@@ -179,8 +179,15 @@ class HTK_model(object):
         i = 1
         while os.path.exists(os.path.join(self.train_files_dir, 'phone_aligned_{0:d}.mlf'.format(i))):
             i += 1
+
+        tmp_dir = System.get_global_temp_dir()
+        tmp_config = os.path.join(tmp_dir,'hvite_config')
+        with open(tmp_config,'w') as tmp_desc:
+            print(htk_file_strings.HVITE_CONFIG, file=tmp_desc)
         self.training_phone_mlf = os.path.join(self.train_files_dir, 'phone_aligned_{0:d}.mlf'.format(i))
-        HVite(self.htk_config, self.training_scp, self._get_model_name_id() + '.mmf', self.training_dict, self._get_model_name_id() + '.hmmlist', self.training_phone_mlf, self.training_word_mlf).run()
+        HVite(self.htk_config, self.training_scp, self._get_model_name_id() + '.mmf', self.training_dict, self._get_model_name_id() + '.hmmlist', self.training_phone_mlf, self.training_word_mlf,config_file=tmp_config).run()
+        shutil.rmtree(tmp_dir)
+
 
     def flat_start(self):
         tmp_dir = System.get_global_temp_dir()
