@@ -335,7 +335,7 @@ class HTK_model(object):
         hed_file =  os.path.join(tmp_dir,'mix.hed')
 
         with open(hed_file, 'w') as hed:
-            print('LS "%s/stats"' % self._get_model_name_id(1) + '.stats',file=hed)
+            print('LS "%s"' % (self._get_model_name_id(1) + '.stats'),file=hed)
             print("PS 16 %f %d" % (power, num_iterations),file=hed)
 
         shutil.copyfile(self._get_model_name_id(1) + '.hmmlist',self._get_model_name_id() + '.hmmlist')
