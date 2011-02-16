@@ -27,8 +27,8 @@ PROTO = """~o <VecSize> 39 <MFCC_0_D_A_Z>
 0.0 0.0 0.0 0.0 0.0
 <EndHMM>"""
 
-MKMONO = """EX
-IS sil sil"""
+MKMONO = """EX"""
+#IS sil sil"""
 
 TRANSP3 = """<TRANSP> 3
  0.000000e+00 5.000000e-01 5.000000e-01

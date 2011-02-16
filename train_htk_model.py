@@ -66,6 +66,8 @@ model.tie_triphones()
 
 for _ in xrange(3): model.re_estimate()
 
+model.align_transcription()
+
 for mix in [1, 2, 4, 6, 8, 12, 16]:
     model.split_mixtures(mix)
     for i in xrange(4): model.re_estimate(stats=(i == 3 and mix == 16))
