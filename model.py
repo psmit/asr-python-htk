@@ -81,13 +81,16 @@ class HTK_model(object):
 
         # handle transcription
         trans = HTK_transcription()
-        if isinstance(word_mlf,basestring):
-            trans.read_mlf(word_mlf, HTK_transcription.WORD)
-        elif all(isinstance(w,basestring) for w in word_mlf):
-            for w in word_mlf:
-                trans.read_mlf(w, HTK_transcription.WORD)
-        else:
-            raise TypeError
+#        if isinstance(word_mlf,basestring):
+#            trans.read_mlf(word_mlf, HTK_transcription.WORD)
+#        elif all(isinstance(w,basestring) for w in word_mlf):
+#            for w in word_mlf:
+#                trans.read_mlf(w, HTK_transcription.WORD)
+#        else:
+#            raise TypeError
+        word_mlf = word_mlf.strip().split(',')
+        for w in word_mlf:
+            trans.read_mlf(w,HTK_transcription.WORD)
 
 
         self.id = 1
@@ -99,8 +102,9 @@ class HTK_model(object):
 
 
         # handle scp files
-        if isinstance(scp_list,basestring):
-            scp_list = [scp_list]
+        scp_list = scp_list.strip().split(',')
+#        if isinstance(scp_list,basestring):
+#            scp_list = [scp_list]
 
         real_trans = HTK_transcription()
         real_trans.transcriptions[real_trans.WORD] = {}
