@@ -74,8 +74,8 @@ for mix in [1, 2, 4, 6, 8, 12, 16]:
 
 
 if htk_config.ps_power is not None and htk_config.ps_iterations is not None:
-    for _ in xrange(htk_config.ps_iterations):
-        model.split_mixtures_variably(htk_config.ps_power,htk_config.ps_iterations)
+    for iter in xrange(htk_config.ps_iterations,0,-1):
+        model.split_mixtures_variably(htk_config.ps_power,iter)
         model.re_estimate(stats=True)
 
     for _ in xrange(2): model.re_estimate(stats=True)
