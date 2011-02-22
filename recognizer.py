@@ -8,7 +8,7 @@ from htk2.tools import HDecode, HERest, HHEd, HVite
 from gridscripts.remote_run import System
 from htk2.units import HTK_transcription, HTK_dictionary
 import htk_file_strings
-from remote_run import CollectionJob
+from gridscripts.remote_run import CollectionJob
 
 class HTK_recognizer(object):
     def __init__(self, htk_config, name, model, scp, dictionary, language_model):
