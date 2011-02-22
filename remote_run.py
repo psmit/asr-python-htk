@@ -103,6 +103,7 @@ class SplittableJob(Job):
 class CollectionJob(SplittableJob):
 
     def __init__(self,jobs):
+        super(CollectionJob,self).__init__()
         self.job_collection = list(jobs)
 
     def _split_to_tasks(self):
