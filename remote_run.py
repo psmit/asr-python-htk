@@ -100,6 +100,24 @@ class SplittableJob(Job):
     def _merge_tasks(self):
         pass
 
+class CollectionJob(SplittableJob):
+
+    def __init__(self,jobs):
+        self.job_collection = list(jobs)
+
+    def _split_to_tasks(self):
+        for j in self.job_collection:
+            if isinstance(j, SplittableJob):
+                j._split_to_tasks()
+                self.tasks.extend(j.tasks)
+            else:
+                self.tasks.append(j)
+
+    def _merge_tasks(self):
+        for j in self.job_collection:
+            if isinstance(j, SplittableJob):
+                j._merge_tasks()
+
 #    def __call__(self):
 #        self._split_to_tasks()
 #
