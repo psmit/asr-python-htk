@@ -3,6 +3,7 @@ from __future__ import print_function
 
 import os
 import re
+import sys
 
 
 class HTK_dictionary(object):
@@ -51,13 +52,16 @@ class HTK_dictionary(object):
         return phones
 
     def _add_transcription(self,word,transcription):
-        if word not in self.dictionary:
-            self.dictionary[word] = set()
+        try:
+            if word not in self.dictionary:
+                self.dictionary[word] = set()
 
-        while transcription[-1] in ["sp", "sil"]:
-            transcription = transcription[:-1]
+            while transcription[-1] in ["sp", "sil"]:
+                transcription = transcription[:-1]
 
-        self.dictionary[word].add(tuple(transcription))
+            self.dictionary[word].add(tuple(transcription))
+        except IndexError:
+            sys.exit("word: '%s' transcription: '%s'" % (word,transcription))
 
     @staticmethod
     def _unescape(word):
