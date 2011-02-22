@@ -47,7 +47,7 @@ class HTK_recognizer(object):
             for s in speakers:
                 real_scp = os.path.join(name,'%s_list.scp'%s)
                 with open(real_scp, 'w') as scp_desc:
-                    for line in open(scp):
+                    for line in open(scp.replace('?' * num_scp_speaker_chars, s)):
                         print(os.path.join(os.path.dirname(scp), line.strip()),file=scp_desc)
                 self.split_scp_models.append(
                     (s,real_scp,model.replace('?' * num_scp_speaker_chars, s))
