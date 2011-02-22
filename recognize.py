@@ -4,7 +4,7 @@ from htk2.recognizer import HTK_recognizer
 from htk2.tools import htk_config
 from optparse import OptionParser
 
-usage = "usage: %prog [options] recognition_name modelname file_list dictionary language_model"
+usage = "usage: %prog [options] recognition_name modelname file_list dictionary language_model [transform_scp] [transform_mlf]"
 parser = OptionParser(usage=usage)
 parser.add_option('-c', '--config', dest="config")
 parser.add_option('--no-local', dest='local_allowed', default=True, action="store_false")
@@ -28,4 +28,19 @@ recognizer.add_adaptation(scp,recognizer.name+'.baseline.mlf',num_speaker_chars=
 
 recognizer.recognize(None,'adapted')
 
+if len(args) > 6:
+
+    recognizer.clear_adaptations()
+
+    tscp, tmlf = args[5:7]
+
+    recognizer.add_adaptation(tscp,tmlf,num_speaker_chars=3)
+    recognizer.add_adaptation(tscp,tmlf,num_speaker_chars=3,num_nodes=256)
+
+    recognizer.recognize(None,'transform')
+
+    recognizer.add_adaptation(scp,recognizer.name+'.transform.mlf',num_speaker_chars=3)
+    recognizer.add_adaptation(scp,recognizer.name+'.transform.mlf',num_speaker_chars=3,num_nodes=64)
+
+    recognizer.recognize(None,'transform_stack')
 
