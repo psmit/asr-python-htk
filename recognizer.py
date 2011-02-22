@@ -110,7 +110,7 @@ class HTK_recognizer(object):
 
         if self.scp is None:
             l = len(self.split_scp_models[0][0])
-            real_scp_files = [self.scp.replace('?'*l, sp[0]) for sp in self.split_scp_models]
+            real_scp_files = [scp_file.replace('?'*l, sp[0]) for sp in self.split_scp_models]
             speakers = [sp[0] for sp in self.split_scp_models]
             models = [sp[2] for sp in self.split_scp_models]
 
