@@ -17,7 +17,6 @@ def rmtree(f,min_age):
             os.remove(f)
 
 
-print os.environ
 
 
 global_delay = 23*60*60
@@ -33,13 +32,12 @@ if 'LOCAL_TMP' in os.environ and os.path.exists(os.environ['LOCAL_TMP']):
 
 elif 'GLOBAL_TMP' in os.environ:
     for d in os.listdir(os.environ['GLOBAL_TMP']):
-        print "check: %s" % d
         if d.startswith('tmp'):
             rmtree(os.path.join(os.environ['GLOBAL_TMP'],d),global_delay)
             if not os.path.exists(os.path.join(os.environ['GLOBAL_TMP'],d)):
                 print "{0:>s} deleted".format(os.path.join(os.environ['GLOBAL_TMP'], d))
-#        if d.startswith('log'):
-#            rmtree(os.path.join(os.environ['GLOBAL_TMP'],d),log_delay)
-#            if not os.path.exists(os.path.join(os.environ['GLOBAL_TMP'],d)):
-#                print "{0:>s} deleted".format(os.path.join(os.environ['GLOBAL_TMP'], d))
+        if d.startswith('log'):
+            rmtree(os.path.join(os.environ['GLOBAL_TMP'],d),log_delay)
+            if not os.path.exists(os.path.join(os.environ['GLOBAL_TMP'],d)):
+                print "{0:>s} deleted".format(os.path.join(os.environ['GLOBAL_TMP'], d))
 
