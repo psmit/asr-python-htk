@@ -38,8 +38,8 @@ elif 'GLOBAL_TMP' in os.environ:
             rmtree(os.path.join(os.environ['GLOBAL_TMP'],d),global_delay)
             if not os.path.exists(os.path.join(os.environ['GLOBAL_TMP'],d)):
                 print "{0:>s} deleted".format(os.path.join(os.environ['GLOBAL_TMP'], d))
-        if d.startswith('log'):
-            rmtree(os.path.join(os.environ['GLOBAL_TMP'],d),log_delay)
-            if not os.path.exists(os.path.join(os.environ['GLOBAL_TMP'],d)):
-                print "{0:>s} deleted".format(os.path.join(os.environ['GLOBAL_TMP'], d))
+#        if d.startswith('log'):
+#            rmtree(os.path.join(os.environ['GLOBAL_TMP'],d),log_delay)
+#            if not os.path.exists(os.path.join(os.environ['GLOBAL_TMP'],d)):
+#                print "{0:>s} deleted".format(os.path.join(os.environ['GLOBAL_TMP'], d))
 
