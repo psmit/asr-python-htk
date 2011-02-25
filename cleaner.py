@@ -17,7 +17,7 @@ def rmtree(f,min_age):
             os.remove(f)
 
 
-
+print os.environ
 
 
 global_delay = 23*60*60
