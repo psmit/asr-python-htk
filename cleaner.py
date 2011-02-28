@@ -2,7 +2,7 @@
 import os
 import time
 
-print "Start cleaning"
+#print "Start cleaning"
 
 def rmtree(f,min_age):
     t = max(os.stat(f).st_mtime,os.stat(f).st_ctime)
