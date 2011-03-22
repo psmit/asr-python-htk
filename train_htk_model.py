@@ -13,6 +13,7 @@ usage = "usage: %prog [options] modelname file_list transcription dictionary [mo
 parser = OptionParser(usage=usage)
 parser.add_option('-c', '--config', dest="config")
 parser.add_option('--no-local', dest='local_allowed', default=True, action="store_false")
+parser.add_option('--no-cleaning', dest='cleaning', default=True, action="store_false")
 htk_config = htk_config(debug_flags=['-A','-V','-D','-T','1'])
 htk_config.add_options_to_optparse(parser)
 
@@ -81,7 +82,8 @@ if htk_config.ps_power is not None and htk_config.ps_iterations is not None:
     for _ in xrange(2): model.re_estimate(stats=True)
 
 model.clean_files_local()
-model.clean_up()
+if options.cleaning:
+    model.clean_up()
 
 end_time = time.time()
 
