@@ -499,7 +499,7 @@ def create_wordtranscriptions_wsjcam(scp_files, wsj_dir, word_transcriptions):
 
 def create_wordtranscriptions_dsp_eng(scp_files, dsp_eng_dir, word_transcriptions):
     transcriptions = {}
-    for file in glob.iglob(dsp_eng_dir + '/*/*.txt'):
+    for file in itertools.chain(glob.iglob(dsp_eng_dir + '/*/*.txt'),glob.iglob(dsp_eng_dir + '/*/*/*.txt')):
         id = os.path.splitext(os.path.basename(file))[0].replace('_','')
         trans = []
         for line in open(file):
@@ -628,8 +628,17 @@ def speecon_fi_selection(speecon_dir, set, ext='FI0'):
             fi0_files.append(map['audio'].replace('/share/puhe/audio/speecon-fi', speecon_dir).replace('FI0', ext))
     return fi0_files
 
-def dsp_eng_selection(dsp_eng_dir):
-    return glob.glob(dsp_eng_dir + "/*/*.wav")
+def dsp_eng_selection(dsp_eng_dir,selection= 'train'):
+    l = []
+    for i in itertools.chain(glob.iglob(dsp_eng_dir + "/*/*.wav"),glob.iglob(dsp_eng_dir + "/*/*/*.wav")):
+        if not 'test' in i:
+            if 'eval' in i and selection is 'eval':
+                l.append(i)
+            elif 'eval' not in i and selection is 'train':
+                l.append(i)
+
+    return l
+#    return glob.glob(dsp_eng_dir + "/*/*.wav")
 
 def bl_eng_selection(bl_eng_dir):
     wav_files = []

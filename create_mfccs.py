@@ -102,7 +102,8 @@ if current_step >= options.step:
 #        waveforms['eval'] = data_manipulation.wsjcam_selection(config.get("audiofiles", "location"), 'si_et_20k')
 
     if config.get("audiofiles", "type") == 'dsp_eng':
-        waveforms['train'] = data_manipulation.dsp_eng_selection(config.get("audiofiles", "location"))
+        waveforms['train'] = data_manipulation.dsp_eng_selection(config.get("audiofiles", "location"),selection='train')
+        waveforms['eval'] = data_manipulation.dsp_eng_selection(config.get("audiofiles", "location"),selection='eval')
 
     if config.get("audiofiles", "type") == 'bl_eng':
         waveforms['eval'] = data_manipulation.bl_eng_selection(config.get("audiofiles", "location"))
