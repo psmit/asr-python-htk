@@ -4,7 +4,7 @@ from htk2.recognizer import HTK_recognizer
 from htk2.tools import htk_config
 from optparse import OptionParser
 
-usage = "usage: %prog [options] recognition_name modelname file_list dictionary language_model [transform_scp] [transform_mlf]"
+usage = "usage: %prog [options] recognition_name modelname file_list dictionary language_model [transform_scp] [transform_mlf] [neighbour_list]"
 parser = OptionParser(usage=usage)
 parser.add_option('-c', '--config', dest="config")
 parser.add_option('--no-local', dest='local_allowed', default=True, action="store_false")
@@ -34,8 +34,10 @@ if len(args) > 6:
 
     tscp, tmlf = args[5:7]
 
+    
+
     recognizer.add_adaptation(tscp,tmlf,num_speaker_chars=3)
-    recognizer.add_adaptation(tscp,tmlf,num_speaker_chars=3,num_nodes=256)
+    recognizer.add_adaptation(tscp,tmlf,num_speaker_chars=3,num_nodes=1024)
 
     recognizer.recognize(None,'transform')
 
