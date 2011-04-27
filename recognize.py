@@ -8,6 +8,7 @@ usage = "usage: %prog [options] recognition_name modelname file_list dictionary 
 parser = OptionParser(usage=usage)
 parser.add_option('-c', '--config', dest="config")
 parser.add_option('--no-local', dest='local_allowed', default=True, action="store_false")
+parser.add_option('-t', '--accent-tree-size', dest='tree_size', default=256, type='int')
 htk_config = htk_config(debug_flags=['-A','-V','-D','-T','1'])
 htk_config.add_options_to_optparse(parser)
 
@@ -37,7 +38,7 @@ if len(args) > 6:
     
 
     recognizer.add_adaptation(tscp,tmlf,num_speaker_chars=3)
-    recognizer.add_adaptation(tscp,tmlf,num_speaker_chars=3,num_nodes=1024)
+    recognizer.add_adaptation(tscp,tmlf,num_speaker_chars=3,num_nodes=options.tree_size)
 
     recognizer.recognize(None,'transform')
 
