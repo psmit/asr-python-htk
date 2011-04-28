@@ -8,6 +8,7 @@ usage = "usage: %prog [options] recognition_name modelname file_list dictionary 
 parser = OptionParser(usage=usage)
 parser.add_option('-c', '--config', dest="config")
 parser.add_option('--no-local', dest='local_allowed', default=True, action="store_false")
+parser.add_option('--eval-speaker-chars', dest='eval_speaker_chars', default=3, type='int')
 htk_config = htk_config(debug_flags=['-A','-V','-D','-T','1'])
 htk_config.add_options_to_optparse(parser)
 
@@ -23,8 +24,8 @@ recognizer = HTK_recognizer(htk_config,name,model,scp,dict,lm)
 
 recognizer.recognize(None,'baseline')
 
-recognizer.add_adaptation(scp,recognizer.name+'.baseline.mlf',num_speaker_chars=3)
-recognizer.add_adaptation(scp,recognizer.name+'.baseline.mlf',num_speaker_chars=3,num_nodes=64)
+recognizer.add_adaptation(scp,recognizer.name+'.baseline.mlf',num_speaker_chars=options.eval_speaker_chars)
+recognizer.add_adaptation(scp,recognizer.name+'.baseline.mlf',num_speaker_chars=options.eval_speaker_chars,num_nodes=64)
 
 recognizer.recognize(None,'adapted')
 
@@ -36,13 +37,13 @@ if len(args) > 6:
 
     
 
-    recognizer.add_adaptation(tscp,tmlf,num_speaker_chars=3)
-    recognizer.add_adaptation(tscp,tmlf,num_speaker_chars=3,num_nodes=1024)
+    recognizer.add_adaptation(tscp,tmlf,num_speaker_chars=options.eval_speaker_chars)
+    recognizer.add_adaptation(tscp,tmlf,num_speaker_chars=options.eval_speaker_chars,num_nodes=1024)
 
     recognizer.recognize(None,'transform')
 
-    recognizer.add_adaptation(scp,recognizer.name+'.transform.mlf',num_speaker_chars=3)
-    recognizer.add_adaptation(scp,recognizer.name+'.transform.mlf',num_speaker_chars=3,num_nodes=64)
+    recognizer.add_adaptation(scp,recognizer.name+'.transform.mlf',num_speaker_chars=options.eval_speaker_chars)
+    recognizer.add_adaptation(scp,recognizer.name+'.transform.mlf',num_speaker_chars=options.eval_speaker_chars,num_nodes=64)
 
     recognizer.recognize(None,'transform_stack')
 
