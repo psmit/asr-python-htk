@@ -374,7 +374,7 @@ class HDecodeTask(Task,BashJob):
         os.remove(self.output_mlf)
 
     def _test_success(self):
-        return os.path.exists(self.output_mlf) and len([a for a in open(self.output_mlf) if a.startswith('"')]) == len([a for a in open(self.scp_file)])
+        return os.path.exists(self.output_mlf) and len([a for a in open(self.output_mlf) if a.startswith('"/')]) >= len([a for a in open(self.scp_file)])
 
 
 class HVite(SplittableJob):
