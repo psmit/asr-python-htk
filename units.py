@@ -104,7 +104,7 @@ class HTK_transcription(object):
 
         for line in open(mlf_file):
             if line.startswith("#"): continue
-            elif line.startswith("\""):
+            elif line.startswith("\"") and len(line) > 1 and line[1] in "/*":
                 cur_file_name = os.path.splitext(os.path.basename(line.strip()[1:-1]))[0]
                 cur_transcription = []
             elif line.startswith("."):
