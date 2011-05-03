@@ -78,7 +78,8 @@ with open(transform_scp, 'w') as transform_desc:
             t_files.extend(transform_files[n])
         t_files = shuffle(t_files)
 
-        t_files = t_files[:options.num_adaptation_files]
+        if options.num_adaptation_files > 0:
+            t_files = t_files[:options.num_adaptation_files]
 
         for t in t_files:
             f = splitext(basename(t))[0]
