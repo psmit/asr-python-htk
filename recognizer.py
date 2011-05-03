@@ -125,6 +125,8 @@ class HTK_recognizer(object):
                 for line in open(scp_file):
                     if not line.startswith('/'):
                         print(os.path.join(os.path.dirname(scp_file), line.strip()),file=tmp_desc)
+                    else:
+                        print(line.strip(),file=tmp_desc)
 
             tmp_config = os.path.join(tmp_dir,'hvite_config')
             with open(tmp_config,'w') as tmp_desc:
