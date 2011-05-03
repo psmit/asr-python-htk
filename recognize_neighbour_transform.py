@@ -18,7 +18,7 @@ parser.add_option('--no-local', dest='local_allowed', default=True, action="stor
 parser.add_option('--eval-speaker-chars', dest='eval_speaker_chars', default=3, type='int')
 parser.add_option('--transform-speaker-chars', dest='transform_speaker_chars', default=3, type='int')
 parser.add_option('-t', '--accent-tree-size', dest='tree_size', default=256, type='int')
-parser.add_option('-n', '--num-neighbours',dest='num_neighbours,',default=5,type='int')
+parser.add_option('-n', '--num-neighbours',dest='num_neighbours',default=5,type='int')
 parser.add_option('-a', '--num-adaptation-files', dest='num_adaptation_files', default=0,type='int')
 htk_config = htk_config(debug_flags=['-A','-V','-D','-T','1'])
 htk_config.add_options_to_optparse(parser)
