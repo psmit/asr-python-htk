@@ -3,7 +3,7 @@
 from htk2.recognizer import HTK_recognizer
 from htk2.tools import htk_config
 from optparse import OptionParser
-from remote_run import System
+from gridscripts.remote_run import System
 
 from os import symlink, mkdir
 from os.path import join, basename,splitext
