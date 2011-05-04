@@ -29,7 +29,7 @@ if options.config is not None:
     htk_config.load_config_vals(options.config)
 htk_config.load_object_vals(options)
 
-name,model,scp,dict,lm,scp,mlf,neighbourlist = args[:8]
+name,model,scp,dict,lm,t_scp,t_mlf,neighbourlist = args[:8]
 
 recognizer = HTK_recognizer(htk_config,name,model,scp,dict,lm)
 
@@ -58,14 +58,14 @@ for line in open(neighbourlist):
     neighbour_dict[sp] = neighbors[:options.num_neighbours]
 
 transform_files = {}
-for line in open(transform_scp):
+for line in open(t_scp):
     sp = basename(line.strip())[:3]
     if sp not in transform_files:
         transform_files[sp] = []
     transform_files[sp].append(line.strip())
 
 mlf = HTK_transcription()
-mlf.read_mlf(transform_mlf,target=HTK_transcription.WORD)
+mlf.read_mlf(t_mlf,target=HTK_transcription.WORD)
 
 
 #trans_mlf = HTK_transcription()
