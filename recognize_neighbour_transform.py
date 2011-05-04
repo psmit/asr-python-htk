@@ -89,7 +89,7 @@ with open(transform_scp, 'w') as transform_desc:
             symlink(t,new_f)
             print >> transform_desc, new_f
 
-mlf.write_mlf(transform_mlf)
+mlf.write_mlf(transform_mlf,target=HTK_transcription.WORD)
 
     
 
