@@ -53,7 +53,7 @@ neighbour_dict = {}
 for line in open(neighbourlist):
     parts = line.strip().split()
     sp = parts[0]
-    neighbors = [n for n in parts[2:] if n is not sp]
+    neighbors = [n for n in parts[3:] if n is not sp]
 
     neighbour_dict[sp] = neighbors[:options.num_neighbours]
 
