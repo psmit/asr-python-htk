@@ -76,7 +76,7 @@ with open(transform_scp, 'w') as transform_desc:
         t_files = []
         for n in neighbors:
             t_files.extend(transform_files[n])
-        t_files = shuffle(t_files)
+        shuffle(t_files)
 
         if options.num_adaptation_files > 0:
             t_files = t_files[:options.num_adaptation_files]
