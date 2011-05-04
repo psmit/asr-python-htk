@@ -102,8 +102,8 @@ recognizer.add_adaptation(transform_scp,transform_mlf,num_speaker_chars=options.
 
 recognizer.recognize(None,'neighbour_transform')
 
-#recognizer.add_adaptation(scp,recognizer.name+'.transform.mlf',num_speaker_chars=options.eval_speaker_chars)
-#recognizer.add_adaptation(scp,recognizer.name+'.transform.mlf',num_speaker_chars=options.eval_speaker_chars,num_nodes=64)
+recognizer.add_adaptation(scp,recognizer.name+'.neighbour_transform.mlf',num_speaker_chars=options.eval_speaker_chars,files_per_speaker=5)
+recognizer.add_adaptation(scp,recognizer.name+'.neighbour_transform.mlf',num_speaker_chars=options.eval_speaker_chars,num_nodes=64,files_per_speaker=5)
 #
-#recognizer.recognize(None,'neighbour_transform_stack')
+recognizer.recognize(None,'neighbour_transform_stack.5')
 
