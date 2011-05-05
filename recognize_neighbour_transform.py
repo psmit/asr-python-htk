@@ -81,8 +81,8 @@ with open(transform_scp, 'w') as transform_desc:
             t_files.extend(transform_files[n])
         shuffle(t_files)
 
-        if options.num_adaptation_files > 0:
-            t_files = t_files[:options.num_adaptation_files]
+#        if options.num_adaptation_files > 0:
+#            t_files = t_files[:options.num_adaptation_files]
 
         for t in t_files:
             f = splitext(basename(t))[0]
@@ -102,8 +102,8 @@ recognizer.add_adaptation(transform_scp,transform_mlf,num_speaker_chars=options.
 
 recognizer.recognize(None,'neighbour_transform')
 
-recognizer.add_adaptation(scp,recognizer.name+'.neighbour_transform.mlf',num_speaker_chars=options.eval_speaker_chars,files_per_speaker=5)
-recognizer.add_adaptation(scp,recognizer.name+'.neighbour_transform.mlf',num_speaker_chars=options.eval_speaker_chars,num_nodes=64,files_per_speaker=5)
+recognizer.add_adaptation(scp,recognizer.name+'.neighbour_transform.mlf',num_speaker_chars=options.eval_speaker_chars,files_per_speaker=num_adaptation_files)
+recognizer.add_adaptation(scp,recognizer.name+'.neighbour_transform.mlf',num_speaker_chars=options.eval_speaker_chars,num_nodes=64,files_per_speaker=num_adaptation_files)
 #
-recognizer.recognize(None,'neighbour_transform_stack.5')
+recognizer.recognize(None,'neighbour_transform_stack.%d'%num_adaptation_files)
 
