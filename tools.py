@@ -82,7 +82,7 @@ class htk_config(object):
     @staticmethod
     def turn_to_config(flag,option,type=basestring,default=None):
         if isinstance(option, type):
-            return [flag,option]
+            return [flag,str(option)]
         elif option is None:
             if default is not None: return [flag,str(default)]
             else: return []
