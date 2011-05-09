@@ -3,6 +3,8 @@ import glob
 from itertools import izip
 
 import os
+from random import shuffle
+from os.path import basename
 import shutil
 from htk2.tools import HDecode, HERest, HHEd, HVite
 from gridscripts.remote_run import System
@@ -122,11 +124,19 @@ class HTK_recognizer(object):
 
             tmp_scp_file = os.path.join(tmp_dir,'adap.scp')
             with open(tmp_scp_file,'w') as tmp_desc:
+                smap = {}
                 for line in open(scp_file):
-                    if not line.startswith('/'):
-                        print(os.path.join(os.path.dirname(scp_file), line.strip()),file=tmp_desc)
-                    else:
-                        print(line.strip(),file=tmp_desc)
+                    smap[basename(line)[:num_speaker_chars]] = line.strip()
+
+                for sp,f in smap:
+                    shuffle(f)
+                    for line in f:
+
+                    #for line in open(scp_file):
+                        if not line.startswith('/'):
+                            print(os.path.join(os.path.dirname(scp_file), line.strip()),file=tmp_desc)
+                        else:
+                            print(line.strip(),file=tmp_desc)
 
             tmp_config = os.path.join(tmp_dir,'hvite_config')
             with open(tmp_config,'w') as tmp_desc:
