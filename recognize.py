@@ -27,8 +27,8 @@ recognizer = HTK_recognizer(htk_config,name,model,scp,dict,lm)
 
 recognizer.recognize(None,'baseline')
 
-recognizer.add_adaptation(scp,recognizer.name+'.baseline.mlf',num_speaker_chars=options.eval_speaker_chars)
-recognizer.add_adaptation(scp,recognizer.name+'.baseline.mlf',num_speaker_chars=options.eval_speaker_chars,num_nodes=options.num_adaptation_files)
+recognizer.add_adaptation(scp,recognizer.name+'.baseline.mlf',num_speaker_chars=options.eval_speaker_chars,files_per_speaker=options.num_adaptation_files)
+recognizer.add_adaptation(scp,recognizer.name+'.baseline.mlf',num_speaker_chars=options.eval_speaker_chars,num_nodes=64,files_per_speaker=options.num_adaptation_files)
 
 recognizer.recognize(None,'adapted%d'%options.num_adaptation_files)
 
@@ -46,8 +46,8 @@ if len(args) > 6:
 
     recognizer.recognize(None,'transform')
 
-    recognizer.add_adaptation(scp,recognizer.name+'.transform.mlf',num_speaker_chars=options.eval_speaker_chars)
-    recognizer.add_adaptation(scp,recognizer.name+'.transform.mlf',num_speaker_chars=options.eval_speaker_chars,num_nodes=options.num_adaptation_files)
+    recognizer.add_adaptation(scp,recognizer.name+'.transform.mlf',num_speaker_chars=options.eval_speaker_chars,files_per_speaker=options.num_adaptation_files)
+    recognizer.add_adaptation(scp,recognizer.name+'.transform.mlf',num_speaker_chars=options.eval_speaker_chars,num_nodes=64,files_per_speaker=options.num_adaptation_files)
 
     recognizer.recognize(None,'transform_stack%d'%options.num_adaptation_files)
 
