@@ -128,7 +128,7 @@ class HTK_recognizer(object):
                 for line in open(scp_file):
                     smap[basename(line)[:num_speaker_chars]] = line.strip()
 
-                for sp,f in smap:
+                for sp,f in smap.iteritems():
                     shuffle(f)
                     for line in f:
 
