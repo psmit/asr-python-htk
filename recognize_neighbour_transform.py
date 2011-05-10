@@ -11,6 +11,8 @@ from htk2.units import HTK_transcription
 
 from random import shuffle
 
+from sys import argv
+print ' '.join(argv)
 usage = "usage: %prog [options] recognition_name modelname file_list dictionary language_model transform_scp transform_mlf neighbour_list"
 parser = OptionParser(usage=usage)
 parser.add_option('-c', '--config', dest="config")

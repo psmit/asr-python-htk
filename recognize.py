@@ -4,6 +4,8 @@ from htk2.recognizer import HTK_recognizer
 from htk2.tools import htk_config
 from optparse import OptionParser
 
+from sys import argv
+print ' '.join(argv)
 usage = "usage: %prog [options] recognition_name modelname file_list dictionary language_model [transform_scp] [transform_mlf]"
 parser = OptionParser(usage=usage)
 parser.add_option('-c', '--config', dest="config")
