@@ -22,7 +22,7 @@ class HTK_recognizer(object):
             
         self.name = name
         if os.path.exists(name):
-            shutil.rmtree(name)
+            shutil.rmtree(name,ignore_errors=True)
         os.mkdir(name)
 
         self.a_id = 0
@@ -180,8 +180,8 @@ class HTK_recognizer(object):
                     if self.adap_num_speaker_chars is not None:
                         mask = "*/" + ('%' * self.adap_num_speaker_chars) + "*.*"
                         print("PAXFORMMASK = {mask:>s}\nINXFORMMASK = {mask:>s}".format(mask=mask),file=adap_desc)
-                    if split_threshold is not 1000:
-                        print("HADAPT:SPLITTHRESH = {0:.1f}".format(float(split_threshold)), file=adap_desc)
+                    if self.htk_config.split_threshold is not 1000:
+                        print("HADAPT:SPLITTHRESH = {0:.1f}".format(float(self.htk_config.split_threshold)), file=adap_desc)
 
 
             herest_tasks.append(HERest(self.htk_config,tmp_scp_file,model+'.mmf',model+'.hmmlist',phone_mlf,config_file=adap_config,
@@ -208,7 +208,7 @@ class HTK_recognizer(object):
 
         self.adap_num_speaker_chars = num_speaker_chars
         
-        [shutil.rmtree(tmp_dir) for tmp_dir in tmp_dirs]
+        [shutil.rmtree(tmp_dir,ignore_errors=True) for tmp_dir in tmp_dirs]
 
 
     def recognize(self,lm_scale,sub_name = None):
@@ -234,7 +234,7 @@ class HTK_recognizer(object):
 #        trans.read_mlf(self.name+'.'+sub_name+'.mlf',target=HTK_transcription.WORD)
 #        trans.write_trn(self.name+'.'+sub_name+'.trn')
 
-        shutil.rmtree(tmp_dir)
+        shutil.rmtree(tmp_dir,ignore_errors=True)
 
     @staticmethod
     def _combine_output_files(input_files, output_file):

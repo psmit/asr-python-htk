@@ -28,6 +28,7 @@ class htk_config(object):
         'adap_align_dict': (str, '/share/puhe/peter/dict/cmubeep/dict'),    #adptation
         'ps_power': (float,None),           #training with variable number of mixtures
         'ps_iterations': (int, None),       #training with variable number of mixtures
+        'split_threshold': (int, 1000),
 
     }
 
