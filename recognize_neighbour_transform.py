@@ -22,6 +22,7 @@ parser.add_option('--transform-speaker-chars', dest='transform_speaker_chars', d
 parser.add_option('-t', '--accent-tree-size', dest='tree_size', default=256, type='int')
 parser.add_option('-n', '--num-neighbours',dest='num_neighbours',default=5,type='int')
 parser.add_option('-a', '--num-adaptation-files', dest='num_adaptation_files', default=0,type='int')
+parser.add_option('-d', '--dontstack', dest='dostack', default=True, action="store_false")
 htk_config = htk_config(debug_flags=['-A','-V','-D','-T','1'])
 htk_config.add_options_to_optparse(parser)
 
@@ -104,8 +105,9 @@ recognizer.add_adaptation(transform_scp,transform_mlf,num_speaker_chars=options.
 
 recognizer.recognize(None,'neighbour_transform')
 
-recognizer.add_adaptation(scp,recognizer.name+'.neighbour_transform.mlf',num_speaker_chars=options.eval_speaker_chars,files_per_speaker=options.num_adaptation_files)
-recognizer.add_adaptation(scp,recognizer.name+'.neighbour_transform.mlf',num_speaker_chars=options.eval_speaker_chars,num_nodes=64,files_per_speaker=options.num_adaptation_files)
-#
-recognizer.recognize(None,'neighbour_transform_stack.%d'%options.num_adaptation_files)
+if options.dostack:
+    recognizer.add_adaptation(scp,recognizer.name+'.neighbour_transform.mlf',num_speaker_chars=options.eval_speaker_chars,files_per_speaker=options.num_adaptation_files)
+    recognizer.add_adaptation(scp,recognizer.name+'.neighbour_transform.mlf',num_speaker_chars=options.eval_speaker_chars,num_nodes=64,files_per_speaker=options.num_adaptation_files)
+    #
+    recognizer.recognize(None,'neighbour_transform_stack.%d'%options.num_adaptation_files)
 
