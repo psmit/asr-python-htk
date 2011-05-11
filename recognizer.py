@@ -96,7 +96,7 @@ class HTK_recognizer(object):
         self.classes_dir = os.path.join(self.name,'classes%d'%self.a_id)
         os.mkdir(self.classes_dir)
 
-    def add_adaptation(self,scp_file,mlf_file,num_nodes = 1,num_speaker_chars=None,files_per_speaker=None):
+    def add_adaptation(self,scp_file,mlf_file,num_nodes = 1,num_speaker_chars=None,files_per_speaker=None,split_threshold=1000):
 
         new_extension = 'mllr{0:d}'.format(len(self.adaptations))
 
@@ -180,6 +180,8 @@ class HTK_recognizer(object):
                     if self.adap_num_speaker_chars is not None:
                         mask = "*/" + ('%' * self.adap_num_speaker_chars) + "*.*"
                         print("PAXFORMMASK = {mask:>s}\nINXFORMMASK = {mask:>s}".format(mask=mask),file=adap_desc)
+                    if split_threshold is not 1000:
+                        print("HADAPT:SPLITTHRESH = {0:.1f}".format(float(split_threshold)), file=adap_desc)
 
 
             herest_tasks.append(HERest(self.htk_config,tmp_scp_file,model+'.mmf',model+'.hmmlist',phone_mlf,config_file=adap_config,
